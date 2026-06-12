@@ -289,24 +289,6 @@ body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(
         </div>
       </div>
 
-      <div class="admin-card">
-        <h3>📂 Office Staff Travel — Sub-categories</h3>
-        <div class="sc-list" id="scListStaff"></div>
-        <div class="sc-add-row">
-          <input type="text" id="scInputStaff" placeholder="e.g. Driver">
-          <button class="btn-a" onclick="addSubcat('staff_travel','scInputStaff','scListStaff')">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h3>📂 Holiday Pay & OT — Sub-categories</h3>
-        <div class="sc-list" id="scListHoliday"></div>
-        <div class="sc-add-row">
-          <input type="text" id="scInputHoliday" placeholder="e.g. Clerk">
-          <button class="btn-a" onclick="addSubcat('holiday_ot','scInputHoliday','scListHoliday')">Add</button>
-        </div>
-      </div>
-
       <div class="admin-card" style="grid-column:1/-1">
         <h3>🔒 Firestore Security Rules</h3>
         <p class="admin-hint" style="margin-bottom:10px">Copy and paste in <strong>Firebase Console → Firestore Database → Rules</strong>, then click Publish.</p>
@@ -367,17 +349,6 @@ service cloud.firestore {
   </div>
 </div>
 
-<!-- ════ CONFIRM MODAL ════ -->
-<div class="overlay" id="confirmOverlay">
-  <div class="modal-box">
-    <h3 id="modalTitle">Update Status</h3>
-    <p  id="modalMsg"></p>
-    <div class="modal-acts">
-      <button class="btn-no"  onclick="closeConfirm()">Cancel</button>
-      <button class="btn-yes" id="modalYes">Confirm</button>
-    </div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -427,8 +398,10 @@ const GN_DIVS = [
 let CATS = [
   {id:'gn_travel',   name:'Grama Niladari Travel Expense',                              stage2:'vl',  subs:GN_DIVS},
   {id:'field_travel',name:'Field Officers Travel Expense',                              stage2:'vl',  subs:[]},
-  {id:'staff_travel',name:'Office Staff Travel Expense',                                stage2:'vl',  subs:[]},
-  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                             stage2:'vl',  subs:[]},
+  {id:'staff_travel',name:'Office Staff Travel Expense',                                stage2:'vl',
+    subs:[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}]},
+  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                             stage2:'vl',
+    subs:[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}]},
   {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                          stage2:'vl',
     subs:[{id:'allow_dis',name:'Disable Allowance'},{id:'allow_kid',name:'Kidney Allowance'},{id:'allow_eld',name:"Elder's Allowance"}]},
   {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School Meal", stage2:'vl',
@@ -438,7 +411,7 @@ let CATS = [
   {id:'fuel',        name:'Fuel',            stage2:'vl',
     subs:[{id:'fuel_ds',name:'DS Vehicle'},{id:'fuel_pool',name:'Pool Vehicle'}]},
   {id:'bills',       name:'Bills',           stage2:'vl',
-    subs:[{id:'bill_elec',name:'Electricity Bill'},{id:'bill_tel',name:'Telephone Bill'},{id:'bill_water',name:'Water Bill'}]},
+    subs:[{id:'bill_elec_off',name:'Electricity Bill - Office'},{id:'bill_elec_nic',name:'Electricity Bill - NIC'},{id:'bill_tel',name:'Telephone Bill'},{id:'bill_water',name:'Water Bill'}]},
   {id:'postal',      name:'Postal Charge',   stage2:'vl',  subs:null},
   {id:'gsmb',        name:'GSMB Payment',    stage2:'deposit', subs:null},
 ];
@@ -451,8 +424,8 @@ const ROLES  = {superadmin:'Super Admin', fa:'FA', vl:'Vote Ledger', deposit:'De
 // ══════════════════════════════════════════
 let me = null, meData = null;
 let selMonth, selYear;
-let vouchers = [], unsub = null, pendingUpdate = null;
-let dynSubs = {field_travel:[], staff_travel:[], holiday_ot:[]};
+let vouchers = [], unsub = null;
+let dynSubs = {field_travel:[]};
 let expandedCats = new Set();
 
 const now = new Date();
@@ -576,9 +549,7 @@ async function loadDynSubs() {
     CATS.forEach(c=>{ if(dynSubs[c.id]) c.subs=dynSubs[c.id]; });
   } catch(e) { console.warn('loadDynSubs:',e); }
 }
-function renderScLists() {
-  [['field_travel','scListField'],['staff_travel','scListStaff'],['holiday_ot','scListHoliday']].forEach(([k,id])=>renderScList(k,id));
-}
+function renderScLists() { renderScList('field_travel','scListField'); }
 function renderScList(catId, listId) {
   const el=document.getElementById(listId), items=dynSubs[catId]||[];
   if (!items.length) { el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>'; return; }
@@ -752,37 +723,23 @@ function badge(v, stage) {
     if (by) byPart=`<span class="b-by">${by.split(' ')[0]}</span>`;
   }
   const esc=s=>(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  if (canClick) return `<span class="sbadge ${cls} clickable" onclick="askUpdate('${v.id}','${stage}','${next}','${esc(v.categoryName)}','${esc(v.subCategoryName||'')}')">${lbl}${timePart}${byPart}</span>`;
+  if (canClick) return `<span class="sbadge ${cls} clickable" onclick="doUpdate('${v.id}','${stage}','${next}')">${lbl}${timePart}${byPart}</span>`;
   return `<span class="sbadge ${cls}">${lbl}${timePart}${byPart}</span>`;
 }
 
 // ══════════════════════════════════════════
-//  STATUS UPDATE
+//  STATUS UPDATE — direct, no popup
 // ══════════════════════════════════════════
-function askUpdate(vid, stage, next, cat, sub) {
-  const sn={fa:'FA Check',stage2:'Vote Ledger / Deposit',cigas:'Payment'};
-  const an={received:'Mark as ✓ Received',paid:'Mark as ✓ Paid',pending:'Reset to Pending'};
-  document.getElementById('modalTitle').textContent=an[next]||'Update Status';
-  document.getElementById('modalMsg').textContent=`${sn[stage]}: ${cat}${sub?' — '+sub:''}`;
-  document.getElementById('modalYes').textContent=an[next]||'Confirm';
-  pendingUpdate={vid,stage,next};
-  document.getElementById('confirmOverlay').style.display='flex';
-}
-function closeConfirm() { document.getElementById('confirmOverlay').style.display='none'; pendingUpdate=null; }
-document.getElementById('confirmOverlay').addEventListener('click',e=>{ if(e.target.id==='confirmOverlay') closeConfirm(); });
-
-document.getElementById('modalYes').onclick = async () => {
-  if (!pendingUpdate) return;
-  const {vid,stage,next}=pendingUpdate; closeConfirm();
+async function doUpdate(vid, stage, next) {
   try {
     const ts=firebase.firestore.FieldValue.serverTimestamp(), name=meData.name, upd={};
-    if(stage==='fa')      {upd.faStatus=next;     upd.faAt=next==='pending'?null:ts;     upd.faBy=next==='pending'?null:name;}
-    else if(stage==='stage2'){upd.stage2Status=next;upd.stage2At=next==='pending'?null:ts;upd.stage2By=next==='pending'?null:name;}
-    else                  {upd.cigasStatus=next;  upd.cigasAt=next==='pending'?null:ts;  upd.cigasBy=next==='pending'?null:name;}
+    if(stage==='fa')        {upd.faStatus=next;     upd.faAt=next==='pending'?null:ts;     upd.faBy=next==='pending'?null:name;}
+    else if(stage==='stage2'){upd.stage2Status=next; upd.stage2At=next==='pending'?null:ts; upd.stage2By=next==='pending'?null:name;}
+    else                    {upd.cigasStatus=next;  upd.cigasAt=next==='pending'?null:ts;  upd.cigasBy=next==='pending'?null:name;}
     await db.collection('vouchers').doc(vid).update(upd);
     toast('Status updated ✓');
   } catch(e) { toast(e.message,true); }
-};
+}
 
 // ══════════════════════════════════════════
 //  GENERATE MONTH
