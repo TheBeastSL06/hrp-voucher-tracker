@@ -17,9 +17,9 @@
 
 <style>
 :root {
-  --maroon: #722F3F; --maroon-dark: #521F2D; --maroon-light: #8B3A4E;
-  --gold: #C9A84C; --gold-light: #E8D08A; --cream: #F5EFE0;
-  --bg: #F2EDE4; --white: #FFFFFF;
+  --maroon:#722F3F; --maroon-dark:#521F2D; --maroon-light:#8B3A4E;
+  --gold:#C9A84C; --gold-light:#E8D08A; --cream:#F5EFE0;
+  --bg:#F2EDE4; --white:#FFFFFF;
   --pending-bg:#FEF3C7; --pending-text:#92400E; --pending-border:#FCD34D;
   --recv-bg:#DBEAFE;    --recv-text:#1E40AF;    --recv-border:#93C5FD;
   --paid-bg:#D1FAE5;    --paid-text:#065F46;    --paid-border:#6EE7B7;
@@ -36,19 +36,14 @@ body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(
   display:flex; align-items:center; justify-content:space-between;
   position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.25);
 }
-.hdr-left  { display:flex; align-items:center; gap:10px; }
-.hdr-logo  {
-  width:38px; height:38px; border-radius:50%; flex-shrink:0;
-  background:rgba(255,255,255,0.12); border:2px solid var(--gold);
-  display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:900; color:var(--gold-light); letter-spacing:1px;
-}
+.hdr-left { display:flex; align-items:center; gap:10px; }
+.hdr-logo { width:38px; height:38px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,0.12); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:var(--gold-light); letter-spacing:1px; }
 .hdr-title { font-size:15px; font-weight:800; line-height:1.2; }
 .hdr-sub   { font-size:10px; opacity:.75; }
 .hdr-right { display:flex; align-items:center; gap:8px; }
 .role-pill  { background:var(--gold); color:var(--maroon-dark); padding:3px 9px; border-radius:20px; font-size:10px; font-weight:800; white-space:nowrap; }
 .hdr-name  { font-size:12px; opacity:.88; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.btn-hdr   { border:1px solid rgba(255,255,255,0.32); color:var(--white); padding:5px 13px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; background:rgba(255,255,255,0.13); transition:background .2s; }
+.btn-hdr   { border:1px solid rgba(255,255,255,0.32); color:var(--white); padding:5px 13px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; background:rgba(255,255,255,0.13); }
 .btn-hdr:hover { background:rgba(255,255,255,0.22); }
 
 /* ── NAV ── */
@@ -75,23 +70,56 @@ body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(
 .stat-val { font-size:26px; font-weight:800; color:var(--maroon); }
 .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:3px; }
 
-/* ── TABLE ── */
-.tbl-wrap { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
-.tbl-hdr-bar { background:var(--maroon); color:var(--white); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
-.tbl-hdr-bar h3 { font-size:14px; font-weight:700; }
-.tbl-period { font-size:12px; opacity:.8; }
-.tbl-scroll { overflow-x:auto; }
-table { width:100%; border-collapse:collapse; min-width:680px; }
-thead th { background:#F7F2EA; padding:9px 12px; text-align:left; font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:2px solid var(--border); white-space:nowrap; }
-tbody td { padding:9px 12px; font-size:12px; border-bottom:1px solid #EDE8DF; vertical-align:middle; }
-tbody tr:hover { background:#FAF7F2; }
-tbody tr:last-child td { border-bottom:none; }
+/* ── ACCORDION WRAPPER ── */
+.accordion-wrap { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+.acc-header-bar { background:var(--maroon); color:var(--white); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+.acc-header-bar h3 { font-size:14px; font-weight:700; }
+.acc-period { font-size:12px; opacity:.8; }
+
+/* ── CATEGORY ROW ── */
+.cat-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px; border-bottom:1px solid #EDE8DF;
+  cursor:pointer; transition:background .15s; gap:10px;
+  user-select:none;
+}
+.cat-row:hover { background:#FAF7F2; }
+.cat-row:last-child { border-bottom:none; }
+.cat-row.no-expand { cursor:default; }
+.cat-row.no-expand:hover { background:transparent; }
+.cat-row.expanded { background:#FDF9F4; }
+
+.cat-row-left { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.cat-arrow { font-size:12px; color:var(--maroon); width:16px; flex-shrink:0; transition:transform .2s; }
+.cat-arrow.open { transform:rotate(90deg); }
+.cat-name { font-size:13px; font-weight:700; color:var(--maroon); }
+.cat-entry-count { font-size:11px; color:var(--text-muted); white-space:nowrap; }
+
+.cat-row-right { display:flex; align-items:center; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+
+/* Mini summary pills (collapsed state) */
+.mini-pill { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid; white-space:nowrap; }
+.mini-pill.paid     { background:var(--paid-bg);    color:var(--paid-text);    border-color:var(--paid-border); }
+.mini-pill.pending  { background:var(--pending-bg); color:var(--pending-text); border-color:var(--pending-border); }
+.mini-pill.progress { background:var(--recv-bg);    color:var(--recv-text);    border-color:var(--recv-border); }
+
+/* ── SUB-CATEGORY TABLE (inside accordion) ── */
+.cat-subs { display:none; border-bottom:2px solid #EDE8DF; background:#FDFAF6; overflow-x:auto; }
+.cat-subs.open { display:block; }
+
+.subs-table { width:100%; border-collapse:collapse; min-width:580px; }
+.subs-table thead th { background:#F0EAE0; padding:8px 12px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.subs-table tbody td { padding:8px 12px; font-size:12px; border-bottom:1px solid #EDE8DF; vertical-align:middle; }
+.subs-table tbody tr:hover { background:#F5EFE5; }
+.subs-table tbody tr:last-child td { border-bottom:none; }
 .row-num { color:#BBA890; font-size:11px; width:28px; }
-.cat-lbl { font-size:10px; font-weight:800; color:var(--maroon); text-transform:uppercase; letter-spacing:.3px; }
-.sub-lbl { font-size:12px; color:var(--text); }
+.sub-lbl { font-size:12px; font-weight:500; color:var(--text); }
+
+/* Single-entry row status (no sub-cats) */
+.single-status { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 
 /* ── STATUS BADGES ── */
-.sbadge { display:inline-flex; flex-direction:column; align-items:center; min-width:80px; padding:5px 8px; border-radius:20px; text-align:center; font-size:11px; font-weight:700; gap:1px; border-width:1.5px; border-style:solid; white-space:nowrap; transition:transform .15s,box-shadow .15s; }
+.sbadge { display:inline-flex; flex-direction:column; align-items:center; min-width:78px; padding:5px 8px; border-radius:20px; text-align:center; font-size:11px; font-weight:700; gap:1px; border-width:1.5px; border-style:solid; white-space:nowrap; transition:transform .15s,box-shadow .15s; }
 .sbadge.clickable { cursor:pointer; }
 .sbadge.clickable:hover { transform:scale(1.06); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
 .sbadge.clickable:active { transform:scale(0.97); }
@@ -120,7 +148,7 @@ tbody tr:last-child td { border-bottom:none; }
 .btn-no  { flex:1; padding:11px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; cursor:pointer; background:var(--white); color:var(--text); }
 
 /* ── LOGIN MODAL ── */
-.login-modal { background:var(--white); border-radius:14px; padding:30px 26px; max-width:380px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); }
+.login-modal { background:var(--white); border-radius:14px; padding:30px 26px; max-width:380px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); position:relative; }
 .login-logo  { width:64px; height:64px; margin:0 auto 12px; border-radius:50%; background:var(--maroon); border:3px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; color:var(--gold-light); }
 .login-title { text-align:center; font-size:17px; font-weight:800; color:var(--maroon); margin-bottom:4px; }
 .login-sub   { text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:22px; }
@@ -133,9 +161,9 @@ tbody tr:last-child td { border-bottom:none; }
 .fgrp input:focus { border-color:var(--maroon); }
 .btn-main { width:100%; padding:11px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; background:var(--maroon); color:var(--white); }
 .btn-main:hover { background:var(--maroon-dark); }
-.err-msg  { color:#C0392B; font-size:12px; margin-top:10px; padding:8px 12px; background:#FDF2F2; border-radius:6px; display:none; }
+.err-msg { color:#C0392B; font-size:12px; margin-top:10px; padding:8px 12px; background:#FDF2F2; border-radius:6px; display:none; }
 .reg-note { font-size:11px; color:var(--text-muted); margin-top:10px; text-align:center; }
-.modal-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; color:var(--text-muted); cursor:pointer; line-height:1; }
+.modal-close { position:absolute; top:12px; right:14px; background:none; border:none; font-size:22px; color:var(--text-muted); cursor:pointer; line-height:1; }
 
 /* ── ADMIN ── */
 .admin-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
@@ -171,18 +199,16 @@ tbody tr:last-child td { border-bottom:none; }
   .nav-item { padding:12px 10px; font-size:12px; }
   .content { padding:12px 8px; }
   .admin-grid { grid-template-columns:1fr; }
-}
-@media(min-width:641px) and (max-width:900px){
-  .stats-row { grid-template-columns:repeat(3,1fr); }
+  .cat-name { font-size:12px; }
+  .cat-row { padding:11px 12px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ════ MAIN APP (always visible) ════ -->
+<!-- ════ MAIN APP ════ -->
 <div id="mainApp">
 
-  <!-- Header -->
   <div class="app-header">
     <div class="hdr-left">
       <div class="hdr-logo">DS</div>
@@ -192,16 +218,13 @@ tbody tr:last-child td { border-bottom:none; }
       </div>
     </div>
     <div class="hdr-right">
-      <!-- Shown when logged in -->
       <span class="role-pill" id="hdrRole" style="display:none"></span>
       <span class="hdr-name"  id="hdrName" style="display:none"></span>
       <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none">Logout</button>
-      <!-- Shown when logged out -->
-      <button class="btn-hdr" id="btnLogin" onclick="openLoginModal()">🔒 Officer Login</button>
+      <button class="btn-hdr" id="btnLogin"  onclick="openLoginModal()">🔒 Officer Login</button>
     </div>
   </div>
 
-  <!-- Nav -->
   <div class="nav-bar">
     <div class="nav-item active" id="navDash"  onclick="switchView('dashboard')">📋 Dashboard</div>
     <div class="nav-item"        id="navAdmin" onclick="switchView('admin')" style="display:none">⚙️ Admin</div>
@@ -225,12 +248,12 @@ tbody tr:last-child td { border-bottom:none; }
       <div class="stat-card s-paid"> <div class="stat-val" id="stPaid">0</div> <div class="stat-lbl">Paid</div></div>
     </div>
 
-    <div class="tbl-wrap">
-      <div class="tbl-hdr-bar">
+    <div class="accordion-wrap">
+      <div class="acc-header-bar">
         <h3>Voucher Register</h3>
-        <span class="tbl-period" id="tblPeriod"></span>
+        <span class="acc-period" id="accPeriod"></span>
       </div>
-      <div id="tblContent">
+      <div id="accContent">
         <div class="loading"><div class="spinner"></div>Loading...</div>
       </div>
     </div>
@@ -248,7 +271,7 @@ tbody tr:last-child td { border-bottom:none; }
           <select id="genYear"></select>
           <button class="btn-a" onclick="generateMonth()">Generate Vouchers</button>
         </div>
-        <p class="admin-hint">Creates all voucher entries for the selected month. Existing entries are skipped automatically.</p>
+        <p class="admin-hint">Creates all voucher entries for the selected month. Existing entries are skipped.</p>
       </div>
 
       <div class="admin-card" style="grid-column:1/-1">
@@ -289,21 +312,19 @@ tbody tr:last-child td { border-bottom:none; }
         <pre class="rules-pre">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuth()    { return request.auth != null; }
-    function role()      { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
-    function isAdmin()   { return isAuth() && role() == 'superadmin'; }
+    function isAuth()  { return request.auth != null; }
+    function role()    { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isAdmin() { return isAuth() && role() == 'superadmin'; }
 
-    // Anyone (including public) can read vouchers and sub-categories
     match /vouchers/{id} {
-      allow read:            if true;
-      allow create, delete:  if isAdmin();
-      allow update:          if isAuth();
+      allow read:           if true;
+      allow create, delete: if isAdmin();
+      allow update:         if isAuth();
     }
     match /dynamicSubCats/{id} {
       allow read:  if true;
       allow write: if isAdmin();
     }
-    // Only authenticated users can read/write user profiles
     match /users/{uid} {
       allow read:   if isAuth() && (request.auth.uid == uid || isAdmin());
       allow create: if isAuth() && request.auth.uid == uid;
@@ -316,27 +337,24 @@ service cloud.firestore {
 
     </div>
   </div>
-</div><!-- /mainApp -->
+</div>
 
 <!-- ════ LOGIN MODAL ════ -->
 <div class="overlay" id="loginOverlay">
-  <div class="login-modal" style="position:relative">
+  <div class="login-modal">
     <button class="modal-close" onclick="closeLoginModal()">×</button>
     <div class="login-logo">DS</div>
     <div class="login-title">Officer Login</div>
     <div class="login-sub">Horowpothana Account Branch</div>
-
     <div class="tab-row">
       <button class="tab-btn active" id="tabLi" onclick="switchTab('login')">Sign In</button>
       <button class="tab-btn"        id="tabRe" onclick="switchTab('register')">Register</button>
     </div>
-
     <div id="liForm">
       <div class="fgrp"><label>Email</label><input type="email" id="liEmail" placeholder="you@email.com" autocomplete="email"></div>
       <div class="fgrp"><label>Password</label><input type="password" id="liPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-main" onclick="doLogin()">Sign In</button>
     </div>
-
     <div id="reForm" style="display:none">
       <div class="fgrp"><label>Full Name</label><input type="text" id="reName" placeholder="Your full name"></div>
       <div class="fgrp"><label>Email</label><input type="email" id="reEmail" placeholder="you@email.com" autocomplete="email"></div>
@@ -344,7 +362,6 @@ service cloud.firestore {
       <button class="btn-main" onclick="doRegister()">Create Account</button>
       <p class="reg-note">After registering, the Super Admin will assign your role.</p>
     </div>
-
     <div class="err-msg" id="authErr"></div>
   </div>
 </div>
@@ -361,12 +378,11 @@ service cloud.firestore {
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ══════════════════════════════════════════
-//  FIREBASE CONFIG
+//  FIREBASE
 // ══════════════════════════════════════════
 const firebaseConfig = {
   apiKey:"AIzaSyDiG8u7ow3rRCn9t7gZYK_xFGxDmRUQQ00",
@@ -380,7 +396,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
-
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
 // ══════════════════════════════════════════
@@ -409,17 +424,22 @@ const GN_DIVS = [
 ];
 
 let CATS = [
-  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                              stage2:'vl',      subs:GN_DIVS},
-  {id:'field_travel',name:'Field Officers Travel Expense',                              stage2:'vl',      subs:[]},
-  {id:'staff_travel',name:'Office Staff Travel Expense',                                stage2:'vl',      subs:[]},
-  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                             stage2:'vl',      subs:[]},
+  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                              stage2:'vl',  subs:GN_DIVS},
+  {id:'field_travel',name:'Field Officers Travel Expense',                              stage2:'vl',  subs:[]},
+  {id:'staff_travel',name:'Office Staff Travel Expense',                                stage2:'vl',  subs:[]},
+  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                             stage2:'vl',  subs:[]},
   {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                          stage2:'vl',
     subs:[{id:'allow_dis',name:'Disable Allowance'},{id:'allow_kid',name:'Kidney Allowance'},{id:'allow_eld',name:"Elder's Allowance"}]},
   {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School Meal", stage2:'vl',
     subs:[{id:'nutr_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nutr_guru',name:'Guru Abimani'},{id:'nutr_pre',name:'Pre-School Meal Program'}]},
-  {id:'mahajanadara',name:'Mahajanadara',   stage2:'vl',      subs:null},
-  {id:'mediation',   name:'Mediation Board', stage2:'vl',     subs:null},
-  {id:'gsmb',        name:'GSMB Payment',   stage2:'deposit', subs:null},
+  {id:'mahajanadara',name:'Mahajanadara',   stage2:'vl',  subs:null},
+  {id:'mediation',   name:'Mediation Board', stage2:'vl', subs:null},
+  {id:'fuel',        name:'Fuel',            stage2:'vl',
+    subs:[{id:'fuel_ds',name:'DS Vehicle'},{id:'fuel_pool',name:'Pool Vehicle'}]},
+  {id:'bills',       name:'Bills',           stage2:'vl',
+    subs:[{id:'bill_elec',name:'Electricity Bill'},{id:'bill_tel',name:'Telephone Bill'},{id:'bill_water',name:'Water Bill'}]},
+  {id:'postal',      name:'Postal Charge',   stage2:'vl',  subs:null},
+  {id:'gsmb',        name:'GSMB Payment',    stage2:'deposit', subs:null},
 ];
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -432,13 +452,14 @@ let me = null, meData = null;
 let selMonth, selYear;
 let vouchers = [], unsub = null, pendingUpdate = null;
 let dynSubs = {field_travel:[], staff_travel:[], holiday_ot:[]};
+let expandedCats = new Set();
 
 const now = new Date();
 selMonth = now.getMonth() + 1;
 selYear  = now.getFullYear();
 
 // ══════════════════════════════════════════
-//  BOOT — load dashboard immediately (no auth needed)
+//  BOOT — public dashboard, no login needed
 // ══════════════════════════════════════════
 (async function boot() {
   populateSelects();
@@ -446,7 +467,6 @@ selYear  = now.getFullYear();
   loadVouchers();
 })();
 
-// Auth state only updates UI — doesn't gate the app
 auth.onAuthStateChanged(async user => {
   if (user) {
     me = user;
@@ -455,26 +475,22 @@ auth.onAuthStateChanged(async user => {
       if (snap.exists) {
         meData = snap.data();
       } else {
-        meData = {name: user.displayName || user.email.split('@')[0], email: user.email, role: 'viewer'};
+        meData = {name: user.displayName || user.email.split('@')[0], email: user.email, role:'viewer'};
         await db.collection('users').doc(user.uid).set(meData);
       }
-    } catch(e) { meData = {name: user.email, email: user.email, role: 'viewer'}; }
+    } catch(e) { meData = {name:user.email, email:user.email, role:'viewer'}; }
 
-    // Update header
     document.getElementById('hdrRole').textContent = ROLES[meData.role] || meData.role;
     document.getElementById('hdrRole').style.display = '';
     document.getElementById('hdrName').textContent = meData.name;
     document.getElementById('hdrName').style.display = '';
     document.getElementById('btnLogout').style.display = '';
     document.getElementById('btnLogin').style.display = 'none';
-
     if (meData.role === 'superadmin') {
       document.getElementById('navAdmin').style.display = '';
-      loadUsers();
-      renderScLists();
+      loadUsers(); renderScLists();
     }
     closeLoginModal();
-    // Re-render table so badges become clickable
     renderDash();
     toast(`Welcome, ${meData.name} ✓`);
   } else {
@@ -484,7 +500,6 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('btnLogout').style.display = 'none';
     document.getElementById('btnLogin').style.display = '';
     document.getElementById('navAdmin').style.display = 'none';
-    // Re-render table (badges become non-clickable)
     renderDash();
   }
 });
@@ -492,13 +507,9 @@ auth.onAuthStateChanged(async user => {
 // ══════════════════════════════════════════
 //  LOGIN MODAL
 // ══════════════════════════════════════════
-function openLoginModal() {
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('authErr').style.display = 'none';
-  setTimeout(()=>document.getElementById('liEmail').focus(), 100);
-}
-function closeLoginModal() { document.getElementById('loginOverlay').style.display = 'none'; }
-document.getElementById('loginOverlay').addEventListener('click', e => { if(e.target.id==='loginOverlay') closeLoginModal(); });
+function openLoginModal()  { document.getElementById('loginOverlay').style.display='flex'; document.getElementById('authErr').style.display='none'; setTimeout(()=>document.getElementById('liEmail').focus(),100); }
+function closeLoginModal() { document.getElementById('loginOverlay').style.display='none'; }
+document.getElementById('loginOverlay').addEventListener('click', e=>{ if(e.target.id==='loginOverlay') closeLoginModal(); });
 
 function switchTab(t) {
   document.getElementById('tabLi').classList.toggle('active', t==='login');
@@ -507,61 +518,49 @@ function switchTab(t) {
   document.getElementById('reForm').style.display = t==='register' ? 'block' : 'none';
   document.getElementById('authErr').style.display = 'none';
 }
-
 async function doLogin() {
-  const email = document.getElementById('liEmail').value.trim();
-  const pass  = document.getElementById('liPass').value;
-  const err   = document.getElementById('authErr');
-  err.style.display = 'none';
+  const email=document.getElementById('liEmail').value.trim(), pass=document.getElementById('liPass').value, err=document.getElementById('authErr');
+  err.style.display='none';
   try { await auth.signInWithEmailAndPassword(email, pass); }
-  catch(e) { err.textContent = e.message; err.style.display = 'block'; }
+  catch(e) { err.textContent=e.message; err.style.display='block'; }
 }
-
 async function doRegister() {
-  const name  = document.getElementById('reName').value.trim();
-  const email = document.getElementById('reEmail').value.trim();
-  const pass  = document.getElementById('rePass').value;
-  const err   = document.getElementById('authErr');
-  err.style.display = 'none';
-  if (!name) { err.textContent = 'Please enter your full name.'; err.style.display='block'; return; }
+  const name=document.getElementById('reName').value.trim(), email=document.getElementById('reEmail').value.trim(), pass=document.getElementById('rePass').value, err=document.getElementById('authErr');
+  err.style.display='none';
+  if (!name) { err.textContent='Please enter your full name.'; err.style.display='block'; return; }
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    await cred.user.updateProfile({displayName: name});
+    await cred.user.updateProfile({displayName:name});
     await db.collection('users').doc(cred.user.uid).set({name, email, role:'viewer'});
-  } catch(e) { err.textContent = e.message; err.style.display = 'block'; }
+  } catch(e) { err.textContent=e.message; err.style.display='block'; }
 }
-
 async function doLogout() { await auth.signOut(); toast('Logged out'); }
 
 // ══════════════════════════════════════════
-//  VIEW SWITCHING
+//  VIEW / PERIOD
 // ══════════════════════════════════════════
 function switchView(v) {
-  const isDash = v === 'dashboard';
+  const isDash = v==='dashboard';
   document.getElementById('viewDashboard').style.display = isDash ? 'block' : 'none';
   document.getElementById('viewAdmin').style.display     = isDash ? 'none'  : 'block';
-  document.getElementById('navDash').classList.toggle('active',  isDash);
+  document.getElementById('navDash').classList.toggle('active', isDash);
   document.getElementById('navAdmin').classList.toggle('active', !isDash);
 }
-
-// ══════════════════════════════════════════
-//  SELECTS / PERIOD
-// ══════════════════════════════════════════
 function populateSelects() {
   ['selMonth','genMonth'].forEach(id => {
-    const el = document.getElementById(id); if (!el) return;
-    el.innerHTML = MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
   });
-  const yrs = [selYear-1, selYear, selYear+1];
+  const yrs=[selYear-1,selYear,selYear+1];
   ['selYear','genYear'].forEach(id => {
-    const el = document.getElementById(id); if (!el) return;
-    el.innerHTML = yrs.map(y=>`<option value="${y}"${y===selYear?' selected':''}>${y}</option>`).join('');
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML=yrs.map(y=>`<option value="${y}"${y===selYear?' selected':''}>${y}</option>`).join('');
   });
 }
-
 function onPeriodChange() {
-  selMonth = +document.getElementById('selMonth').value;
-  selYear  = +document.getElementById('selYear').value;
+  selMonth=+document.getElementById('selMonth').value;
+  selYear =+document.getElementById('selYear').value;
+  expandedCats.clear();
   loadVouchers();
 }
 
@@ -571,72 +570,59 @@ function onPeriodChange() {
 async function loadDynSubs() {
   try {
     const snap = await db.collection('dynamicSubCats').get();
-    snap.forEach(doc => {
-      const d = doc.data();
-      if (dynSubs[d.categoryId] !== undefined)
-        dynSubs[d.categoryId].push({id:doc.id, name:d.name, order:d.order||0});
-    });
-    Object.keys(dynSubs).forEach(k => dynSubs[k].sort((a,b)=>a.order-b.order));
-    CATS.forEach(c => { if (dynSubs[c.id]) c.subs = dynSubs[c.id]; });
-  } catch(e) { console.warn('loadDynSubs:', e); }
+    snap.forEach(doc => { const d=doc.data(); if(dynSubs[d.categoryId]!==undefined) dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0}); });
+    Object.keys(dynSubs).forEach(k=>dynSubs[k].sort((a,b)=>a.order-b.order));
+    CATS.forEach(c=>{ if(dynSubs[c.id]) c.subs=dynSubs[c.id]; });
+  } catch(e) { console.warn('loadDynSubs:',e); }
 }
-
 function renderScLists() {
-  [['field_travel','scListField'],['staff_travel','scListStaff'],['holiday_ot','scListHoliday']]
-    .forEach(([k,id]) => renderScList(k,id));
+  [['field_travel','scListField'],['staff_travel','scListStaff'],['holiday_ot','scListHoliday']].forEach(([k,id])=>renderScList(k,id));
 }
 function renderScList(catId, listId) {
-  const el = document.getElementById(listId);
-  const items = dynSubs[catId] || [];
-  if (!items.length) { el.innerHTML = '<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>'; return; }
-  el.innerHTML = items.map(it =>
-    `<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`
-  ).join('');
+  const el=document.getElementById(listId), items=dynSubs[catId]||[];
+  if (!items.length) { el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>'; return; }
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
 }
 async function addSubcat(catId, inputId, listId) {
-  const inp = document.getElementById(inputId);
-  const name = inp.value.trim(); if (!name) return;
+  const inp=document.getElementById(inputId), name=inp.value.trim(); if(!name) return;
   try {
-    const order = (dynSubs[catId]||[]).length;
-    const ref = await db.collection('dynamicSubCats').add({categoryId:catId, name, order});
-    dynSubs[catId] = dynSubs[catId] || [];
-    dynSubs[catId].push({id:ref.id, name, order});
-    CATS.find(c=>c.id===catId).subs = dynSubs[catId];
-    inp.value = ''; renderScList(catId, listId); toast('Sub-category added');
-  } catch(e) { toast(e.message, true); }
+    const order=(dynSubs[catId]||[]).length;
+    const ref=await db.collection('dynamicSubCats').add({categoryId:catId,name,order});
+    dynSubs[catId]=dynSubs[catId]||[]; dynSubs[catId].push({id:ref.id,name,order});
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId]; inp.value=''; renderScList(catId,listId); toast('Sub-category added');
+  } catch(e) { toast(e.message,true); }
 }
 async function delSubcat(docId, catId, listId) {
   if (!confirm('Delete this sub-category?')) return;
   try {
     await db.collection('dynamicSubCats').doc(docId).delete();
-    dynSubs[catId] = dynSubs[catId].filter(i=>i.id!==docId);
-    CATS.find(c=>c.id===catId).subs = dynSubs[catId];
-    renderScList(catId, listId); toast('Deleted');
-  } catch(e) { toast(e.message, true); }
+    dynSubs[catId]=dynSubs[catId].filter(i=>i.id!==docId);
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId]; renderScList(catId,listId); toast('Deleted');
+  } catch(e) { toast(e.message,true); }
 }
 
 // ══════════════════════════════════════════
-//  VOUCHERS — REAL-TIME (public read)
+//  VOUCHERS — REAL-TIME
 // ══════════════════════════════════════════
 function loadVouchers() {
   setPeriodLabel();
-  document.getElementById('tblContent').innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  document.getElementById('accContent').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
   if (unsub) unsub();
-  unsub = db.collection('vouchers')
-    .where('year','==',selYear).where('month','==',selMonth)
+  unsub = db.collection('vouchers').where('year','==',selYear).where('month','==',selMonth)
     .onSnapshot(snap => {
-      vouchers = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
+      vouchers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
       renderDash();
     }, err => {
-      document.getElementById('tblContent').innerHTML =
-        `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error loading data</div><p class="empty-hint">${err.message}</p></div>`;
+      document.getElementById('accContent').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error</div><p class="empty-hint">${err.message}</p></div>`;
     });
 }
-
 function setPeriodLabel() {
-  document.getElementById('tblPeriod').textContent = `${MONTHS[selMonth-1]} ${selYear}`;
+  document.getElementById('accPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
 }
 
+// ══════════════════════════════════════════
+//  RENDER DASHBOARD — ACCORDION
+// ══════════════════════════════════════════
 function renderDash() {
   setPeriodLabel();
   document.getElementById('stTotal').textContent = vouchers.length;
@@ -646,62 +632,126 @@ function renderDash() {
   document.getElementById('stPaid').textContent  = vouchers.filter(v=>v.cigasStatus==='paid').length;
 
   if (!vouchers.length) {
-    document.getElementById('tblContent').innerHTML =
+    document.getElementById('accContent').innerHTML=
       `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been created yet.</p></div>`;
     return;
   }
 
-  let html = `<div class="tbl-scroll"><table>
-    <thead><tr>
-      <th class="row-num">#</th><th>Category</th><th>Sub-category</th>
-      <th>FA Status</th><th>VL / Deposit</th><th>Payment (CIGAS)</th>
-    </tr></thead><tbody>`;
+  // Group vouchers by category
+  const bycat = {};
+  vouchers.forEach(v => { if(!bycat[v.category]) bycat[v.category]=[]; bycat[v.category].push(v); });
 
-  vouchers.forEach((v,i) => {
+  // Build accordion rows in CATS order
+  let html = '';
+  CATS.forEach(cat => {
+    const catVouchers = bycat[cat.id] || [];
+    if (!catVouchers.length) return; // skip if no entries this month
+
+    const hasSubs = cat.subs !== null;
+    const isExpanded = expandedCats.has(cat.id);
+
+    if (hasSubs) {
+      // Summary pills
+      const paid    = catVouchers.filter(v=>v.cigasStatus==='paid').length;
+      const inProg  = catVouchers.filter(v=>v.cigasStatus!=='paid' && (v.faStatus==='received'||v.stage2Status==='received')).length;
+      const pending = catVouchers.length - paid - inProg;
+      let pills = '';
+      if (paid)    pills += `<span class="mini-pill paid">✓ ${paid} Paid</span>`;
+      if (inProg)  pills += `<span class="mini-pill progress">${inProg} In Progress</span>`;
+      if (pending) pills += `<span class="mini-pill pending">${pending} Pending</span>`;
+
+      html += `
+        <div class="cat-row${isExpanded?' expanded':''}" onclick="toggleCat('${cat.id}')">
+          <div class="cat-row-left">
+            <span class="cat-arrow${isExpanded?' open':''}">▶</span>
+            <span class="cat-name">${cat.name}</span>
+            <span class="cat-entry-count">(${catVouchers.length})</span>
+          </div>
+          <div class="cat-row-right">${pills}</div>
+        </div>
+        <div class="cat-subs${isExpanded?' open':''}" id="subs_${cat.id}">
+          ${buildSubTable(catVouchers)}
+        </div>`;
+    } else {
+      // Single entry — show status badges directly on the row
+      const v = catVouchers[0];
+      html += `
+        <div class="cat-row no-expand">
+          <div class="cat-row-left">
+            <span style="width:16px;flex-shrink:0"></span>
+            <span class="cat-name">${cat.name}</span>
+          </div>
+          <div class="cat-row-right single-status">
+            ${badge(v,'fa')}
+            ${badge(v,'stage2')}
+            ${badge(v,'cigas')}
+          </div>
+        </div>`;
+    }
+  });
+
+  document.getElementById('accContent').innerHTML = html;
+}
+
+function toggleCat(catId) {
+  if (expandedCats.has(catId)) {
+    expandedCats.delete(catId);
+  } else {
+    expandedCats.add(catId);
+  }
+  renderDash();
+}
+
+function buildSubTable(catVouchers) {
+  let html = `<table class="subs-table">
+    <thead><tr>
+      <th class="row-num">#</th>
+      <th>Sub-category</th>
+      <th>FA Status</th>
+      <th>VL / Deposit</th>
+      <th>Payment (CIGAS)</th>
+    </tr></thead><tbody>`;
+  catVouchers.forEach((v,i) => {
     html += `<tr>
       <td class="row-num">${i+1}</td>
-      <td><div class="cat-lbl">${v.categoryName}</div></td>
       <td><span class="sub-lbl">${v.subCategoryName||'—'}</span></td>
       <td>${badge(v,'fa')}</td>
       <td>${badge(v,'stage2')}</td>
       <td>${badge(v,'cigas')}</td>
     </tr>`;
   });
-  html += '</tbody></table></div>';
-  document.getElementById('tblContent').innerHTML = html;
+  return html + '</tbody></table>';
 }
 
+// ══════════════════════════════════════════
+//  STATUS BADGE
+// ══════════════════════════════════════════
 function badge(v, stage) {
   let status, at, by, next, canClick;
   if (stage==='fa') {
     status=v.faStatus||'pending'; at=v.faAt; by=v.faBy;
     next=status==='pending'?'received':'pending';
-    canClick = meData && (meData.role==='fa' || meData.role==='superadmin');
+    canClick=meData&&(meData.role==='fa'||meData.role==='superadmin');
   } else if (stage==='stage2') {
     status=v.stage2Status||'pending'; at=v.stage2At; by=v.stage2By;
     next=status==='pending'?'received':'pending';
-    const isVL = v.stage2Type==='vl';
-    canClick = meData && ((meData.role==='vl'&&isVL)||(meData.role==='deposit'&&!isVL)||meData.role==='superadmin');
+    const isVL=v.stage2Type==='vl';
+    canClick=meData&&((meData.role==='vl'&&isVL)||(meData.role==='deposit'&&!isVL)||meData.role==='superadmin');
   } else {
     status=v.cigasStatus||'pending'; at=v.cigasAt; by=v.cigasBy;
     next=status==='pending'?'paid':'pending';
-    canClick = meData && meData.role==='superadmin';
+    canClick=meData&&meData.role==='superadmin';
   }
-
-  const cls = status==='paid'?'s-paid':status==='received'?'s-received':'s-pending';
-  const lbl = status==='paid'?'✓ Paid':status==='received'?'✓ Received':'Pending';
-
+  const cls=status==='paid'?'s-paid':status==='received'?'s-received':'s-pending';
+  const lbl=status==='paid'?'✓ Paid':status==='received'?'✓ Received':'Pending';
   let timePart='', byPart='';
   if (at) {
-    const d = at.toDate ? at.toDate() : new Date(at.seconds*1000);
-    timePart = `<span class="b-time">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>`;
-    if (by) byPart = `<span class="b-by">${by.split(' ')[0]}</span>`;
+    const d=at.toDate?at.toDate():new Date(at.seconds*1000);
+    timePart=`<span class="b-time">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>`;
+    if (by) byPart=`<span class="b-by">${by.split(' ')[0]}</span>`;
   }
-
-  const esc = s=>(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  if (canClick) {
-    return `<span class="sbadge ${cls} clickable" onclick="askUpdate('${v.id}','${stage}','${next}','${esc(v.categoryName)}','${esc(v.subCategoryName||'')}')">${lbl}${timePart}${byPart}</span>`;
-  }
+  const esc=s=>(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  if (canClick) return `<span class="sbadge ${cls} clickable" onclick="askUpdate('${v.id}','${stage}','${next}','${esc(v.categoryName)}','${esc(v.subCategoryName||'')}')">${lbl}${timePart}${byPart}</span>`;
   return `<span class="sbadge ${cls}">${lbl}${timePart}${byPart}</span>`;
 }
 
@@ -709,71 +759,67 @@ function badge(v, stage) {
 //  STATUS UPDATE
 // ══════════════════════════════════════════
 function askUpdate(vid, stage, next, cat, sub) {
-  const sn = {fa:'FA Check', stage2:'Vote Ledger / Deposit', cigas:'Payment'};
-  const an = {received:'Mark as ✓ Received', paid:'Mark as ✓ Paid', pending:'Reset to Pending'};
-  document.getElementById('modalTitle').textContent = an[next]||'Update Status';
-  document.getElementById('modalMsg').textContent   = `${sn[stage]}: ${cat}${sub?' — '+sub:''}`;
-  document.getElementById('modalYes').textContent   = an[next]||'Confirm';
-  pendingUpdate = {vid, stage, next};
-  document.getElementById('confirmOverlay').style.display = 'flex';
+  const sn={fa:'FA Check',stage2:'Vote Ledger / Deposit',cigas:'Payment'};
+  const an={received:'Mark as ✓ Received',paid:'Mark as ✓ Paid',pending:'Reset to Pending'};
+  document.getElementById('modalTitle').textContent=an[next]||'Update Status';
+  document.getElementById('modalMsg').textContent=`${sn[stage]}: ${cat}${sub?' — '+sub:''}`;
+  document.getElementById('modalYes').textContent=an[next]||'Confirm';
+  pendingUpdate={vid,stage,next};
+  document.getElementById('confirmOverlay').style.display='flex';
 }
 function closeConfirm() { document.getElementById('confirmOverlay').style.display='none'; pendingUpdate=null; }
-document.getElementById('confirmOverlay').addEventListener('click', e=>{ if(e.target.id==='confirmOverlay') closeConfirm(); });
+document.getElementById('confirmOverlay').addEventListener('click',e=>{ if(e.target.id==='confirmOverlay') closeConfirm(); });
 
 document.getElementById('modalYes').onclick = async () => {
   if (!pendingUpdate) return;
-  const {vid, stage, next} = pendingUpdate;
-  closeConfirm();
+  const {vid,stage,next}=pendingUpdate; closeConfirm();
   try {
-    const ts = firebase.firestore.FieldValue.serverTimestamp();
-    const name = meData.name;
-    const upd = {};
-    if (stage==='fa')     { upd.faStatus=next;     upd.faAt=next==='pending'?null:ts;     upd.faBy=next==='pending'?null:name; }
-    else if(stage==='stage2'){ upd.stage2Status=next; upd.stage2At=next==='pending'?null:ts; upd.stage2By=next==='pending'?null:name; }
-    else                  { upd.cigasStatus=next;  upd.cigasAt=next==='pending'?null:ts;  upd.cigasBy=next==='pending'?null:name; }
+    const ts=firebase.firestore.FieldValue.serverTimestamp(), name=meData.name, upd={};
+    if(stage==='fa')      {upd.faStatus=next;     upd.faAt=next==='pending'?null:ts;     upd.faBy=next==='pending'?null:name;}
+    else if(stage==='stage2'){upd.stage2Status=next;upd.stage2At=next==='pending'?null:ts;upd.stage2By=next==='pending'?null:name;}
+    else                  {upd.cigasStatus=next;  upd.cigasAt=next==='pending'?null:ts;  upd.cigasBy=next==='pending'?null:name;}
     await db.collection('vouchers').doc(vid).update(upd);
     toast('Status updated ✓');
-  } catch(e) { toast(e.message, true); }
+  } catch(e) { toast(e.message,true); }
 };
 
 // ══════════════════════════════════════════
 //  GENERATE MONTH
 // ══════════════════════════════════════════
 async function generateMonth() {
-  const m = +document.getElementById('genMonth').value;
-  const y = +document.getElementById('genYear').value;
+  const m=+document.getElementById('genMonth').value, y=+document.getElementById('genYear').value;
   if (!confirm(`Generate all voucher entries for ${MONTHS[m-1]} ${y}?\nExisting entries will be skipped.`)) return;
   toast('Generating…');
-  const existing = await db.collection('vouchers').where('year','==',y).where('month','==',m).get();
-  const existSet = new Set(existing.docs.map(d=>d.id));
-  const batch = db.batch(); let count=0, order=1;
-  const ts = firebase.firestore.FieldValue.serverTimestamp();
+  const existing=await db.collection('vouchers').where('year','==',y).where('month','==',m).get();
+  const existSet=new Set(existing.docs.map(d=>d.id));
+  const batch=db.batch(); let count=0,order=1;
+  const ts=firebase.firestore.FieldValue.serverTimestamp();
   for (const cat of CATS) {
-    if (Array.isArray(cat.subs) && cat.subs.length>0) {
+    if (Array.isArray(cat.subs)&&cat.subs.length>0) {
       for (const sub of cat.subs) {
-        const docId = `${y}_${m}_${cat.id}_${sub.id}`;
+        const docId=`${y}_${m}_${cat.id}_${sub.id}`;
         if (!existSet.has(docId)) {
-          batch.set(db.collection('vouchers').doc(docId), {
-            category:cat.id, categoryName:cat.name, subCategory:sub.id, subCategoryName:sub.name,
-            month:m, year:y, stage2Type:cat.stage2,
+          batch.set(db.collection('vouchers').doc(docId),{
+            category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,
+            month:m,year:y,stage2Type:cat.stage2,
             faStatus:'pending',faAt:null,faBy:null,
             stage2Status:'pending',stage2At:null,stage2By:null,
             cigasStatus:'pending',cigasAt:null,cigasBy:null,
-            createdAt:ts, createdBy:me.uid, order:order
+            createdAt:ts,createdBy:me.uid,order:order
           }); count++;
         }
         order++;
       }
     } else if (cat.subs===null) {
-      const docId = `${y}_${m}_${cat.id}`;
+      const docId=`${y}_${m}_${cat.id}`;
       if (!existSet.has(docId)) {
-        batch.set(db.collection('vouchers').doc(docId), {
-          category:cat.id, categoryName:cat.name, subCategory:null, subCategoryName:null,
-          month:m, year:y, stage2Type:cat.stage2,
+        batch.set(db.collection('vouchers').doc(docId),{
+          category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,
+          month:m,year:y,stage2Type:cat.stage2,
           faStatus:'pending',faAt:null,faBy:null,
           stage2Status:'pending',stage2At:null,stage2By:null,
           cigasStatus:'pending',cigasAt:null,cigasBy:null,
-          createdAt:ts, createdBy:me.uid, order:order
+          createdAt:ts,createdBy:me.uid,order:order
         }); count++;
       }
       order++;
@@ -781,7 +827,7 @@ async function generateMonth() {
   }
   if (count===0) { toast('All entries already exist for this month.'); return; }
   try { await batch.commit(); toast(`${count} entries generated for ${MONTHS[m-1]} ${y} ✓`); }
-  catch(e) { toast(e.message, true); }
+  catch(e) { toast(e.message,true); }
 }
 
 // ══════════════════════════════════════════
@@ -789,36 +835,27 @@ async function generateMonth() {
 // ══════════════════════════════════════════
 async function loadUsers() {
   try {
-    const snap = await db.collection('users').get();
+    const snap=await db.collection('users').get();
     renderUsers(snap.docs.map(d=>({uid:d.id,...d.data()})));
   } catch(e) { document.getElementById('usersList').innerHTML=`<p style="color:red;font-size:13px">${e.message}</p>`; }
 }
 function renderUsers(users) {
-  let html = `<div style="overflow-x:auto"><table class="u-table">
-    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
+  let html=`<div style="overflow-x:auto"><table class="u-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
   users.forEach(u => {
-    const isSelf = u.uid===me.uid;
-    html += `<tr>
-      <td>${u.name||'—'}</td>
-      <td style="color:#888;font-size:11px">${u.email}</td>
-      <td>${isSelf
-        ? `<span class="role-pill">${ROLES[u.role]||u.role}</span>`
-        : `<select class="role-sel" id="role_${u.uid}">
-            ${Object.entries(ROLES).map(([k,v])=>`<option value="${k}"${u.role===k?' selected':''}>${v}</option>`).join('')}
-            <option value="viewer"${u.role==='viewer'?' selected':''}>Viewer (read-only)</option>
-           </select>`}</td>
-      <td>${isSelf
-        ? '<span style="font-size:11px;color:#aaa">(You)</span>'
-        : `<button class="btn-save" onclick="saveRole('${u.uid}')">Save</button>`}</td>
+    const isSelf=u.uid===me.uid;
+    html+=`<tr>
+      <td>${u.name||'—'}</td><td style="color:#888;font-size:11px">${u.email}</td>
+      <td>${isSelf?`<span class="role-pill">${ROLES[u.role]||u.role}</span>`
+        :`<select class="role-sel" id="role_${u.uid}">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}"${u.role===k?' selected':''}>${v}</option>`).join('')}<option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option></select>`}</td>
+      <td>${isSelf?'<span style="font-size:11px;color:#aaa">(You)</span>':`<button class="btn-save" onclick="saveRole('${u.uid}')">Save</button>`}</td>
     </tr>`;
   });
-  html += '</tbody></table></div>';
-  document.getElementById('usersList').innerHTML = html;
+  document.getElementById('usersList').innerHTML=html+'</tbody></table></div>';
 }
 async function saveRole(uid) {
-  const role = document.getElementById('role_'+uid).value;
+  const role=document.getElementById('role_'+uid).value;
   try { await db.collection('users').doc(uid).update({role}); toast('Role updated ✓'); loadUsers(); }
-  catch(e) { toast(e.message, true); }
+  catch(e) { toast(e.message,true); }
 }
 
 // ══════════════════════════════════════════
@@ -828,17 +865,12 @@ function copyRules() {
   navigator.clipboard.writeText(document.querySelector('.rules-pre').textContent)
     .then(()=>toast('Rules copied ✓')).catch(()=>toast('Select and copy manually',true));
 }
-
 let toastTmr;
 function toast(msg, isErr=false) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.background = isErr ? '#C0392B' : '#2C2219';
-  el.style.display = 'block';
-  clearTimeout(toastTmr);
-  toastTmr = setTimeout(()=>el.style.display='none', 3200);
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.style.background=isErr?'#C0392B':'#2C2219'; el.style.display='block';
+  clearTimeout(toastTmr); toastTmr=setTimeout(()=>el.style.display='none',3200);
 }
-
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
