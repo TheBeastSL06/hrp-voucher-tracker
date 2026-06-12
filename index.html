@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Voucher Track">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -28,6 +30,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;}
+
+/* HEADER */
 .hdr{background:linear-gradient(90deg,var(--maroon-dark),var(--maroon));color:#fff;padding:0 14px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.25);}
 .hdr-l{display:flex;align-items:center;gap:10px;}
 .hdr-logo{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--gold-light);letter-spacing:1px;flex-shrink:0;}
@@ -38,6 +42,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .hdr-name{font-size:12px;opacity:.88;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .btn-hdr{border:1px solid rgba(255,255,255,.32);color:#fff;padding:5px 13px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,.13);}
 .btn-hdr:hover{background:rgba(255,255,255,.22);}
+
+/* NAV + PERIOD */
 .nav-bar{background:#fff;border-bottom:2px solid var(--border);display:flex;padding:0 8px;overflow-x:auto;}
 .nav-item{padding:13px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;flex-shrink:0;}
 .nav-item.active{color:var(--maroon);border-bottom-color:var(--maroon);}
@@ -45,7 +51,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .period-bar label{font-size:12px;font-weight:700;color:var(--muted);}
 .period-bar select{padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:#fff;cursor:pointer;outline:none;color:var(--text);}
 .period-bar select:focus{border-color:var(--maroon);}
+
+/* CONTENT */
 .content{padding:18px 14px;max-width:1400px;margin:0 auto;width:100%;}
+
+/* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 .stat-card{background:#fff;border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);border-top:3px solid var(--border);}
 .stat-card.s-tot{border-top-color:var(--maroon);}
@@ -55,6 +65,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .stat-card.s-pd{border-top-color:#6EE7B7;}
 .stat-v{font-size:26px;font-weight:800;color:var(--maroon);}
 .stat-l{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* CARD GRID */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px;}
 .cat-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid var(--border);}
 .cat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.14);}
@@ -71,6 +83,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .cp.alloc{background:var(--ai-bg);color:var(--ai-txt);border-color:var(--ai-bdr);}
 .cp.prog{background:var(--recv-bg);color:var(--recv-txt);border-color:var(--recv-bdr);}
 .cp.pend{background:var(--pend-bg);color:var(--pend-txt);border-color:var(--pend-bdr);}
+
+/* CATEGORY MODAL */
 .cm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;display:none;align-items:center;justify-content:center;padding:16px;}
 .cm-box{background:#fff;border-radius:14px;width:100%;max-width:940px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);}
 .cm-hdr{background:var(--maroon);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -85,9 +99,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .m-table tbody tr:hover{background:#FAF7F2;}
 .m-table tbody tr:last-child td{border-bottom:none;}
 .grp-hdr{background:#F0EAE0;padding:8px 14px;font-size:11px;font-weight:800;color:var(--maroon);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);}
+/* Single entry modal */
 .se-row{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #EDE8DF;gap:16px;}
 .se-row:last-child{border-bottom:none;}
 .se-lbl{font-size:12px;font-weight:700;color:var(--muted);min-width:130px;}
+
+/* STATUS BADGES */
 .sbadge{display:inline-flex;flex-direction:column;align-items:center;min-width:80px;padding:5px 8px;border-radius:20px;text-align:center;font-size:11px;font-weight:700;gap:1px;border-width:1.5px;border-style:solid;white-space:nowrap;transition:transform .15s,box-shadow .15s;}
 .sbadge.clickable{cursor:pointer;}
 .sbadge.clickable:hover{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,.15);}
@@ -98,6 +115,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .sbadge.s-an{background:var(--an-bg);color:var(--an-txt);border-color:var(--an-bdr);}
 .b-time{font-size:9px;font-weight:400;opacity:.8;}
 .b-by{font-size:9px;font-weight:600;}
+
+/* WORKFLOW */
 .wf-info{background:#fff;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .wf-title{font-size:15px;font-weight:800;color:var(--maroon);flex:1;}
 .wf-cnt{background:var(--maroon);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
@@ -119,6 +138,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .bwf.ai{color:var(--ai-txt);border-color:var(--ai-bdr);background:var(--ai-bg);}
 .bwf.an{color:var(--an-txt);border-color:var(--an-bdr);background:var(--an-bg);}
 .bwf.rst{color:var(--pend-txt);border-color:var(--pend-bdr);background:var(--pend-bg);}
+
+/* ADMIN */
 .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
 .admin-card{background:#fff;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
 .admin-card h3{font-size:14px;font-weight:800;color:var(--maroon);margin-bottom:16px;}
@@ -140,6 +161,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .sc-add input{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;}
 .sc-add input:focus{border-color:var(--maroon);}
 .rules-pre{background:#1e1e1e;color:#9CDCFE;padding:14px;border-radius:8px;font-size:11px;line-height:1.7;overflow-x:auto;font-family:monospace;max-height:200px;overflow-y:auto;}
+
+/* LOGIN MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
 .login-box{background:#fff;border-radius:14px;padding:30px 26px;max-width:380px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);position:relative;}
 .li-logo{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--maroon);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--gold-light);}
@@ -157,6 +180,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .err-msg{color:#C0392B;font-size:12px;margin-top:10px;padding:8px 12px;background:#FDF2F2;border-radius:6px;display:none;}
 .reg-note{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
 .x-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;}
+
+/* LOADING/EMPTY */
 .loading{text-align:center;padding:50px 20px;color:var(--muted);}
 .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--maroon);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -164,7 +189,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .empty-icon{font-size:40px;margin-bottom:12px;}
 .empty-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text);}
 .empty-hint{font-size:12px;}
+
+/* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2C2219;color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:300;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+
+/* RESPONSIVE */
 @media(max-width:640px){
   .stats-row{grid-template-columns:repeat(3,1fr);}
   .stat-card.s-pay,.stat-card.s-pd{display:none;}
@@ -184,6 +213,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 </head>
 <body>
 <div id="mainApp">
+
+  <!-- HEADER -->
   <div class="hdr">
     <div class="hdr-l">
       <div class="hdr-logo">DS</div>
@@ -194,31 +225,41 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     </div>
     <div class="hdr-r">
       <span class="role-pill" id="hdrRole" style="display:none"></span>
-      <span class="hdr-name" id="hdrName" style="display:none"></span>
+      <span class="hdr-name"  id="hdrName" style="display:none"></span>
       <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none">Logout</button>
-      <button class="btn-hdr" id="btnLogin" onclick="openLogin()">&#128274; Officer Login</button>
+      <button class="btn-hdr" id="btnLogin"  onclick="openLogin()">🔒 Officer Login</button>
     </div>
   </div>
+
+  <!-- NAV -->
   <div class="nav-bar">
-    <div class="nav-item active" id="navDash" onclick="switchView('dashboard')">&#128203; Dashboard</div>
-    <div class="nav-item" id="navWorkflow" onclick="switchView('workflow')" style="display:none">&#9889; Workflow</div>
-    <div class="nav-item" id="navAdmin" onclick="switchView('admin')" style="display:none">&#9881;&#65039; Admin</div>
+    <div class="nav-item active" id="navDash"     onclick="switchView('dashboard')">📋 Dashboard</div>
+    <div class="nav-item"        id="navWorkflow" onclick="switchView('workflow')"  style="display:none">⚡ Workflow</div>
+    <div class="nav-item"        id="navAdmin"    onclick="switchView('admin')"     style="display:none">⚙️ Admin</div>
   </div>
+
+  <!-- PERIOD BAR (shared) -->
   <div class="period-bar">
     <label>Period:</label>
     <select id="selMonth" onchange="onPeriodChange()"></select>
-    <select id="selYear" onchange="onPeriodChange()"></select>
+    <select id="selYear"  onchange="onPeriodChange()"></select>
   </div>
+
+  <!-- DASHBOARD -->
   <div id="viewDashboard" class="content">
     <div class="stats-row">
       <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l">Total</div></div>
-      <div class="stat-card s-fa"><div class="stat-v" id="stFA">0</div><div class="stat-l">Pending FA</div></div>
-      <div class="stat-card s-vl"><div class="stat-v" id="stVL">0</div><div class="stat-l">Pending VL/Dep</div></div>
-      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div><div class="stat-l">Pending Payment</div></div>
-      <div class="stat-card s-pd"><div class="stat-v" id="stPaid">0</div><div class="stat-l">Paid</div></div>
+      <div class="stat-card s-fa"> <div class="stat-v" id="stFA">0</div>   <div class="stat-l">Pending FA</div></div>
+      <div class="stat-card s-vl"> <div class="stat-v" id="stVL">0</div>   <div class="stat-l">Pending VL/Dep</div></div>
+      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div>  <div class="stat-l">Pending Payment</div></div>
+      <div class="stat-card s-pd"> <div class="stat-v" id="stPaid">0</div> <div class="stat-l">Paid</div></div>
     </div>
-    <div class="card-grid" id="cardGrid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    <div class="card-grid" id="cardGrid">
+      <div class="loading"><div class="spinner"></div>Loading...</div>
+    </div>
   </div>
+
+  <!-- WORKFLOW -->
   <div id="viewWorkflow" class="content" style="display:none">
     <div class="wf-info">
       <div class="wf-title" id="wfTitle">My Pending Tasks</div>
@@ -230,10 +271,22 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       </div>
     </div>
   </div>
+
+  <!-- ADMIN -->
   <div id="viewAdmin" class="content" style="display:none">
     <div class="admin-grid">
+
       <div class="admin-card">
-        <h3>&#128197; Generate Month Entries</h3>
+        <h3>📄 Generate Monthly Report</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          Generates a PDF report of all voucher statuses for the selected period. Uses the same month/year selected in the period bar.
+        </p>
+        <button class="btn-a" onclick="generatePDF()" style="width:100%">⬇ Download PDF Report</button>
+        <p class="a-hint">Report includes summary stats and per-category status tables.</p>
+      </div>
+
+      <div class="admin-card">
+        <h3>📅 Generate Month Entries</h3>
         <div class="aform">
           <select id="genMonth"></select>
           <select id="genYear"></select>
@@ -241,24 +294,29 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         </div>
         <p class="a-hint">Creates all voucher entries for the selected month. Existing entries are skipped.</p>
       </div>
+
       <div class="admin-card" style="grid-column:1/-1">
-        <h3>&#128101; User Management</h3>
+        <h3>👥 User Management</h3>
         <div id="usersList"><div class="loading"><div class="spinner"></div></div></div>
       </div>
+
+      <!-- Field Officers dynamic subs -->
       <div class="admin-card">
-        <h3>&#128194; Field Officers Travel &mdash; Sub-categories</h3>
+        <h3>📂 Field Officers Travel — Sub-categories</h3>
         <div class="sc-list" id="scListField"></div>
         <div class="sc-add">
           <input type="text" id="scInputField" placeholder="e.g. Agriculture Officer">
           <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField')">Add</button>
         </div>
       </div>
+
+      <!-- Staff Travel & Holiday OT sub-sub-cats -->
       <div class="admin-card">
-        <h3>&#128194; Staff Travel &amp; Holiday OT &mdash; Sub-categories</h3>
+        <h3>📂 Staff Travel & Holiday OT — Sub-categories</h3>
         <div class="aform" style="margin-bottom:12px">
           <select id="sscCatSel" onchange="refreshSscView()">
             <option value="staff_travel">Office Staff Travel Expense</option>
-            <option value="holiday_ot">Office Staff Holiday Pay &amp; OT</option>
+            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
           </select>
           <select id="sscParentSel" onchange="refreshSscView()">
             <option value="st_cg">Central Government</option>
@@ -272,15 +330,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <button class="btn-a" onclick="addSubSubcat()">Add</button>
         </div>
       </div>
+
       <div class="admin-card" style="grid-column:1/-1">
-        <h3>&#128274; Firestore Security Rules</h3>
-        <p class="a-hint" style="margin-bottom:10px">Copy and paste in <strong>Firebase Console &rarr; Firestore Database &rarr; Rules</strong>, then click Publish.</p>
+        <h3>🔒 Firestore Security Rules</h3>
+        <p class="a-hint" style="margin-bottom:10px">Copy and paste in <strong>Firebase Console → Firestore Database → Rules</strong>, then click Publish.</p>
         <pre class="rules-pre">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAuth()  { return request.auth != null; }
     function role()    { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
-    function isAdmin() { return isAuth() &amp;&amp; role() == 'superadmin'; }
+    function isAdmin() { return isAuth() && role() == 'superadmin'; }
 
     match /vouchers/{id} {
       allow read:           if true;
@@ -290,17 +349,19 @@ service cloud.firestore {
     match /dynamicSubCats/{id}    { allow read: if true; allow write: if isAdmin(); }
     match /dynamicSubSubCats/{id} { allow read: if true; allow write: if isAdmin(); }
     match /users/{uid} {
-      allow read:   if isAuth() &amp;&amp; (request.auth.uid == uid || isAdmin());
-      allow create: if isAuth() &amp;&amp; request.auth.uid == uid;
-      allow update: if isAuth() &amp;&amp; (request.auth.uid == uid || isAdmin());
+      allow read:   if isAuth() && (request.auth.uid == uid || isAdmin());
+      allow create: if isAuth() && request.auth.uid == uid;
+      allow update: if isAuth() && (request.auth.uid == uid || isAdmin());
     }
   }
 }</pre>
-        <button class="btn-a" style="margin-top:12px" onclick="copyRules()">&#128203; Copy Rules</button>
+        <button class="btn-a" style="margin-top:12px" onclick="copyRules()">📋 Copy Rules</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- CATEGORY MODAL -->
 <div class="cm-overlay" id="cmOverlay">
   <div class="cm-box">
     <div class="cm-hdr">
@@ -308,24 +369,26 @@ service cloud.firestore {
         <h3 id="cmTitle">Category</h3>
         <div class="sub" id="cmPeriod"></div>
       </div>
-      <button class="btn-cm-close" onclick="closeCatModal()">&times;</button>
+      <button class="btn-cm-close" onclick="closeCatModal()">×</button>
     </div>
     <div class="cm-body" id="cmBody"></div>
   </div>
 </div>
+
+<!-- LOGIN MODAL -->
 <div class="overlay" id="loginOverlay">
   <div class="login-box">
-    <button class="x-close" onclick="closeLogin()">&times;</button>
+    <button class="x-close" onclick="closeLogin()">×</button>
     <div class="li-logo">DS</div>
     <div class="li-title">Officer Login</div>
     <div class="li-sub">Horowpothana Account Branch</div>
     <div class="tab-row">
       <button class="tab-btn active" id="tabLi" onclick="switchTab('login')">Sign In</button>
-      <button class="tab-btn" id="tabRe" onclick="switchTab('register')">Register</button>
+      <button class="tab-btn"        id="tabRe" onclick="switchTab('register')">Register</button>
     </div>
     <div id="liForm">
       <div class="fgrp"><label>Email</label><input type="email" id="liEmail" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="fgrp"><label>Password</label><input type="password" id="liPass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fgrp"><label>Password</label><input type="password" id="liPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-main" onclick="doLogin()">Sign In</button>
     </div>
     <div id="reForm" style="display:none">
@@ -338,8 +401,13 @@ service cloud.firestore {
     <div class="err-msg" id="authErr"></div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
+
 <script>
+// ════════════════════════════════════════
+//  FIREBASE
+// ════════════════════════════════════════
 const firebaseConfig={
   apiKey:"AIzaSyDiG8u7ow3rRCn9t7gZYK_xFGxDmRUQQ00",
   authDomain:"hrp-account-branch.firebaseapp.com",
@@ -354,62 +422,81 @@ const auth=firebase.auth();
 const db=firebase.firestore();
 db.enablePersistence().catch(()=>{});
 
+// ════════════════════════════════════════
+//  CATEGORIES
+// ════════════════════════════════════════
 const GN=[
-  {id:'gn_117',name:'117 - Sinhala Walahaviddawewa'},{id:'gn_118',name:'118 - Rasnakawewa'},
-  {id:'gn_119',name:'119 - Ihala Agunochchiya'},{id:'gn_120',name:'120 - Walimuwapothana'},
-  {id:'gn_121',name:'121 - Nikawewa'},{id:'gn_122',name:'122 - Mukkarawewa'},
-  {id:'gn_123',name:'123 - Thibiriathtawala'},{id:'gn_124',name:'124 - Gammahegewewa'},
-  {id:'gn_125',name:'125 - Kalpe'},{id:'gn_126',name:'126 - Wadigawewa'},
-  {id:'gn_127',name:'127 - Morakawa'},{id:'gn_128',name:'128 - Horowpothana'},
-  {id:'gn_129',name:'129 - Kiwlekada'},{id:'gn_130',name:'130 - Madawachchiyahandiya'},
-  {id:'gn_131',name:'131 - Nanumillawewa'},{id:'gn_132',name:'132 - Vilewewa'},
-  {id:'gn_133',name:'133 - Maradankadawala'},{id:'gn_134',name:'134 - Puhulewewa'},
-  {id:'gn_135',name:'135 - Morawewa'},{id:'gn_136',name:'136 - Thirappankadawala'},
-  {id:'gn_137',name:'137 - Thawalanhalmillawewa'},{id:'gn_138',name:'138 - Anaolondawa'},
-  {id:'gn_139',name:'139 - Weerasole'},{id:'gn_140',name:'140 - Kapugollewa'},
-  {id:'gn_141',name:'141 - Pahaladiulwewa'},{id:'gn_142',name:'142 - Dutuwewa'},
-  {id:'gn_143',name:'143 - Wagollakada'},{id:'gn_144',name:'144 - Wahalkada D1'},
-  {id:'gn_145',name:'145 - Wahalkada D2'},{id:'gn_146',name:'146 - Maradanmaduwa'},
-  {id:'gn_147',name:'147 - Rathmale'},{id:'gn_148',name:'148 - Welangahaulpatha'},
-  {id:'gn_149',name:'149 - Parangiyawadiya'},{id:'gn_150',name:'150 - Puliyankadawala'},
-  {id:'gn_151',name:'151 - Diyathithtawewa'},{id:'gn_152',name:'152 - Nabadawewa'},
-  {id:'gn_153',name:'153 - Dakethipothana'},{id:'gn_154',name:'154 - Dematawewa'},
+  {id:'gn_117',name:'117 · Sinhala Walahaviddawewa'},{id:'gn_118',name:'118 · Rasnakawewa'},
+  {id:'gn_119',name:'119 · Ihala Agunochchiya'},{id:'gn_120',name:'120 · Walimuwapothana'},
+  {id:'gn_121',name:'121 · Nikawewa'},{id:'gn_122',name:'122 · Mukkarawewa'},
+  {id:'gn_123',name:'123 · Thibiriathtawala'},{id:'gn_124',name:'124 · Gammahegewewa'},
+  {id:'gn_125',name:'125 · Kalpe'},{id:'gn_126',name:'126 · Wadigawewa'},
+  {id:'gn_127',name:'127 · Morakawa'},{id:'gn_128',name:'128 · Horowpothana'},
+  {id:'gn_129',name:'129 · Kiwlekada'},{id:'gn_130',name:'130 · Madawachchiyahandiya'},
+  {id:'gn_131',name:'131 · Nanumillawewa'},{id:'gn_132',name:'132 · Vilewewa'},
+  {id:'gn_133',name:'133 · Maradankadawala'},{id:'gn_134',name:'134 · Puhulewewa'},
+  {id:'gn_135',name:'135 · Morawewa'},{id:'gn_136',name:'136 · Thirappankadawala'},
+  {id:'gn_137',name:'137 · Thawalanhalmillawewa'},{id:'gn_138',name:'138 · Anaolondawa'},
+  {id:'gn_139',name:'139 · Weerasole'},{id:'gn_140',name:'140 · Kapugollewa'},
+  {id:'gn_141',name:'141 · Pahaladiulwewa'},{id:'gn_142',name:'142 · Dutuwewa'},
+  {id:'gn_143',name:'143 · Wagollakada'},{id:'gn_144',name:'144 · Wahalkada D1'},
+  {id:'gn_145',name:'145 · Wahalkada D2'},{id:'gn_146',name:'146 · Maradanmaduwa'},
+  {id:'gn_147',name:'147 · Rathmale'},{id:'gn_148',name:'148 · Welangahaulpatha'},
+  {id:'gn_149',name:'149 · Parangiyawadiya'},{id:'gn_150',name:'150 · Puliyankadawala'},
+  {id:'gn_151',name:'151 · Diyathithtawewa'},{id:'gn_152',name:'152 · Nabadawewa'},
+  {id:'gn_153',name:'153 · Dakethipothana'},{id:'gn_154',name:'154 · Dematawewa'},
 ];
+
+// Categories with hasSubSubs:true use subCategory + subSubCategory levels
+// parentSubs for staff_travel and holiday_ot share same names but different IDs
 const ST_SUBS=[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}];
 const HO_SUBS=[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}];
+
 let CATS=[
-  {id:'gn_travel',name:'Grama Niladari Travel Expense',s2:'vl',subs:GN},
-  {id:'field_travel',name:'Field Officers Travel Expense',s2:'vl',subs:[]},
-  {id:'staff_travel',name:'Office Staff Travel Expense',s2:'vl',subs:ST_SUBS.map(s=>({...s,subSubs:[]})),hasSubSubs:true},
-  {id:'holiday_ot',name:'Office Staff Holiday Pay & OT',s2:'vl',subs:HO_SUBS.map(s=>({...s,subSubs:[]})),hasSubSubs:true},
-  {id:'allowances',name:"Disable/Kidney/Elder's Allowance",s2:'vl',subs:[{id:'al_dis',name:'Disable Allowance'},{id:'al_kid',name:'Kidney Allowance'},{id:'al_eld',name:"Elder's Allowance"}]},
-  {id:'nutrition',name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School",s2:'vl',subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nu_guru',name:'Guru Abimani'},{id:'nu_pre',name:'Pre-School Meal Program'}]},
-  {id:'mahajanadara',name:'Mahajanadara',s2:'vl',subs:null},
-  {id:'mediation',name:'Mediation Board',s2:'vl',subs:null},
-  {id:'fuel',name:'Fuel',s2:'vl',subs:[{id:'fu_ds',name:'DS Vehicle'},{id:'fu_pl',name:'Pool Vehicle'}]},
-  {id:'bills',name:'Bills',s2:'vl',subs:[{id:'bi_eo',name:'Electricity Bill - Office'},{id:'bi_en',name:'Electricity Bill - NIC'},{id:'bi_tel',name:'Telephone Bill'},{id:'bi_wat',name:'Water Bill'}]},
-  {id:'postal',name:'Postal Charge',s2:'vl',subs:null},
-  {id:'pension',name:'Pension',s2:'vl',subs:null},
-  {id:'gsmb',name:'GSMB Payment',s2:'deposit',subs:null},
+  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                            s2:'vl', subs:GN},
+  {id:'field_travel',name:'Field Officers Travel Expense',                            s2:'vl', subs:[]},
+  {id:'staff_travel',name:'Office Staff Travel Expense',                              s2:'vl', subs:ST_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
+  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                           s2:'vl', subs:HO_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
+  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                        s2:'vl',
+    subs:[{id:'al_dis',name:'Disable Allowance'},{id:'al_kid',name:'Kidney Allowance'},{id:'al_eld',name:"Elder's Allowance"}]},
+  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School", s2:'vl',
+    subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nu_guru',name:'Guru Abimani'},{id:'nu_pre',name:'Pre-School Meal Program'}]},
+  {id:'mahajanadara',name:'Mahajanadara',   s2:'vl',      subs:null},
+  {id:'mediation',   name:'Mediation Board', s2:'vl',     subs:null},
+  {id:'fuel',        name:'Fuel',            s2:'vl',
+    subs:[{id:'fu_ds',name:'DS Vehicle'},{id:'fu_pl',name:'Pool Vehicle'}]},
+  {id:'bills',       name:'Bills',           s2:'vl',
+    subs:[{id:'bi_eo',name:'Electricity Bill - Office'},{id:'bi_en',name:'Electricity Bill - NIC'},{id:'bi_tel',name:'Telephone Bill'},{id:'bi_wat',name:'Water Bill'}]},
+  {id:'postal',      name:'Postal Charge',  s2:'vl',      subs:null},
+  {id:'pension',     name:'Pension',        s2:'vl',      subs:null},
+  {id:'gsmb',        name:'GSMB Payment',   s2:'deposit', subs:null},
 ];
+
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const ROLES={superadmin:'Super Admin',fa:'FA',vl:'Vote Ledger',deposit:'Deposit Ledger'};
 const SROLES={fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Payment (CIGAS)'};
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
 let me=null,meData=null;
 let selMonth,selYear;
 let vouchers=[],unsub=null;
 let dynSubs={field_travel:[]};
 let dynSubSubs={
   'staff_travel__st_cg':[],'staff_travel__st_ncp':[],'staff_travel__st_yo':[],
-  'holiday_ot__ho_cg':[],'holiday_ot__ho_ncp':[],'holiday_ot__ho_yo':[],
+  'holiday_ot__ho_cg':[], 'holiday_ot__ho_ncp':[], 'holiday_ot__ho_yo':[],
 };
 let openModalCatId=null;
 const now=new Date();
-selMonth=now.getMonth()+1;selYear=now.getFullYear();
+selMonth=now.getMonth()+1; selYear=now.getFullYear();
 
+// ════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════
 (async function boot(){
   populateSelects();
-  await Promise.all([loadDynSubs(),loadDynSubSubs()]);
+  await Promise.all([loadDynSubs(), loadDynSubSubs()]);
   loadVouchers();
 })();
 
@@ -418,7 +505,7 @@ auth.onAuthStateChanged(async user=>{
     me=user;
     try{
       const snap=await db.collection('users').doc(user.uid).get();
-      if(snap.exists)meData=snap.data();
+      if(snap.exists) meData=snap.data();
       else{
         meData={name:user.displayName||user.email.split('@')[0],email:user.email,role:'viewer'};
         await db.collection('users').doc(user.uid).set(meData);
@@ -430,15 +517,17 @@ auth.onAuthStateChanged(async user=>{
     document.getElementById('hdrName').style.display='';
     document.getElementById('btnLogout').style.display='';
     document.getElementById('btnLogin').style.display='none';
-    if(meData.role!=='viewer')document.getElementById('navWorkflow').style.display='';
+    if(meData.role!=='viewer'){
+      document.getElementById('navWorkflow').style.display='';
+    }
     if(meData.role==='superadmin'){
       document.getElementById('navAdmin').style.display='';
-      loadUsers();refreshSscView();renderScList('field_travel','scListField');
+      loadUsers(); refreshSscView(); renderScList('field_travel','scListField');
     }
-    closeLogin();renderDash();renderWorkflow();
-    toast('Welcome, '+meData.name+' \u2713');
+    closeLogin(); renderDash(); renderWorkflow();
+    toast(`Welcome, ${meData.name} ✓`);
   }else{
-    me=null;meData=null;
+    me=null; meData=null;
     document.getElementById('hdrRole').style.display='none';
     document.getElementById('hdrName').style.display='none';
     document.getElementById('btnLogout').style.display='none';
@@ -449,6 +538,9 @@ auth.onAuthStateChanged(async user=>{
   }
 });
 
+// ════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════
 function openLogin(){document.getElementById('loginOverlay').style.display='flex';document.getElementById('authErr').style.display='none';setTimeout(()=>document.getElementById('liEmail').focus(),100);}
 function closeLogin(){document.getElementById('loginOverlay').style.display='none';}
 document.getElementById('loginOverlay').addEventListener('click',e=>{if(e.target.id==='loginOverlay')closeLogin();});
@@ -477,14 +569,20 @@ async function doRegister(){
 }
 async function doLogout(){await auth.signOut();toast('Logged out');}
 
+// ════════════════════════════════════════
+//  VIEW SWITCHING
+// ════════════════════════════════════════
 function switchView(v){
   ['dashboard','workflow','admin'].forEach(id=>{
     document.getElementById('view'+id.charAt(0).toUpperCase()+id.slice(1)).style.display=v===id?'block':'none';
     document.getElementById('nav'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',v===id);
   });
-  if(v==='workflow')renderWorkflow();
+  if(v==='workflow') renderWorkflow();
 }
 
+// ════════════════════════════════════════
+//  PERIOD
+// ════════════════════════════════════════
 function populateSelects(){
   ['selMonth','genMonth'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
@@ -498,16 +596,19 @@ function populateSelects(){
 }
 function onPeriodChange(){
   selMonth=+document.getElementById('selMonth').value;
-  selYear=+document.getElementById('selYear').value;
+  selYear =+document.getElementById('selYear').value;
   loadVouchers();
 }
 
+// ════════════════════════════════════════
+//  DYNAMIC SUB-CATEGORIES
+// ════════════════════════════════════════
 async function loadDynSubs(){
   try{
     const snap=await db.collection('dynamicSubCats').get();
     snap.forEach(doc=>{
       const d=doc.data();
-      if(dynSubs[d.categoryId]!==undefined)dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0});
+      if(dynSubs[d.categoryId]!==undefined) dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0});
     });
     Object.keys(dynSubs).forEach(k=>dynSubs[k].sort((a,b)=>a.order-b.order));
     CATS.forEach(c=>{if(dynSubs[c.id])c.subs=dynSubs[c.id];});
@@ -516,7 +617,7 @@ async function loadDynSubs(){
 function renderScList(catId,listId){
   const el=document.getElementById(listId),items=dynSubs[catId]||[];
   if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
-  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">&times;</button></div>`).join('');
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
 }
 async function addSubcat(catId,inputId,listId){
   const inp=document.getElementById(inputId),name=inp.value.trim();if(!name)return;
@@ -524,7 +625,7 @@ async function addSubcat(catId,inputId,listId){
     const order=(dynSubs[catId]||[]).length;
     const ref=await db.collection('dynamicSubCats').add({categoryId:catId,name,order});
     dynSubs[catId]=dynSubs[catId]||[];dynSubs[catId].push({id:ref.id,name,order});
-    CATS.find(c=>c.id===catId).subs=dynSubs[catId];inp.value='';renderScList(catId,listId);toast('Added \u2713');
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId];inp.value='';renderScList(catId,listId);toast('Added ✓');
   }catch(e){toast(e.message,true);}
 }
 async function delSubcat(docId,catId,listId){
@@ -536,15 +637,19 @@ async function delSubcat(docId,catId,listId){
   }catch(e){toast(e.message,true);}
 }
 
+// ════════════════════════════════════════
+//  DYNAMIC SUB-SUB-CATEGORIES
+// ════════════════════════════════════════
 async function loadDynSubSubs(){
   try{
     const snap=await db.collection('dynamicSubSubCats').get();
     snap.forEach(doc=>{
       const d=doc.data();
       const key=`${d.categoryId}__${d.parentSubId}`;
-      if(dynSubSubs[key]!==undefined)dynSubSubs[key].push({id:doc.id,name:d.name,order:d.order||0});
+      if(dynSubSubs[key]!==undefined) dynSubSubs[key].push({id:doc.id,name:d.name,order:d.order||0});
     });
     Object.keys(dynSubSubs).forEach(k=>dynSubSubs[k].sort((a,b)=>a.order-b.order));
+    // Push into CATS subs
     CATS.forEach(cat=>{
       if(cat.hasSubSubs&&cat.subs){
         cat.subs.forEach(sub=>{
@@ -555,16 +660,20 @@ async function loadDynSubSubs(){
     });
   }catch(e){console.warn('loadDynSubSubs:',e);}
 }
+
+// Get parent sub ID options for selected category in admin
 const SSC_PARENTS={
   staff_travel:[{val:'st_cg',lbl:'Central Government'},{val:'st_ncp',lbl:'NCP'},{val:'st_yo',lbl:'Yan Oya'}],
-  holiday_ot:[{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
+  holiday_ot:  [{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
 };
+
 function updateSscParents(){
   const cat=document.getElementById('sscCatSel').value;
   const pSel=document.getElementById('sscParentSel');
   pSel.innerHTML=SSC_PARENTS[cat].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
   refreshSscView();
 }
+
 function refreshSscView(){
   const catId=document.getElementById('sscCatSel')?.value;
   const parentId=document.getElementById('sscParentSel')?.value;
@@ -574,8 +683,9 @@ function refreshSscView(){
   const el=document.getElementById('sscList');
   if(!el)return;
   if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
-  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubSubcat('${it.id}','${key}')">&times;</button></div>`).join('');
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubSubcat('${it.id}','${key}')">×</button></div>`).join('');
 }
+
 async function addSubSubcat(){
   const catId=document.getElementById('sscCatSel').value;
   const parentId=document.getElementById('sscParentSel').value;
@@ -586,11 +696,13 @@ async function addSubSubcat(){
     const order=(dynSubSubs[key]||[]).length;
     const ref=await db.collection('dynamicSubSubCats').add({categoryId:catId,parentSubId:parentId,name,order});
     dynSubSubs[key]=dynSubSubs[key]||[];dynSubSubs[key].push({id:ref.id,name,order});
+    // Update CATS
     const cat=CATS.find(c=>c.id===catId);
     if(cat){const sub=cat.subs.find(s=>s.id===parentId);if(sub)sub.subSubs=dynSubSubs[key];}
-    inp.value='';refreshSscView();toast('Added \u2713');
+    inp.value='';refreshSscView();toast('Added ✓');
   }catch(e){toast(e.message,true);}
 }
+
 async function delSubSubcat(docId,key){
   if(!confirm('Delete this sub-category?'))return;
   try{
@@ -600,32 +712,43 @@ async function delSubSubcat(docId,key){
   }catch(e){toast(e.message,true);}
 }
 
+// ════════════════════════════════════════
+//  VOUCHERS — REAL-TIME
+// ════════════════════════════════════════
 function loadVouchers(){
-  document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
+  const periodLbl=`${MONTHS[selMonth-1]} ${selYear}`;
+  document.getElementById('cmPeriod').textContent=periodLbl;
   if(unsub)unsub();
   unsub=db.collection('vouchers').where('year','==',selYear).where('month','==',selMonth)
     .onSnapshot(snap=>{
       vouchers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
       renderDash();
       renderWorkflow();
-      if(openModalCatId)renderModalContent(openModalCatId);
+      if(openModalCatId) renderModalContent(openModalCatId);
     },err=>{
-      document.getElementById('cardGrid').innerHTML=`<div class="empty"><div class="empty-icon">\u26a0\ufe0f</div><div class="empty-title">Error</div><p class="empty-hint">${err.message}</p></div>`;
+      document.getElementById('cardGrid').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error</div><p class="empty-hint">${err.message}</p></div>`;
     });
 }
 
+// ════════════════════════════════════════
+//  DASHBOARD — CARD GRID
+// ════════════════════════════════════════
 function renderDash(){
+  // Stats
   document.getElementById('stTotal').textContent=vouchers.length;
-  document.getElementById('stFA').textContent=vouchers.filter(v=>v.faStatus==='pending').length;
-  document.getElementById('stVL').textContent=vouchers.filter(v=>v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
-  document.getElementById('stPay').textContent=vouchers.filter(v=>v.cigasStatus==='pending').length;
-  document.getElementById('stPaid').textContent=vouchers.filter(v=>v.cigasStatus==='paid').length;
+  document.getElementById('stFA').textContent   =vouchers.filter(v=>v.faStatus==='pending').length;
+  document.getElementById('stVL').textContent   =vouchers.filter(v=>v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
+  document.getElementById('stPay').textContent  =vouchers.filter(v=>v.cigasStatus==='pending').length;
+  document.getElementById('stPaid').textContent =vouchers.filter(v=>v.cigasStatus==='paid').length;
+
   if(!vouchers.length){
-    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">\ud83d\udced</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been generated yet.</p></div>`;
+    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been generated yet.</p></div>`;
     return;
   }
+
   const bycat={};
   vouchers.forEach(v=>{if(!bycat[v.category])bycat[v.category]=[];bycat[v.category].push(v);});
+
   let html='';
   CATS.forEach(cat=>{
     const cv=bycat[cat.id]||[];
@@ -636,10 +759,10 @@ function renderDash(){
     const pend=cv.length-paid-allocIssue-inProg;
     const pct=Math.round((paid/cv.length)*100);
     let pills='';
-    if(paid)pills+=`<span class="cp paid">\u2713 ${paid} Paid</span>`;
-    if(allocIssue)pills+=`<span class="cp alloc">\u26a0 ${allocIssue} Alloc. Issue</span>`;
-    if(inProg)pills+=`<span class="cp prog">${inProg} In Progress</span>`;
-    if(pend)pills+=`<span class="cp pend">${pend} Pending</span>`;
+    if(paid)       pills+=`<span class="cp paid">✓ ${paid} Paid</span>`;
+    if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} Alloc. Issue</span>`;
+    if(inProg)     pills+=`<span class="cp prog">${inProg} In Progress</span>`;
+    if(pend)       pills+=`<span class="cp pend">${pend} Pending</span>`;
     html+=`<div class="cat-card" onclick="openCatModal('${cat.id}')">
       <div class="card-top">
         <div class="card-name">${cat.name}</div>
@@ -654,6 +777,9 @@ function renderDash(){
   document.getElementById('cardGrid').innerHTML=html;
 }
 
+// ════════════════════════════════════════
+//  CATEGORY MODAL
+// ════════════════════════════════════════
 function openCatModal(catId){
   openModalCatId=catId;
   document.getElementById('cmOverlay').style.display='flex';
@@ -670,109 +796,156 @@ function renderModalContent(catId){
   const cv=vouchers.filter(v=>v.category===catId).sort((a,b)=>(a.order||0)-(b.order||0));
   document.getElementById('cmTitle').textContent=cat.name;
   document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
+
   if(!cv.length){
-    document.getElementById('cmBody').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udced</div><div class="empty-title">No entries</div></div>';
+    document.getElementById('cmBody').innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No entries</div></div>';
     return;
   }
+
   let html='';
   if(cat.subs===null){
+    // Single entry — show status rows
     const v=cv[0];
-    html=`<table style="width:100%;border-collapse:collapse"><tbody>
-      ${seRow('FA Check',badge(v,'fa'))}
-      ${seRow(v.s2==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
-      ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
-    </tbody></table>`;
-  }else if(cat.hasSubSubs){
+    html=`<table style="width:100%;border-collapse:collapse">
+      <tbody>
+        ${seRow('FA Check',badge(v,'fa'))}
+        ${seRow(v.s2==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
+        ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
+      </tbody></table>`;
+  } else if(cat.hasSubSubs){
+    // Grouped by parent sub → sub-sub-cat table
     const byParent={};
     cv.forEach(v=>{const k=v.subCategory||'';if(!byParent[k])byParent[k]={name:v.subCategoryName,items:[]};byParent[k].items.push(v);});
     cat.subs.forEach(sub=>{
       const grp=byParent[sub.id];if(!grp||!grp.items.length)return;
-      html+=`<div class="grp-hdr">${sub.name}</div><div class="tbl-scroll"><table class="m-table">
-        <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead><tbody>`;
+      html+=`<div class="grp-hdr">${sub.name}</div>
+        <div class="tbl-scroll"><table class="m-table">
+          <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
+          <tbody>`;
       grp.items.forEach((v,i)=>{
-        html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subSubCategoryName||'\u2014'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+        html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subSubCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
       });
       html+='</tbody></table></div>';
     });
-  }else{
+  } else {
+    // Regular sub-cat table
     html=`<div class="tbl-scroll"><table class="m-table">
-      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead><tbody>`;
+      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
+      <tbody>`;
     cv.forEach((v,i)=>{
-      html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subCategoryName||'\u2014'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+      html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
     });
     html+='</tbody></table></div>';
   }
   document.getElementById('cmBody').innerHTML=html;
 }
+
 function seRow(lbl,badgeHtml){
-  return`<tr><td style="padding:14px 20px;font-weight:700;color:var(--muted);font-size:12px;min-width:140px;border-bottom:1px solid #EDE8DF">${lbl}</td><td style="padding:14px 20px;border-bottom:1px solid #EDE8DF">${badgeHtml}</td></tr>`;
+  return`<tr><td class="se-lbl" style="padding:14px 20px;font-weight:700;color:var(--muted);font-size:12px;min-width:140px;border-bottom:1px solid #EDE8DF">${lbl}</td><td style="padding:14px 20px;border-bottom:1px solid #EDE8DF">${badgeHtml}</td></tr>`;
 }
 
+// ════════════════════════════════════════
+//  STATUS BADGE
+// ════════════════════════════════════════
 function badge(v,stage){
   let status,at,by,next,canClick;
   if(stage==='fa'){
     status=v.faStatus||'pending';at=v.faAt;by=v.faBy;
     next=status==='pending'?'received':'pending';
     canClick=meData&&(meData.role==='fa'||meData.role==='superadmin');
-  }else if(stage==='stage2'){
+  } else if(stage==='stage2'){
     status=v.stage2Status||'pending';at=v.stage2At;by=v.stage2By;
-    next=status==='pending'?'received':'pending';
+    // In modal: alloc flags click → reset to pending; pending → received; received → pending
+    if(status==='pending') next='received';
+    else next='pending';
     const isVL=v.s2==='vl';
     canClick=meData&&((meData.role==='vl'&&isVL)||(meData.role==='deposit'&&!isVL)||meData.role==='superadmin');
-  }else{
+    // Alloc flags: clickable to reset to pending only
+  } else {
     status=v.cigasStatus||'pending';at=v.cigasAt;by=v.cigasBy;
     next=status==='pending'?'paid':'pending';
     canClick=meData&&meData.role==='superadmin';
   }
+
   const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an'};
-  const lblMap={pending:'Pending',received:'\u2713 Received',paid:'\u2713 Paid',alloc_insufficient:'\u26a0 Alloc. Not Enough',alloc_not_received:'\u26a0 Alloc. Not Received'};
+  const lblMap={pending:'Pending',received:'✓ Received',paid:'✓ Paid',alloc_insufficient:'⚠ Alloc. Not Enough',alloc_not_received:'⚠ Alloc. Not Received'};
   const cls=clsMap[status]||'s-pend';
   const lbl=lblMap[status]||'Pending';
+
   let timePart='',byPart='';
   if(at){
     const d=at.toDate?at.toDate():new Date(at.seconds*1000);
     timePart=`<span class="b-time">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>`;
     if(by)byPart=`<span class="b-by">${by.split(' ')[0]}</span>`;
   }
+
   if(canClick)return`<span class="sbadge ${cls} clickable" onclick="doUpdate('${v.id}','${stage}','${next}')">${lbl}${timePart}${byPart}</span>`;
   return`<span class="sbadge ${cls}">${lbl}${timePart}${byPart}</span>`;
 }
 
+// ════════════════════════════════════════
+//  WORKFLOW TAB
+// ════════════════════════════════════════
 function renderWorkflow(){
   if(!meData||meData.role==='viewer')return;
   const role=meData.role;
   let items=[],stage='',actionLabel='';
-  if(role==='fa'){items=vouchers.filter(v=>v.faStatus==='pending');stage='fa';actionLabel='Mark Received';}
-  else if(role==='vl'){items=vouchers.filter(v=>v.stage2Type==='vl'&&(v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received'));stage='stage2';}
-  else if(role==='deposit'){items=vouchers.filter(v=>v.stage2Type==='deposit'&&v.stage2Status==='pending');stage='stage2';actionLabel='Mark Received';}
-  else if(role==='superadmin'){items=vouchers.filter(v=>v.cigasStatus==='pending');stage='cigas';actionLabel='Mark Paid';}
+
+  if(role==='fa'){
+    items=vouchers.filter(v=>v.faStatus==='pending');
+    stage='fa'; actionLabel='Mark Received';
+  } else if(role==='vl'){
+    items=vouchers.filter(v=>v.stage2Type==='vl'&&(v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received'));
+    stage='stage2';
+  } else if(role==='deposit'){
+    items=vouchers.filter(v=>v.stage2Type==='deposit'&&v.stage2Status==='pending');
+    stage='stage2'; actionLabel='Mark Received';
+  } else if(role==='superadmin'){
+    items=vouchers.filter(v=>v.cigasStatus==='pending');
+    stage='cigas'; actionLabel='Mark Paid';
+  }
+
   const wfTitle=document.getElementById('wfTitle');
   const wfCount=document.getElementById('wfCount');
-  if(wfTitle)wfTitle.textContent=`${SROLES[role]||role} \u2014 Pending Items \u00b7 ${MONTHS[selMonth-1]} ${selYear}`;
+  if(wfTitle)wfTitle.textContent=`${SROLES[role]||role} — Pending Items · ${MONTHS[selMonth-1]} ${selYear}`;
   if(wfCount)wfCount.textContent=items.length;
+
   if(!items.length){
-    document.getElementById('wfContent').innerHTML=`<div class="empty"><div class="empty-icon">\u2705</div><div class="empty-title">All done for ${MONTHS[selMonth-1]} ${selYear}!</div><p class="empty-hint">No pending items for your role.</p></div>`;
+    document.getElementById('wfContent').innerHTML=`<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All done for ${MONTHS[selMonth-1]} ${selYear}!</div><p class="empty-hint">No pending items for your role.</p></div>`;
     return;
   }
+
   let html=`<table class="wf-table"><thead><tr><th>#</th><th>Category</th><th>Sub-category / Detail</th>${role==='vl'?'<th>Status</th>':''}<th>Other Stages</th><th>Action</th></tr></thead><tbody>`;
+
   items.forEach((v,i)=>{
-    const subDetail=v.subSubCategoryName||v.subCategoryName||'\u2014';
-    const subParent=v.subSubCategoryName?`<span style="font-size:10px;color:var(--muted)">${v.subCategoryName} \u00b7 </span>`:'';
+    const subDetail=v.subSubCategoryName||v.subCategoryName||'—';
+    const subParent=v.subSubCategoryName?`<span style="font-size:10px;color:var(--muted)">${v.subCategoryName} · </span>`:'';
     const isFlagged=v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received';
     const otherStages=buildOtherStages(v,stage);
+
     let actionHtml='';
     if(role==='vl'){
       if(isFlagged){
-        actionHtml=`<div class="btn-grp"><button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">\u2713 Mark OK</button><button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">\u21a9 Reset</button></div>`;
-      }else{
-        actionHtml=`<div class="btn-grp"><button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">\u2713 Received</button><button class="bwf ai" onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">\u26a0 Not Enough</button><button class="bwf an" onclick="doUpdate('${v.id}','stage2','alloc_not_received')">\u26a0 Not Received</button></div>`;
+        // Show current flag + option to mark OK or reset
+        actionHtml=`<div class="btn-grp">
+          <button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Mark OK</button>
+          <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">↩ Reset</button>
+        </div>`;
+      } else {
+        actionHtml=`<div class="btn-grp">
+          <button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>
+          <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">⚠ Not Enough</button>
+          <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">⚠ Not Received</button>
+        </div>`;
       }
-    }else{
+    } else {
       const nextVal=stage==='cigas'?'paid':'received';
       actionHtml=`<button class="bwf ${stage==='cigas'?'paid':'recv'}" onclick="doUpdate('${v.id}','${stage}','${nextVal}')">${actionLabel}</button>`;
     }
+
     const flagBadge=isFlagged?`<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:${v.stage2Status==='alloc_insufficient'?'var(--ai-bg)':'var(--an-bg)'};color:${v.stage2Status==='alloc_insufficient'?'var(--ai-txt)':'var(--an-txt)'}">
-      ${v.stage2Status==='alloc_insufficient'?'\u26a0 Not Enough':'\u26a0 Not Received'}</span>`:'';
+      ${v.stage2Status==='alloc_insufficient'?'⚠ Not Enough':'⚠ Not Received'}</span>`:'';
+
     html+=`<tr${isFlagged?' class="flagged"':''}>
       <td style="color:#bbb;font-size:11px">${i+1}</td>
       <td><div class="wf-cat">${v.categoryName}</div></td>
@@ -782,17 +955,31 @@ function renderWorkflow(){
       <td>${actionHtml}</td>
     </tr>`;
   });
+
   html+='</tbody></table>';
   document.getElementById('wfContent').innerHTML=html;
 }
+
 function buildOtherStages(v,currentStage){
   const parts=[];
-  if(currentStage!=='fa'){const s=v.faStatus||'pending';parts.push(`FA: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'\u2713':'-'}</strong>`);}
-  if(currentStage!=='stage2'){const s=v.stage2Status||'pending';parts.push(`VL: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'\u2713':'-'}</strong>`);}
-  if(currentStage!=='cigas'){const s=v.cigasStatus||'pending';parts.push(`Pay: <strong style="color:${s==='paid'?'var(--paid-txt)':'var(--muted)'}">${s==='paid'?'\u2713':'-'}</strong>`);}
-  return`<span style="font-size:11px;color:var(--muted)">${parts.join(' \u00b7 ')}</span>`;
+  if(currentStage!=='fa'){
+    const s=v.faStatus||'pending';
+    parts.push(`FA: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'✓':'-'}</strong>`);
+  }
+  if(currentStage!=='stage2'){
+    const s=v.stage2Status||'pending';
+    parts.push(`VL: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'✓':'-'}</strong>`);
+  }
+  if(currentStage!=='cigas'){
+    const s=v.cigasStatus||'pending';
+    parts.push(`Pay: <strong style="color:${s==='paid'?'var(--paid-txt)':'var(--muted)'}">${s==='paid'?'✓':'-'}</strong>`);
+  }
+  return`<span style="font-size:11px;color:var(--muted)">${parts.join(' · ')}</span>`;
 }
 
+// ════════════════════════════════════════
+//  STATUS UPDATE
+// ════════════════════════════════════════
 async function doUpdate(vid,stage,next){
   try{
     const ts=firebase.firestore.FieldValue.serverTimestamp();
@@ -803,45 +990,61 @@ async function doUpdate(vid,stage,next){
     else if(stage==='stage2'){upd.stage2Status=next;upd.stage2At=clearing?null:ts;upd.stage2By=clearing?null:name;}
     else{upd.cigasStatus=next;upd.cigasAt=clearing?null:ts;upd.cigasBy=clearing?null:name;}
     await db.collection('vouchers').doc(vid).update(upd);
-    toast('Updated \u2713');
+    toast('Updated ✓');
   }catch(e){toast(e.message,true);}
 }
 
+// ════════════════════════════════════════
+//  GENERATE MONTH
+// ════════════════════════════════════════
 async function generateMonth(){
   const m=+document.getElementById('genMonth').value,y=+document.getElementById('genYear').value;
   if(!confirm(`Generate all voucher entries for ${MONTHS[m-1]} ${y}?\nExisting entries will be skipped.`))return;
-  toast('Generating\u2026');
+  toast('Generating…');
   const existing=await db.collection('vouchers').where('year','==',y).where('month','==',m).get();
   const existSet=new Set(existing.docs.map(d=>d.id));
   const batch=db.batch();let count=0,order=1;
   const ts=firebase.firestore.FieldValue.serverTimestamp();
   const base={month:m,year:y,faStatus:'pending',faAt:null,faBy:null,stage2Status:'pending',stage2At:null,stage2By:null,cigasStatus:'pending',cigasAt:null,cigasBy:null,createdAt:ts,createdBy:me.uid};
+
   for(const cat of CATS){
     if(cat.subs===null){
       const docId=`${y}_${m}_${cat.id}`;
-      if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});count++;}
+      if(!existSet.has(docId)){
+        batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});
+        count++;
+      }
       order++;
-    }else if(cat.hasSubSubs){
+    } else if(cat.hasSubSubs){
       for(const sub of cat.subs){
-        for(const ss of(sub.subSubs||[])){
+        for(const ss of (sub.subSubs||[])){
           const docId=`${y}_${m}_${cat.id}_${sub.id}_${ss.id}`;
-          if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:ss.id,subSubCategoryName:ss.name,stage2Type:cat.s2,order:order});count++;}
+          if(!existSet.has(docId)){
+            batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:ss.id,subSubCategoryName:ss.name,stage2Type:cat.s2,order:order});
+            count++;
+          }
           order++;
         }
       }
-    }else if(Array.isArray(cat.subs)&&cat.subs.length>0){
+    } else if(Array.isArray(cat.subs)&&cat.subs.length>0){
       for(const sub of cat.subs){
         const docId=`${y}_${m}_${cat.id}_${sub.id}`;
-        if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});count++;}
+        if(!existSet.has(docId)){
+          batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});
+          count++;
+        }
         order++;
       }
     }
   }
   if(count===0){toast('All entries already exist for this month.');return;}
-  try{await batch.commit();toast(`${count} entries generated for ${MONTHS[m-1]} ${y} \u2713`);}
+  try{await batch.commit();toast(`${count} entries generated for ${MONTHS[m-1]} ${y} ✓`);}
   catch(e){toast(e.message,true);}
 }
 
+// ════════════════════════════════════════
+//  USER MANAGEMENT
+// ════════════════════════════════════════
 async function loadUsers(){
   try{
     const snap=await db.collection('users').get();
@@ -852,7 +1055,7 @@ function renderUsers(users){
   let html=`<div style="overflow-x:auto"><table class="u-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
   users.forEach(u=>{
     const isSelf=u.uid===me.uid;
-    html+=`<tr><td>${u.name||'\u2014'}</td><td style="color:#888;font-size:11px">${u.email}</td>
+    html+=`<tr><td>${u.name||'—'}</td><td style="color:#888;font-size:11px">${u.email}</td>
       <td>${isSelf?`<span class="role-pill">${ROLES[u.role]||u.role}</span>`
         :`<select class="role-sel" id="role_${u.uid}">${Object.entries(ROLES).map(([k,v2])=>`<option value="${k}"${u.role===k?' selected':''}>${v2}</option>`).join('')}<option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option></select>`}</td>
       <td>${isSelf?'<span style="font-size:11px;color:#aaa">(You)</span>':`<button class="btn-sv" onclick="saveRole('${u.uid}')">Save</button>`}</td>
@@ -862,13 +1065,203 @@ function renderUsers(users){
 }
 async function saveRole(uid){
   const role=document.getElementById('role_'+uid).value;
-  try{await db.collection('users').doc(uid).update({role});toast('Role updated \u2713');loadUsers();}
+  try{await db.collection('users').doc(uid).update({role});toast('Role updated ✓');loadUsers();}
   catch(e){toast(e.message,true);}
 }
 
+// ════════════════════════════════════════
+//  PDF REPORT GENERATION
+// ════════════════════════════════════════
+async function generatePDF(){
+  if(!vouchers.length){toast('No voucher data for this period.',true);return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const MAR=14, PW=182, MAROON=[114,47,63], GOLD=[201,168,76], CREAM=[240,234,224], DARK=[43,34,25];
+  const periodStr=`${MONTHS[selMonth-1]} ${selYear}`;
+
+  // ── HEADER BAND ──
+  doc.setFillColor(...MAROON);
+  doc.rect(0,0,210,38,'F');
+  // Gold accent line
+  doc.setFillColor(...GOLD);
+  doc.rect(0,38,210,1.5,'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(15);
+  doc.text('Horowpothana Divisional Secretariat',105,13,{align:'center'});
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  doc.text('Account Branch — Voucher Status Report',105,21,{align:'center'});
+  doc.setFontSize(13);
+  doc.setFont('helvetica','bold');
+  doc.text(periodStr,105,31,{align:'center'});
+
+  // ── META LINE ──
+  const genNow=new Date();
+  const genStr=`Generated: ${genNow.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} ${genNow.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}   |   By: ${meData.name}`;
+  doc.setTextColor(130,110,100);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica','normal');
+  doc.text(genStr,105,46,{align:'center'});
+
+  // ── SUMMARY TABLE ──
+  const paid   =vouchers.filter(v=>v.cigasStatus==='paid').length;
+  const pendPay=vouchers.filter(v=>v.cigasStatus==='pending').length;
+  const pendFA =vouchers.filter(v=>v.faStatus==='pending').length;
+  const pendVL =vouchers.filter(v=>['pending','alloc_insufficient','alloc_not_received'].includes(v.stage2Status)).length;
+  const allocI =vouchers.filter(v=>v.stage2Status==='alloc_insufficient').length;
+  const allocN =vouchers.filter(v=>v.stage2Status==='alloc_not_received').length;
+
+  doc.autoTable({
+    startY:52,
+    head:[['Summary','Count']],
+    body:[
+      ['Total Vouchers',        vouchers.length],
+      ['✓ Paid',                paid],
+      ['Pending Payment (CIGAS)',pendPay],
+      ['Pending FA',            pendFA],
+      ['Pending VL / Deposit',  pendVL],
+      ['⚠ Allocation Not Enough',  allocI],
+      ['⚠ Allocation Not Received',allocN],
+    ],
+    styles:{fontSize:9,cellPadding:3},
+    headStyles:{fillColor:MAROON,fontStyle:'bold',fontSize:9},
+    columnStyles:{0:{cellWidth:110},1:{cellWidth:30,halign:'center',fontStyle:'bold'}},
+    margin:{left:MAR,right:MAR},
+    tableWidth:140,
+    didParseCell(data){
+      if(data.section==='body'){
+        const v=data.cell.text[0];
+        if(v==='✓ Paid'||data.row.index===1) data.cell.styles.textColor=[6,95,70];
+        if(v.includes('⚠'))                 data.cell.styles.textColor=[154,52,18];
+      }
+    }
+  });
+
+  let y=doc.lastAutoTable.finalY+10;
+
+  // ── PER-CATEGORY SECTIONS ──
+  const bycat={};
+  vouchers.forEach(v=>{if(!bycat[v.category])bycat[v.category]=[];bycat[v.category].push(v);});
+
+  const fmtFA  =s=>s==='received'?'✓ Received':'Pending';
+  const fmtS2  =v=>{const s=v.stage2Status||'pending';if(s==='received')return'✓ Received';if(s==='alloc_insufficient')return'⚠ Not Enough';if(s==='alloc_not_received')return'⚠ Not Received';return'Pending';};
+  const fmtPay =s=>s==='paid'?'✓ Paid':'Pending';
+  const fmtTs  =ts=>{if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});};
+
+  function cellColor(data){
+    if(data.section!=='body')return;
+    const txt=data.cell.text[0];
+    if(txt==='✓ Received'||txt==='✓ Paid'){data.cell.styles.textColor=[6,95,70];data.cell.styles.fontStyle='bold';}
+    else if(txt==='Pending'){data.cell.styles.textColor=[107,94,82];}
+    else if(txt.startsWith('⚠')){data.cell.styles.textColor=[154,52,18];data.cell.styles.fontStyle='bold';}
+  }
+
+  for(const cat of CATS){
+    const cv=bycat[cat.id];
+    if(!cv||!cv.length)continue;
+
+    // Page break check
+    if(y>255){doc.addPage();y=15;}
+
+    // Category heading bar
+    doc.setFillColor(...CREAM);
+    doc.rect(MAR,y,PW,7,'F');
+    doc.setDrawColor(...MAROON);
+    doc.setLineWidth(0.4);
+    doc.rect(MAR,y,PW,7);
+    doc.setTextColor(...MAROON);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9.5);
+    doc.text(cat.name,MAR+3,y+5);
+    // Entry count on right
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(130,110,100);
+    doc.text(`${cv.length} ${cv.length===1?'entry':'entries'}`,MAR+PW-2,y+5,{align:'right'});
+    y+=9;
+
+    let head,body;
+
+    if(cat.subs===null){
+      // Single entry
+      const v=cv[0];
+      head=[['FA Status','VL / Deposit','Payment','FA Updated','VL Updated','Payment Date']];
+      body=[[fmtFA(v.faStatus),fmtS2(v),fmtPay(v.cigasStatus),
+             v.faBy?`${v.faBy.split(' ')[0]} · ${fmtTs(v.faAt)}`:'—',
+             v.stage2By?`${v.stage2By.split(' ')[0]} · ${fmtTs(v.stage2At)}`:'—',
+             v.cigasBy?`${v.cigasBy.split(' ')[0]} · ${fmtTs(v.cigasAt)}`:'—']];
+    } else if(cat.hasSubSubs){
+      head=[['Group','Sub-category','FA','VL / Deposit','Payment','Updated']];
+      body=[];
+      const byParent={};
+      cv.forEach(v=>{if(!byParent[v.subCategory])byParent[v.subCategory]=[];byParent[v.subCategory].push(v);});
+      cat.subs.forEach(sub=>{
+        const items=byParent[sub.id]||[];
+        items.forEach((v,i)=>{
+          const lastBy=v.cigasBy||v.stage2By||v.faBy;
+          const lastAt=v.cigasAt||v.stage2At||v.faAt;
+          body.push([
+            i===0?sub.name:'',
+            v.subSubCategoryName||'—',
+            fmtFA(v.faStatus),fmtS2(v),fmtPay(v.cigasStatus),
+            lastBy?`${lastBy.split(' ')[0]} · ${fmtTs(lastAt)}`:'—',
+          ]);
+        });
+      });
+    } else {
+      head=[['Sub-category','FA','VL / Deposit','Payment','Updated By','Date']];
+      body=cv.map(v=>{
+        const lastBy=v.cigasBy||v.stage2By||v.faBy;
+        const lastAt=v.cigasAt||v.stage2At||v.faAt;
+        return[
+          v.subCategoryName||'—',
+          fmtFA(v.faStatus),fmtS2(v),fmtPay(v.cigasStatus),
+          lastBy?lastBy.split(' ')[0]:'—',
+          fmtTs(lastAt),
+        ];
+      });
+    }
+
+    doc.autoTable({
+      startY:y,
+      head,body,
+      styles:{fontSize:8,cellPadding:2.2},
+      headStyles:{fillColor:DARK,fontStyle:'bold',fontSize:8,textColor:[255,255,255]},
+      alternateRowStyles:{fillColor:[250,247,242]},
+      margin:{left:MAR,right:MAR},
+      didParseCell:cellColor,
+      didDrawPage(data){y=data.cursor.y;},
+    });
+
+    y=doc.lastAutoTable.finalY+8;
+  }
+
+  // ── FOOTER ON EVERY PAGE ──
+  const pages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFillColor(...MAROON);
+    doc.rect(0,286,210,11,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica','normal');
+    doc.text('Horowpothana Divisional Secretariat — Account Branch',MAR,292);
+    doc.text(`Page ${i} of ${pages}`,210-MAR,292,{align:'right'});
+  }
+
+  const filename=`Voucher_Report_${MONTHS[selMonth-1]}_${selYear}.pdf`;
+  doc.save(filename);
+  toast(`Report downloaded: ${filename} ✓`);
+}
+
+// ════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════
 function copyRules(){
   navigator.clipboard.writeText(document.querySelector('.rules-pre').textContent)
-    .then(()=>toast('Rules copied \u2713')).catch(()=>toast('Select and copy manually',true));
+    .then(()=>toast('Rules copied ✓')).catch(()=>toast('Select and copy manually',true));
 }
 let toastTmr;
 function toast(msg,isErr=false){
