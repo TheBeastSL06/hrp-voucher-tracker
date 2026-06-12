@@ -11,331 +11,321 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Voucher Track">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
-:root {
-  --maroon:#722F3F; --maroon-dark:#521F2D; --maroon-light:#8B3A4E;
-  --gold:#C9A84C; --gold-light:#E8D08A; --cream:#F5EFE0;
-  --bg:#F2EDE4; --white:#FFFFFF;
-  --pending-bg:#FEF3C7; --pending-text:#92400E; --pending-border:#FCD34D;
-  --recv-bg:#DBEAFE;    --recv-text:#1E40AF;    --recv-border:#93C5FD;
-  --paid-bg:#D1FAE5;    --paid-text:#065F46;    --paid-border:#6EE7B7;
-  --text:#2C2219; --text-muted:#6B5E52; --border:#DDD5C8;
-  --shadow:0 2px 10px rgba(0,0,0,0.10); --radius:10px;
+:root{
+  --maroon:#722F3F;--maroon-dark:#521F2D;--gold:#C9A84C;--gold-light:#E8D08A;
+  --bg:#F2EDE4;--white:#FFFFFF;
+  --pend-bg:#F3F4F6;--pend-txt:#4B5563;--pend-bdr:#D1D5DB;
+  --recv-bg:#DBEAFE;--recv-txt:#1E40AF;--recv-bdr:#93C5FD;
+  --paid-bg:#D1FAE5;--paid-txt:#065F46;--paid-bdr:#6EE7B7;
+  --ai-bg:#FEF3C7;--ai-txt:#92400E;--ai-bdr:#F59E0B;
+  --an-bg:#FFEDD5;--an-txt:#9A3412;--an-bdr:#FB923C;
+  --text:#2C2219;--muted:#6B5E52;--border:#DDD5C8;
+  --shadow:0 2px 10px rgba(0,0,0,.10);--radius:10px;
 }
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-tap-highlight-color:transparent; }
-
-/* ── HEADER ── */
-.app-header {
-  background:linear-gradient(90deg,var(--maroon-dark),var(--maroon));
-  color:var(--white); padding:0 14px; height:58px;
-  display:flex; align-items:center; justify-content:space-between;
-  position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.25);
-}
-.hdr-left { display:flex; align-items:center; gap:10px; }
-.hdr-logo { width:38px; height:38px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,0.12); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:var(--gold-light); letter-spacing:1px; }
-.hdr-title { font-size:15px; font-weight:800; line-height:1.2; }
-.hdr-sub   { font-size:10px; opacity:.75; }
-.hdr-right { display:flex; align-items:center; gap:8px; }
-.role-pill  { background:var(--gold); color:var(--maroon-dark); padding:3px 9px; border-radius:20px; font-size:10px; font-weight:800; white-space:nowrap; }
-.hdr-name  { font-size:12px; opacity:.88; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.btn-hdr   { border:1px solid rgba(255,255,255,0.32); color:var(--white); padding:5px 13px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; background:rgba(255,255,255,0.13); }
-.btn-hdr:hover { background:rgba(255,255,255,0.22); }
-
-/* ── NAV ── */
-.nav-bar { background:var(--white); border-bottom:2px solid var(--border); display:flex; padding:0 8px; }
-.nav-item { padding:13px 16px; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-muted); border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .2s; white-space:nowrap; }
-.nav-item.active { color:var(--maroon); border-bottom-color:var(--maroon); }
-
-/* ── CONTENT ── */
-.content { padding:18px 14px; max-width:1400px; margin:0 auto; width:100%; }
-.ctrl-bar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
-.ctrl-bar h2 { font-size:17px; font-weight:800; color:var(--maroon); flex:1; min-width:120px; }
-.sel-wrap { display:flex; gap:6px; }
-.sel-wrap select { padding:7px 11px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; background:var(--white); cursor:pointer; outline:none; color:var(--text); }
-.sel-wrap select:focus { border-color:var(--maroon); }
-
-/* ── STATS ── */
-.stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:18px; }
-.stat-card { background:var(--white); border-radius:var(--radius); padding:12px 14px; box-shadow:var(--shadow); border-top:3px solid var(--border); }
-.stat-card.s-total { border-top-color:var(--maroon); }
-.stat-card.s-fa    { border-top-color:var(--pending-border); }
-.stat-card.s-vl    { border-top-color:#A78BFA; }
-.stat-card.s-cigas { border-top-color:var(--recv-border); }
-.stat-card.s-paid  { border-top-color:var(--paid-border); }
-.stat-val { font-size:26px; font-weight:800; color:var(--maroon); }
-.stat-lbl { font-size:11px; color:var(--text-muted); margin-top:3px; }
-
-/* ── ACCORDION WRAPPER ── */
-.accordion-wrap { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
-.acc-header-bar { background:var(--maroon); color:var(--white); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
-.acc-header-bar h3 { font-size:14px; font-weight:700; }
-.acc-period { font-size:12px; opacity:.8; }
-
-/* ── CATEGORY ROW ── */
-.cat-row {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:13px 16px; border-bottom:1px solid #EDE8DF;
-  cursor:pointer; transition:background .15s; gap:10px;
-  user-select:none;
-}
-.cat-row:hover { background:#FAF7F2; }
-.cat-row:last-child { border-bottom:none; }
-.cat-row.no-expand { cursor:default; }
-.cat-row.no-expand:hover { background:transparent; }
-.cat-row.expanded { background:#FDF9F4; }
-
-.cat-row-left { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
-.cat-arrow { font-size:12px; color:var(--maroon); width:16px; flex-shrink:0; transition:transform .2s; }
-.cat-arrow.open { transform:rotate(90deg); }
-.cat-name { font-size:13px; font-weight:700; color:var(--maroon); }
-.cat-entry-count { font-size:11px; color:var(--text-muted); white-space:nowrap; }
-
-.cat-row-right { display:flex; align-items:center; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
-
-/* Mini summary pills (collapsed state) */
-.mini-pill { font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid; white-space:nowrap; }
-.mini-pill.paid     { background:var(--paid-bg);    color:var(--paid-text);    border-color:var(--paid-border); }
-.mini-pill.pending  { background:var(--pending-bg); color:var(--pending-text); border-color:var(--pending-border); }
-.mini-pill.progress { background:var(--recv-bg);    color:var(--recv-text);    border-color:var(--recv-border); }
-
-/* ── SUB-CATEGORY TABLE (inside accordion) ── */
-.cat-subs { display:none; border-bottom:2px solid #EDE8DF; background:#FDFAF6; overflow-x:auto; }
-.cat-subs.open { display:block; }
-
-.subs-table { width:100%; border-collapse:collapse; min-width:580px; }
-.subs-table thead th { background:#F0EAE0; padding:8px 12px; text-align:left; font-size:10px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); white-space:nowrap; }
-.subs-table tbody td { padding:8px 12px; font-size:12px; border-bottom:1px solid #EDE8DF; vertical-align:middle; }
-.subs-table tbody tr:hover { background:#F5EFE5; }
-.subs-table tbody tr:last-child td { border-bottom:none; }
-.row-num { color:#BBA890; font-size:11px; width:28px; }
-.sub-lbl { font-size:12px; font-weight:500; color:var(--text); }
-
-/* Single-entry row status (no sub-cats) */
-.single-status { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-
-/* ── STATUS BADGES ── */
-.sbadge { display:inline-flex; flex-direction:column; align-items:center; min-width:78px; padding:5px 8px; border-radius:20px; text-align:center; font-size:11px; font-weight:700; gap:1px; border-width:1.5px; border-style:solid; white-space:nowrap; transition:transform .15s,box-shadow .15s; }
-.sbadge.clickable { cursor:pointer; }
-.sbadge.clickable:hover { transform:scale(1.06); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-.sbadge.clickable:active { transform:scale(0.97); }
-.sbadge.s-pending  { background:var(--pending-bg); color:var(--pending-text); border-color:var(--pending-border); }
-.sbadge.s-received { background:var(--recv-bg);    color:var(--recv-text);    border-color:var(--recv-border); }
-.sbadge.s-paid     { background:var(--paid-bg);    color:var(--paid-text);    border-color:var(--paid-border); }
-.b-time { font-size:9px; font-weight:400; opacity:.8; }
-.b-by   { font-size:9px; font-weight:600; }
-
-/* ── LOADING / EMPTY ── */
-.loading { text-align:center; padding:50px 20px; color:var(--text-muted); }
-.spinner { width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--maroon); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 12px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.empty { text-align:center; padding:60px 20px; color:var(--text-muted); }
-.empty-icon { font-size:44px; margin-bottom:14px; }
-.empty-title { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text); }
-.empty-hint { font-size:13px; }
-
-/* ── OVERLAYS / MODALS ── */
-.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.52); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
-.modal-box { background:var(--white); border-radius:14px; padding:28px 24px; max-width:420px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); }
-.modal-box h3 { font-size:17px; font-weight:800; color:var(--maroon); margin-bottom:8px; }
-.modal-box p  { font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.6; }
-.modal-acts { display:flex; gap:10px; }
-.btn-yes { flex:1; padding:11px; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; background:var(--maroon); color:var(--white); }
-.btn-no  { flex:1; padding:11px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; cursor:pointer; background:var(--white); color:var(--text); }
-
-/* ── LOGIN MODAL ── */
-.login-modal { background:var(--white); border-radius:14px; padding:30px 26px; max-width:380px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,0.3); position:relative; }
-.login-logo  { width:64px; height:64px; margin:0 auto 12px; border-radius:50%; background:var(--maroon); border:3px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; color:var(--gold-light); }
-.login-title { text-align:center; font-size:17px; font-weight:800; color:var(--maroon); margin-bottom:4px; }
-.login-sub   { text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:22px; }
-.tab-row { display:flex; border-radius:8px; overflow:hidden; border:1.5px solid var(--border); margin-bottom:20px; }
-.tab-btn { flex:1; padding:9px; background:#f4f0ea; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--text-muted); transition:all .2s; }
-.tab-btn.active { background:var(--maroon); color:var(--white); }
-.fgrp { margin-bottom:13px; }
-.fgrp label { display:block; font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:5px; letter-spacing:.3px; text-transform:uppercase; }
-.fgrp input { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; outline:none; transition:border-color .2s; }
-.fgrp input:focus { border-color:var(--maroon); }
-.btn-main { width:100%; padding:11px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; background:var(--maroon); color:var(--white); }
-.btn-main:hover { background:var(--maroon-dark); }
-.err-msg { color:#C0392B; font-size:12px; margin-top:10px; padding:8px 12px; background:#FDF2F2; border-radius:6px; display:none; }
-.reg-note { font-size:11px; color:var(--text-muted); margin-top:10px; text-align:center; }
-.modal-close { position:absolute; top:12px; right:14px; background:none; border:none; font-size:22px; color:var(--text-muted); cursor:pointer; line-height:1; }
-
-/* ── ADMIN ── */
-.admin-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
-.admin-card { background:var(--white); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
-.admin-card h3 { font-size:14px; font-weight:800; color:var(--maroon); margin-bottom:16px; }
-.aform { display:flex; flex-direction:column; gap:10px; }
-.aform select,.aform input { padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; outline:none; }
-.aform select:focus,.aform input:focus { border-color:var(--maroon); }
-.btn-a { padding:10px 18px; background:var(--maroon); color:var(--white); border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
-.btn-a:hover { background:var(--maroon-dark); }
-.admin-hint { font-size:11px; color:var(--text-muted); margin-top:10px; line-height:1.6; }
-.u-table { width:100%; border-collapse:collapse; }
-.u-table th,.u-table td { padding:9px 11px; text-align:left; font-size:12px; border-bottom:1px solid var(--border); }
-.u-table th { background:#F7F2EA; font-weight:800; font-size:10px; text-transform:uppercase; color:var(--text-muted); }
-.role-sel { padding:5px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; cursor:pointer; }
-.btn-save { padding:5px 12px; background:var(--maroon); color:var(--white); border:none; border-radius:6px; font-size:11px; cursor:pointer; font-weight:700; }
-.sc-list { display:flex; flex-direction:column; gap:5px; max-height:180px; overflow-y:auto; margin-bottom:10px; }
-.sc-item { display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:var(--bg); border-radius:6px; font-size:12px; }
-.btn-del { background:none; border:none; color:#C0392B; cursor:pointer; font-size:16px; padding:0 4px; }
-.sc-add-row { display:flex; gap:6px; }
-.sc-add-row input { flex:1; padding:8px 11px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; outline:none; }
-.sc-add-row input:focus { border-color:var(--maroon); }
-.rules-pre { background:#1e1e1e; color:#9CDCFE; padding:14px; border-radius:8px; font-size:11px; line-height:1.7; overflow-x:auto; font-family:monospace; max-height:220px; overflow-y:auto; }
-
-/* ── TOAST ── */
-.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2C2219; color:var(--white); padding:11px 22px; border-radius:30px; font-size:13px; font-weight:600; z-index:300; display:none; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.25); }
-
-/* ── RESPONSIVE ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;}
+.hdr{background:linear-gradient(90deg,var(--maroon-dark),var(--maroon));color:#fff;padding:0 14px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.25);}
+.hdr-l{display:flex;align-items:center;gap:10px;}
+.hdr-logo{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--gold-light);letter-spacing:1px;flex-shrink:0;}
+.hdr-title{font-size:15px;font-weight:800;line-height:1.2;}
+.hdr-sub{font-size:10px;opacity:.75;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.role-pill{background:var(--gold);color:var(--maroon-dark);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap;}
+.hdr-name{font-size:12px;opacity:.88;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-hdr{border:1px solid rgba(255,255,255,.32);color:#fff;padding:5px 13px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,.13);}
+.btn-hdr:hover{background:rgba(255,255,255,.22);}
+.nav-bar{background:#fff;border-bottom:2px solid var(--border);display:flex;padding:0 8px;overflow-x:auto;}
+.nav-item{padding:13px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.nav-item.active{color:var(--maroon);border-bottom-color:var(--maroon);}
+.period-bar{background:#fff;border-bottom:1px solid var(--border);padding:9px 16px;display:flex;align-items:center;gap:10px;}
+.period-bar label{font-size:12px;font-weight:700;color:var(--muted);}
+.period-bar select{padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:#fff;cursor:pointer;outline:none;color:var(--text);}
+.period-bar select:focus{border-color:var(--maroon);}
+.content{padding:18px 14px;max-width:1400px;margin:0 auto;width:100%;}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);border-top:3px solid var(--border);}
+.stat-card.s-tot{border-top-color:var(--maroon);}
+.stat-card.s-fa{border-top-color:#FCD34D;}
+.stat-card.s-vl{border-top-color:#A78BFA;}
+.stat-card.s-pay{border-top-color:#93C5FD;}
+.stat-card.s-pd{border-top-color:#6EE7B7;}
+.stat-v{font-size:26px;font-weight:800;color:var(--maroon);}
+.stat-l{font-size:11px;color:var(--muted);margin-top:3px;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:14px;}
+.cat-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid var(--border);}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.14);}
+.cat-card:active{transform:translateY(0);}
+.card-top{background:var(--maroon);padding:13px 14px;}
+.card-name{font-size:12px;font-weight:800;color:#fff;line-height:1.4;}
+.card-entries{font-size:10px;color:rgba(255,255,255,.7);margin-top:3px;}
+.card-body{padding:12px 14px;}
+.bar-wrap{height:5px;background:#EDE8DF;border-radius:3px;margin-bottom:10px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--paid-bdr);border-radius:3px;transition:width .4s;}
+.card-pills{display:flex;flex-wrap:wrap;gap:4px;}
+.cp{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid;}
+.cp.paid{background:var(--paid-bg);color:var(--paid-txt);border-color:var(--paid-bdr);}
+.cp.alloc{background:var(--ai-bg);color:var(--ai-txt);border-color:var(--ai-bdr);}
+.cp.prog{background:var(--recv-bg);color:var(--recv-txt);border-color:var(--recv-bdr);}
+.cp.pend{background:var(--pend-bg);color:var(--pend-txt);border-color:var(--pend-bdr);}
+.cm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;display:none;align-items:center;justify-content:center;padding:16px;}
+.cm-box{background:#fff;border-radius:14px;width:100%;max-width:940px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.cm-hdr{background:var(--maroon);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cm-hdr-l h3{font-size:16px;font-weight:800;}
+.cm-hdr-l .sub{font-size:11px;opacity:.75;margin-top:2px;}
+.btn-cm-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cm-body{overflow-y:auto;flex:1;}
+.tbl-scroll{overflow-x:auto;}
+.m-table{width:100%;border-collapse:collapse;min-width:540px;}
+.m-table thead th{background:#F7F2EA;padding:9px 12px;text-align:left;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);white-space:nowrap;}
+.m-table tbody td{padding:9px 12px;font-size:12px;border-bottom:1px solid #EDE8DF;vertical-align:middle;}
+.m-table tbody tr:hover{background:#FAF7F2;}
+.m-table tbody tr:last-child td{border-bottom:none;}
+.grp-hdr{background:#F0EAE0;padding:8px 14px;font-size:11px;font-weight:800;color:var(--maroon);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);}
+.se-row{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid #EDE8DF;gap:16px;}
+.se-row:last-child{border-bottom:none;}
+.se-lbl{font-size:12px;font-weight:700;color:var(--muted);min-width:130px;}
+.sbadge{display:inline-flex;flex-direction:column;align-items:center;min-width:80px;padding:5px 8px;border-radius:20px;text-align:center;font-size:11px;font-weight:700;gap:1px;border-width:1.5px;border-style:solid;white-space:nowrap;transition:transform .15s,box-shadow .15s;}
+.sbadge.clickable{cursor:pointer;}
+.sbadge.clickable:hover{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.sbadge.s-pend{background:var(--pend-bg);color:var(--pend-txt);border-color:var(--pend-bdr);}
+.sbadge.s-recv{background:var(--recv-bg);color:var(--recv-txt);border-color:var(--recv-bdr);}
+.sbadge.s-paid{background:var(--paid-bg);color:var(--paid-txt);border-color:var(--paid-bdr);}
+.sbadge.s-ai{background:var(--ai-bg);color:var(--ai-txt);border-color:var(--ai-bdr);}
+.sbadge.s-an{background:var(--an-bg);color:var(--an-txt);border-color:var(--an-bdr);}
+.b-time{font-size:9px;font-weight:400;opacity:.8;}
+.b-by{font-size:9px;font-weight:600;}
+.wf-info{background:#fff;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.wf-title{font-size:15px;font-weight:800;color:var(--maroon);flex:1;}
+.wf-cnt{background:var(--maroon);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.wf-wrap{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.wf-scroll{overflow-x:auto;}
+.wf-table{width:100%;border-collapse:collapse;min-width:580px;}
+.wf-table thead th{background:#F7F2EA;padding:9px 12px;text-align:left;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);white-space:nowrap;}
+.wf-table tbody td{padding:10px 12px;font-size:12px;border-bottom:1px solid #EDE8DF;vertical-align:middle;}
+.wf-table tbody tr:last-child td{border-bottom:none;}
+.wf-table tbody tr:hover{background:#FAF7F2;}
+.wf-table tbody tr.flagged{background:#FFFBEB;}
+.wf-cat{font-weight:700;color:var(--maroon);font-size:12px;}
+.wf-sub{color:var(--muted);font-size:11px;margin-top:2px;}
+.btn-grp{display:flex;gap:5px;flex-wrap:wrap;}
+.bwf{padding:5px 10px;border:1.5px solid;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:#fff;white-space:nowrap;transition:opacity .15s;}
+.bwf:hover{opacity:.8;}
+.bwf.recv{color:var(--recv-txt);border-color:var(--recv-bdr);background:var(--recv-bg);}
+.bwf.paid{color:var(--paid-txt);border-color:var(--paid-bdr);background:var(--paid-bg);}
+.bwf.ai{color:var(--ai-txt);border-color:var(--ai-bdr);background:var(--ai-bg);}
+.bwf.an{color:var(--an-txt);border-color:var(--an-bdr);background:var(--an-bg);}
+.bwf.rst{color:var(--pend-txt);border-color:var(--pend-bdr);background:var(--pend-bg);}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+.admin-card{background:#fff;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+.admin-card h3{font-size:14px;font-weight:800;color:var(--maroon);margin-bottom:16px;}
+.aform{display:flex;flex-direction:column;gap:10px;}
+.aform select,.aform input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;}
+.aform select:focus,.aform input:focus{border-color:var(--maroon);}
+.btn-a{padding:10px 18px;background:var(--maroon);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-a:hover{background:var(--maroon-dark);}
+.a-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;}
+.u-table{width:100%;border-collapse:collapse;}
+.u-table th,.u-table td{padding:9px 11px;text-align:left;font-size:12px;border-bottom:1px solid var(--border);}
+.u-table th{background:#F7F2EA;font-weight:800;font-size:10px;text-transform:uppercase;color:var(--muted);}
+.role-sel{padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;}
+.btn-sv{padding:5px 12px;background:var(--maroon);color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;}
+.sc-list{display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto;margin-bottom:10px;}
+.sc-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:12px;}
+.btn-del{background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px;padding:0 4px;}
+.sc-add{display:flex;gap:6px;}
+.sc-add input{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;}
+.sc-add input:focus{border-color:var(--maroon);}
+.rules-pre{background:#1e1e1e;color:#9CDCFE;padding:14px;border-radius:8px;font-size:11px;line-height:1.7;overflow-x:auto;font-family:monospace;max-height:200px;overflow-y:auto;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:#fff;border-radius:14px;padding:30px 26px;max-width:380px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3);position:relative;}
+.li-logo{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--maroon);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--gold-light);}
+.li-title{text-align:center;font-size:17px;font-weight:800;color:var(--maroon);margin-bottom:4px;}
+.li-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:22px;}
+.tab-row{display:flex;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:20px;}
+.tab-btn{flex:1;padding:9px;background:#f4f0ea;border:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);transition:all .2s;}
+.tab-btn.active{background:var(--maroon);color:#fff;}
+.fgrp{margin-bottom:13px;}
+.fgrp label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase;}
+.fgrp input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;}
+.fgrp input:focus{border-color:var(--maroon);}
+.btn-main{width:100%;padding:11px;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;background:var(--maroon);color:#fff;}
+.btn-main:hover{background:var(--maroon-dark);}
+.err-msg{color:#C0392B;font-size:12px;margin-top:10px;padding:8px 12px;background:#FDF2F2;border-radius:6px;display:none;}
+.reg-note{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
+.x-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;}
+.loading{text-align:center;padding:50px 20px;color:var(--muted);}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--maroon);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.empty-hint{font-size:12px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2C2219;color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:300;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);}
 @media(max-width:640px){
-  .stats-row { grid-template-columns:repeat(3,1fr); }
-  .stat-card.s-cigas,.stat-card.s-paid { display:none; }
-  .hdr-sub,.hdr-name { display:none; }
-  .nav-item { padding:12px 10px; font-size:12px; }
-  .content { padding:12px 8px; }
-  .admin-grid { grid-template-columns:1fr; }
-  .cat-name { font-size:12px; }
-  .cat-row { padding:11px 12px; }
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+  .stat-card.s-pay,.stat-card.s-pd{display:none;}
+  .hdr-sub,.hdr-name{display:none;}
+  .nav-item{padding:12px 10px;font-size:12px;}
+  .content{padding:12px 8px;}
+  .admin-grid{grid-template-columns:1fr;}
+  .card-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .cm-box{max-height:92vh;border-radius:12px;}
+  .period-bar{flex-wrap:wrap;gap:6px;}
+}
+@media(min-width:641px) and (max-width:900px){
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+  .card-grid{grid-template-columns:repeat(3,1fr);}
 }
 </style>
 </head>
 <body>
-
-<!-- ════ MAIN APP ════ -->
 <div id="mainApp">
-
-  <div class="app-header">
-    <div class="hdr-left">
+  <div class="hdr">
+    <div class="hdr-l">
       <div class="hdr-logo">DS</div>
       <div>
         <div class="hdr-title">Voucher Tracker</div>
         <div class="hdr-sub">Horowpothana Divisional Secretariat · Account Branch</div>
       </div>
     </div>
-    <div class="hdr-right">
+    <div class="hdr-r">
       <span class="role-pill" id="hdrRole" style="display:none"></span>
-      <span class="hdr-name"  id="hdrName" style="display:none"></span>
+      <span class="hdr-name" id="hdrName" style="display:none"></span>
       <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none">Logout</button>
-      <button class="btn-hdr" id="btnLogin"  onclick="openLoginModal()">🔒 Officer Login</button>
+      <button class="btn-hdr" id="btnLogin" onclick="openLogin()">&#128274; Officer Login</button>
     </div>
   </div>
-
   <div class="nav-bar">
-    <div class="nav-item active" id="navDash"  onclick="switchView('dashboard')">📋 Dashboard</div>
-    <div class="nav-item"        id="navAdmin" onclick="switchView('admin')" style="display:none">⚙️ Admin</div>
+    <div class="nav-item active" id="navDash" onclick="switchView('dashboard')">&#128203; Dashboard</div>
+    <div class="nav-item" id="navWorkflow" onclick="switchView('workflow')" style="display:none">&#9889; Workflow</div>
+    <div class="nav-item" id="navAdmin" onclick="switchView('admin')" style="display:none">&#9881;&#65039; Admin</div>
   </div>
-
-  <!-- ── DASHBOARD ── -->
+  <div class="period-bar">
+    <label>Period:</label>
+    <select id="selMonth" onchange="onPeriodChange()"></select>
+    <select id="selYear" onchange="onPeriodChange()"></select>
+  </div>
   <div id="viewDashboard" class="content">
-    <div class="ctrl-bar">
-      <h2>Voucher Status</h2>
-      <div class="sel-wrap">
-        <select id="selMonth" onchange="onPeriodChange()"></select>
-        <select id="selYear"  onchange="onPeriodChange()"></select>
-      </div>
-    </div>
-
     <div class="stats-row">
-      <div class="stat-card s-total"><div class="stat-val" id="stTotal">0</div><div class="stat-lbl">Total</div></div>
-      <div class="stat-card s-fa">   <div class="stat-val" id="stFA">0</div>   <div class="stat-lbl">Pending FA</div></div>
-      <div class="stat-card s-vl">   <div class="stat-val" id="stVL">0</div>   <div class="stat-lbl">Pending VL/Dep</div></div>
-      <div class="stat-card s-cigas"><div class="stat-val" id="stCigas">0</div><div class="stat-lbl">Pending Payment</div></div>
-      <div class="stat-card s-paid"> <div class="stat-val" id="stPaid">0</div> <div class="stat-lbl">Paid</div></div>
+      <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l">Total</div></div>
+      <div class="stat-card s-fa"><div class="stat-v" id="stFA">0</div><div class="stat-l">Pending FA</div></div>
+      <div class="stat-card s-vl"><div class="stat-v" id="stVL">0</div><div class="stat-l">Pending VL/Dep</div></div>
+      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div><div class="stat-l">Pending Payment</div></div>
+      <div class="stat-card s-pd"><div class="stat-v" id="stPaid">0</div><div class="stat-l">Paid</div></div>
     </div>
-
-    <div class="accordion-wrap">
-      <div class="acc-header-bar">
-        <h3>Voucher Register</h3>
-        <span class="acc-period" id="accPeriod"></span>
-      </div>
-      <div id="accContent">
-        <div class="loading"><div class="spinner"></div>Loading...</div>
+    <div class="card-grid" id="cardGrid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+  <div id="viewWorkflow" class="content" style="display:none">
+    <div class="wf-info">
+      <div class="wf-title" id="wfTitle">My Pending Tasks</div>
+      <span class="wf-cnt" id="wfCount">0</span>
+    </div>
+    <div class="wf-wrap">
+      <div class="wf-scroll">
+        <div id="wfContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
       </div>
     </div>
   </div>
-
-  <!-- ── ADMIN ── -->
   <div id="viewAdmin" class="content" style="display:none">
-    <div class="ctrl-bar"><h2>Admin Panel</h2></div>
     <div class="admin-grid">
-
       <div class="admin-card">
-        <h3>📅 Generate Month Entries</h3>
+        <h3>&#128197; Generate Month Entries</h3>
         <div class="aform">
           <select id="genMonth"></select>
           <select id="genYear"></select>
           <button class="btn-a" onclick="generateMonth()">Generate Vouchers</button>
         </div>
-        <p class="admin-hint">Creates all voucher entries for the selected month. Existing entries are skipped.</p>
+        <p class="a-hint">Creates all voucher entries for the selected month. Existing entries are skipped.</p>
       </div>
-
       <div class="admin-card" style="grid-column:1/-1">
-        <h3>👥 User Management</h3>
+        <h3>&#128101; User Management</h3>
         <div id="usersList"><div class="loading"><div class="spinner"></div></div></div>
       </div>
-
       <div class="admin-card">
-        <h3>📂 Field Officers Travel — Sub-categories</h3>
+        <h3>&#128194; Field Officers Travel &mdash; Sub-categories</h3>
         <div class="sc-list" id="scListField"></div>
-        <div class="sc-add-row">
+        <div class="sc-add">
           <input type="text" id="scInputField" placeholder="e.g. Agriculture Officer">
           <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField')">Add</button>
         </div>
       </div>
-
+      <div class="admin-card">
+        <h3>&#128194; Staff Travel &amp; Holiday OT &mdash; Sub-categories</h3>
+        <div class="aform" style="margin-bottom:12px">
+          <select id="sscCatSel" onchange="refreshSscView()">
+            <option value="staff_travel">Office Staff Travel Expense</option>
+            <option value="holiday_ot">Office Staff Holiday Pay &amp; OT</option>
+          </select>
+          <select id="sscParentSel" onchange="refreshSscView()">
+            <option value="st_cg">Central Government</option>
+            <option value="st_ncp">NCP</option>
+            <option value="st_yo">Yan Oya</option>
+          </select>
+        </div>
+        <div class="sc-list" id="sscList"></div>
+        <div class="sc-add">
+          <input type="text" id="sscInput" placeholder="e.g. Driver">
+          <button class="btn-a" onclick="addSubSubcat()">Add</button>
+        </div>
+      </div>
       <div class="admin-card" style="grid-column:1/-1">
-        <h3>🔒 Firestore Security Rules</h3>
-        <p class="admin-hint" style="margin-bottom:10px">Copy and paste in <strong>Firebase Console → Firestore Database → Rules</strong>, then click Publish.</p>
+        <h3>&#128274; Firestore Security Rules</h3>
+        <p class="a-hint" style="margin-bottom:10px">Copy and paste in <strong>Firebase Console &rarr; Firestore Database &rarr; Rules</strong>, then click Publish.</p>
         <pre class="rules-pre">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAuth()  { return request.auth != null; }
     function role()    { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
-    function isAdmin() { return isAuth() && role() == 'superadmin'; }
+    function isAdmin() { return isAuth() &amp;&amp; role() == 'superadmin'; }
 
     match /vouchers/{id} {
       allow read:           if true;
       allow create, delete: if isAdmin();
       allow update:         if isAuth();
     }
-    match /dynamicSubCats/{id} {
-      allow read:  if true;
-      allow write: if isAdmin();
-    }
+    match /dynamicSubCats/{id}    { allow read: if true; allow write: if isAdmin(); }
+    match /dynamicSubSubCats/{id} { allow read: if true; allow write: if isAdmin(); }
     match /users/{uid} {
-      allow read:   if isAuth() && (request.auth.uid == uid || isAdmin());
-      allow create: if isAuth() && request.auth.uid == uid;
-      allow update: if isAuth() && (request.auth.uid == uid || isAdmin());
+      allow read:   if isAuth() &amp;&amp; (request.auth.uid == uid || isAdmin());
+      allow create: if isAuth() &amp;&amp; request.auth.uid == uid;
+      allow update: if isAuth() &amp;&amp; (request.auth.uid == uid || isAdmin());
     }
   }
 }</pre>
-        <button class="btn-a" style="margin-top:12px" onclick="copyRules()">📋 Copy Rules</button>
+        <button class="btn-a" style="margin-top:12px" onclick="copyRules()">&#128203; Copy Rules</button>
       </div>
-
     </div>
   </div>
 </div>
-
-<!-- ════ LOGIN MODAL ════ -->
+<div class="cm-overlay" id="cmOverlay">
+  <div class="cm-box">
+    <div class="cm-hdr">
+      <div class="cm-hdr-l">
+        <h3 id="cmTitle">Category</h3>
+        <div class="sub" id="cmPeriod"></div>
+      </div>
+      <button class="btn-cm-close" onclick="closeCatModal()">&times;</button>
+    </div>
+    <div class="cm-body" id="cmBody"></div>
+  </div>
+</div>
 <div class="overlay" id="loginOverlay">
-  <div class="login-modal">
-    <button class="modal-close" onclick="closeLoginModal()">×</button>
-    <div class="login-logo">DS</div>
-    <div class="login-title">Officer Login</div>
-    <div class="login-sub">Horowpothana Account Branch</div>
+  <div class="login-box">
+    <button class="x-close" onclick="closeLogin()">&times;</button>
+    <div class="li-logo">DS</div>
+    <div class="li-title">Officer Login</div>
+    <div class="li-sub">Horowpothana Account Branch</div>
     <div class="tab-row">
       <button class="tab-btn active" id="tabLi" onclick="switchTab('login')">Sign In</button>
-      <button class="tab-btn"        id="tabRe" onclick="switchTab('register')">Register</button>
+      <button class="tab-btn" id="tabRe" onclick="switchTab('register')">Register</button>
     </div>
     <div id="liForm">
       <div class="fgrp"><label>Email</label><input type="email" id="liEmail" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="fgrp"><label>Password</label><input type="password" id="liPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fgrp"><label>Password</label><input type="password" id="liPass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-main" onclick="doLogin()">Sign In</button>
     </div>
     <div id="reForm" style="display:none">
@@ -343,20 +333,14 @@ service cloud.firestore {
       <div class="fgrp"><label>Email</label><input type="email" id="reEmail" placeholder="you@email.com" autocomplete="email"></div>
       <div class="fgrp"><label>Password</label><input type="password" id="rePass" placeholder="At least 6 characters"></div>
       <button class="btn-main" onclick="doRegister()">Create Account</button>
-      <p class="reg-note">After registering, the Super Admin will assign your role.</p>
+      <p class="reg-note">Super Admin will assign your role after registration.</p>
     </div>
     <div class="err-msg" id="authErr"></div>
   </div>
 </div>
-
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ══════════════════════════════════════════
-//  FIREBASE
-// ══════════════════════════════════════════
-const firebaseConfig = {
+const firebaseConfig={
   apiKey:"AIzaSyDiG8u7ow3rRCn9t7gZYK_xFGxDmRUQQ00",
   authDomain:"hrp-account-branch.firebaseapp.com",
   projectId:"hrp-account-branch",
@@ -366,470 +350,533 @@ const firebaseConfig = {
   measurementId:"G-2BESPPQ2R1"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
 db.enablePersistence().catch(()=>{});
 
-// ══════════════════════════════════════════
-//  CATEGORIES
-// ══════════════════════════════════════════
-const GN_DIVS = [
-  {id:'gn_117',name:'117 · Sinhala Walahaviddawewa'},{id:'gn_118',name:'118 · Rasnakawewa'},
-  {id:'gn_119',name:'119 · Ihala Agunochchiya'},{id:'gn_120',name:'120 · Walimuwapothana'},
-  {id:'gn_121',name:'121 · Nikawewa'},{id:'gn_122',name:'122 · Mukkarawewa'},
-  {id:'gn_123',name:'123 · Thibiriathtawala'},{id:'gn_124',name:'124 · Gammahegewewa'},
-  {id:'gn_125',name:'125 · Kalpe'},{id:'gn_126',name:'126 · Wadigawewa'},
-  {id:'gn_127',name:'127 · Morakawa'},{id:'gn_128',name:'128 · Horowpothana'},
-  {id:'gn_129',name:'129 · Kiwlekada'},{id:'gn_130',name:'130 · Madawachchiyahandiya'},
-  {id:'gn_131',name:'131 · Nanumillawewa'},{id:'gn_132',name:'132 · Vilewewa'},
-  {id:'gn_133',name:'133 · Maradankadawala'},{id:'gn_134',name:'134 · Puhulewewa'},
-  {id:'gn_135',name:'135 · Morawewa'},{id:'gn_136',name:'136 · Thirappankadawala'},
-  {id:'gn_137',name:'137 · Thawalanhalmillawewa'},{id:'gn_138',name:'138 · Anaolondawa'},
-  {id:'gn_139',name:'139 · Weerasole'},{id:'gn_140',name:'140 · Kapugollewa'},
-  {id:'gn_141',name:'141 · Pahaladiulwewa'},{id:'gn_142',name:'142 · Dutuwewa'},
-  {id:'gn_143',name:'143 · Wagollakada'},{id:'gn_144',name:'144 · Wahalkada D1'},
-  {id:'gn_145',name:'145 · Wahalkada D2'},{id:'gn_146',name:'146 · Maradanmaduwa'},
-  {id:'gn_147',name:'147 · Rathmale'},{id:'gn_148',name:'148 · Welangahaulpatha'},
-  {id:'gn_149',name:'149 · Parangiyawadiya'},{id:'gn_150',name:'150 · Puliyankadawala'},
-  {id:'gn_151',name:'151 · Diyathithtawewa'},{id:'gn_152',name:'152 · Nabadawewa'},
-  {id:'gn_153',name:'153 · Dakethipothana'},{id:'gn_154',name:'154 · Dematawewa'},
+const GN=[
+  {id:'gn_117',name:'117 - Sinhala Walahaviddawewa'},{id:'gn_118',name:'118 - Rasnakawewa'},
+  {id:'gn_119',name:'119 - Ihala Agunochchiya'},{id:'gn_120',name:'120 - Walimuwapothana'},
+  {id:'gn_121',name:'121 - Nikawewa'},{id:'gn_122',name:'122 - Mukkarawewa'},
+  {id:'gn_123',name:'123 - Thibiriathtawala'},{id:'gn_124',name:'124 - Gammahegewewa'},
+  {id:'gn_125',name:'125 - Kalpe'},{id:'gn_126',name:'126 - Wadigawewa'},
+  {id:'gn_127',name:'127 - Morakawa'},{id:'gn_128',name:'128 - Horowpothana'},
+  {id:'gn_129',name:'129 - Kiwlekada'},{id:'gn_130',name:'130 - Madawachchiyahandiya'},
+  {id:'gn_131',name:'131 - Nanumillawewa'},{id:'gn_132',name:'132 - Vilewewa'},
+  {id:'gn_133',name:'133 - Maradankadawala'},{id:'gn_134',name:'134 - Puhulewewa'},
+  {id:'gn_135',name:'135 - Morawewa'},{id:'gn_136',name:'136 - Thirappankadawala'},
+  {id:'gn_137',name:'137 - Thawalanhalmillawewa'},{id:'gn_138',name:'138 - Anaolondawa'},
+  {id:'gn_139',name:'139 - Weerasole'},{id:'gn_140',name:'140 - Kapugollewa'},
+  {id:'gn_141',name:'141 - Pahaladiulwewa'},{id:'gn_142',name:'142 - Dutuwewa'},
+  {id:'gn_143',name:'143 - Wagollakada'},{id:'gn_144',name:'144 - Wahalkada D1'},
+  {id:'gn_145',name:'145 - Wahalkada D2'},{id:'gn_146',name:'146 - Maradanmaduwa'},
+  {id:'gn_147',name:'147 - Rathmale'},{id:'gn_148',name:'148 - Welangahaulpatha'},
+  {id:'gn_149',name:'149 - Parangiyawadiya'},{id:'gn_150',name:'150 - Puliyankadawala'},
+  {id:'gn_151',name:'151 - Diyathithtawewa'},{id:'gn_152',name:'152 - Nabadawewa'},
+  {id:'gn_153',name:'153 - Dakethipothana'},{id:'gn_154',name:'154 - Dematawewa'},
 ];
-
-let CATS = [
-  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                              stage2:'vl',  subs:GN_DIVS},
-  {id:'field_travel',name:'Field Officers Travel Expense',                              stage2:'vl',  subs:[]},
-  {id:'staff_travel',name:'Office Staff Travel Expense',                                stage2:'vl',
-    subs:[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}]},
-  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                             stage2:'vl',
-    subs:[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}]},
-  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                          stage2:'vl',
-    subs:[{id:'allow_dis',name:'Disable Allowance'},{id:'allow_kid',name:'Kidney Allowance'},{id:'allow_eld',name:"Elder's Allowance"}]},
-  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School Meal", stage2:'vl',
-    subs:[{id:'nutr_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nutr_guru',name:'Guru Abimani'},{id:'nutr_pre',name:'Pre-School Meal Program'}]},
-  {id:'mahajanadara',name:'Mahajanadara',   stage2:'vl',  subs:null},
-  {id:'mediation',   name:'Mediation Board', stage2:'vl', subs:null},
-  {id:'fuel',        name:'Fuel',            stage2:'vl',
-    subs:[{id:'fuel_ds',name:'DS Vehicle'},{id:'fuel_pool',name:'Pool Vehicle'}]},
-  {id:'bills',       name:'Bills',           stage2:'vl',
-    subs:[{id:'bill_elec_off',name:'Electricity Bill - Office'},{id:'bill_elec_nic',name:'Electricity Bill - NIC'},{id:'bill_tel',name:'Telephone Bill'},{id:'bill_water',name:'Water Bill'}]},
-  {id:'postal',      name:'Postal Charge',   stage2:'vl',  subs:null},
-  {id:'gsmb',        name:'GSMB Payment',    stage2:'deposit', subs:null},
+const ST_SUBS=[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}];
+const HO_SUBS=[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}];
+let CATS=[
+  {id:'gn_travel',name:'Grama Niladari Travel Expense',s2:'vl',subs:GN},
+  {id:'field_travel',name:'Field Officers Travel Expense',s2:'vl',subs:[]},
+  {id:'staff_travel',name:'Office Staff Travel Expense',s2:'vl',subs:ST_SUBS.map(s=>({...s,subSubs:[]})),hasSubSubs:true},
+  {id:'holiday_ot',name:'Office Staff Holiday Pay & OT',s2:'vl',subs:HO_SUBS.map(s=>({...s,subSubs:[]})),hasSubSubs:true},
+  {id:'allowances',name:"Disable/Kidney/Elder's Allowance",s2:'vl',subs:[{id:'al_dis',name:'Disable Allowance'},{id:'al_kid',name:'Kidney Allowance'},{id:'al_eld',name:"Elder's Allowance"}]},
+  {id:'nutrition',name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School",s2:'vl',subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nu_guru',name:'Guru Abimani'},{id:'nu_pre',name:'Pre-School Meal Program'}]},
+  {id:'mahajanadara',name:'Mahajanadara',s2:'vl',subs:null},
+  {id:'mediation',name:'Mediation Board',s2:'vl',subs:null},
+  {id:'fuel',name:'Fuel',s2:'vl',subs:[{id:'fu_ds',name:'DS Vehicle'},{id:'fu_pl',name:'Pool Vehicle'}]},
+  {id:'bills',name:'Bills',s2:'vl',subs:[{id:'bi_eo',name:'Electricity Bill - Office'},{id:'bi_en',name:'Electricity Bill - NIC'},{id:'bi_tel',name:'Telephone Bill'},{id:'bi_wat',name:'Water Bill'}]},
+  {id:'postal',name:'Postal Charge',s2:'vl',subs:null},
+  {id:'pension',name:'Pension',s2:'vl',subs:null},
+  {id:'gsmb',name:'GSMB Payment',s2:'deposit',subs:null},
 ];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const ROLES={superadmin:'Super Admin',fa:'FA',vl:'Vote Ledger',deposit:'Deposit Ledger'};
+const SROLES={fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Payment (CIGAS)'};
+let me=null,meData=null;
+let selMonth,selYear;
+let vouchers=[],unsub=null;
+let dynSubs={field_travel:[]};
+let dynSubSubs={
+  'staff_travel__st_cg':[],'staff_travel__st_ncp':[],'staff_travel__st_yo':[],
+  'holiday_ot__ho_cg':[],'holiday_ot__ho_ncp':[],'holiday_ot__ho_yo':[],
+};
+let openModalCatId=null;
+const now=new Date();
+selMonth=now.getMonth()+1;selYear=now.getFullYear();
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const ROLES  = {superadmin:'Super Admin', fa:'FA', vl:'Vote Ledger', deposit:'Deposit Ledger'};
-
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let me = null, meData = null;
-let selMonth, selYear;
-let vouchers = [], unsub = null;
-let dynSubs = {field_travel:[]};
-let expandedCats = new Set();
-
-const now = new Date();
-selMonth = now.getMonth() + 1;
-selYear  = now.getFullYear();
-
-// ══════════════════════════════════════════
-//  BOOT — public dashboard, no login needed
-// ══════════════════════════════════════════
-(async function boot() {
+(async function boot(){
   populateSelects();
-  await loadDynSubs();
+  await Promise.all([loadDynSubs(),loadDynSubSubs()]);
   loadVouchers();
 })();
 
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    me = user;
-    try {
-      const snap = await db.collection('users').doc(user.uid).get();
-      if (snap.exists) {
-        meData = snap.data();
-      } else {
-        meData = {name: user.displayName || user.email.split('@')[0], email: user.email, role:'viewer'};
+auth.onAuthStateChanged(async user=>{
+  if(user){
+    me=user;
+    try{
+      const snap=await db.collection('users').doc(user.uid).get();
+      if(snap.exists)meData=snap.data();
+      else{
+        meData={name:user.displayName||user.email.split('@')[0],email:user.email,role:'viewer'};
         await db.collection('users').doc(user.uid).set(meData);
       }
-    } catch(e) { meData = {name:user.email, email:user.email, role:'viewer'}; }
-
-    document.getElementById('hdrRole').textContent = ROLES[meData.role] || meData.role;
-    document.getElementById('hdrRole').style.display = '';
-    document.getElementById('hdrName').textContent = meData.name;
-    document.getElementById('hdrName').style.display = '';
-    document.getElementById('btnLogout').style.display = '';
-    document.getElementById('btnLogin').style.display = 'none';
-    if (meData.role === 'superadmin') {
-      document.getElementById('navAdmin').style.display = '';
-      loadUsers(); renderScLists();
+    }catch(e){meData={name:user.email,email:user.email,role:'viewer'};}
+    document.getElementById('hdrRole').textContent=ROLES[meData.role]||meData.role;
+    document.getElementById('hdrRole').style.display='';
+    document.getElementById('hdrName').textContent=meData.name;
+    document.getElementById('hdrName').style.display='';
+    document.getElementById('btnLogout').style.display='';
+    document.getElementById('btnLogin').style.display='none';
+    if(meData.role!=='viewer')document.getElementById('navWorkflow').style.display='';
+    if(meData.role==='superadmin'){
+      document.getElementById('navAdmin').style.display='';
+      loadUsers();refreshSscView();renderScList('field_travel','scListField');
     }
-    closeLoginModal();
-    renderDash();
-    toast(`Welcome, ${meData.name} ✓`);
-  } else {
-    me = null; meData = null;
-    document.getElementById('hdrRole').style.display = 'none';
-    document.getElementById('hdrName').style.display = 'none';
-    document.getElementById('btnLogout').style.display = 'none';
-    document.getElementById('btnLogin').style.display = '';
-    document.getElementById('navAdmin').style.display = 'none';
+    closeLogin();renderDash();renderWorkflow();
+    toast('Welcome, '+meData.name+' \u2713');
+  }else{
+    me=null;meData=null;
+    document.getElementById('hdrRole').style.display='none';
+    document.getElementById('hdrName').style.display='none';
+    document.getElementById('btnLogout').style.display='none';
+    document.getElementById('btnLogin').style.display='';
+    document.getElementById('navWorkflow').style.display='none';
+    document.getElementById('navAdmin').style.display='none';
     renderDash();
   }
 });
 
-// ══════════════════════════════════════════
-//  LOGIN MODAL
-// ══════════════════════════════════════════
-function openLoginModal()  { document.getElementById('loginOverlay').style.display='flex'; document.getElementById('authErr').style.display='none'; setTimeout(()=>document.getElementById('liEmail').focus(),100); }
-function closeLoginModal() { document.getElementById('loginOverlay').style.display='none'; }
-document.getElementById('loginOverlay').addEventListener('click', e=>{ if(e.target.id==='loginOverlay') closeLoginModal(); });
-
-function switchTab(t) {
-  document.getElementById('tabLi').classList.toggle('active', t==='login');
-  document.getElementById('tabRe').classList.toggle('active', t==='register');
-  document.getElementById('liForm').style.display = t==='login'    ? 'block' : 'none';
-  document.getElementById('reForm').style.display = t==='register' ? 'block' : 'none';
-  document.getElementById('authErr').style.display = 'none';
+function openLogin(){document.getElementById('loginOverlay').style.display='flex';document.getElementById('authErr').style.display='none';setTimeout(()=>document.getElementById('liEmail').focus(),100);}
+function closeLogin(){document.getElementById('loginOverlay').style.display='none';}
+document.getElementById('loginOverlay').addEventListener('click',e=>{if(e.target.id==='loginOverlay')closeLogin();});
+function switchTab(t){
+  document.getElementById('tabLi').classList.toggle('active',t==='login');
+  document.getElementById('tabRe').classList.toggle('active',t==='register');
+  document.getElementById('liForm').style.display=t==='login'?'block':'none';
+  document.getElementById('reForm').style.display=t==='register'?'block':'none';
+  document.getElementById('authErr').style.display='none';
 }
-async function doLogin() {
-  const email=document.getElementById('liEmail').value.trim(), pass=document.getElementById('liPass').value, err=document.getElementById('authErr');
+async function doLogin(){
+  const e2=document.getElementById('liEmail').value.trim(),p=document.getElementById('liPass').value,err=document.getElementById('authErr');
   err.style.display='none';
-  try { await auth.signInWithEmailAndPassword(email, pass); }
-  catch(e) { err.textContent=e.message; err.style.display='block'; }
+  try{await auth.signInWithEmailAndPassword(e2,p);}
+  catch(e){err.textContent=e.message;err.style.display='block';}
 }
-async function doRegister() {
-  const name=document.getElementById('reName').value.trim(), email=document.getElementById('reEmail').value.trim(), pass=document.getElementById('rePass').value, err=document.getElementById('authErr');
+async function doRegister(){
+  const n=document.getElementById('reName').value.trim(),e2=document.getElementById('reEmail').value.trim(),p=document.getElementById('rePass').value,err=document.getElementById('authErr');
   err.style.display='none';
-  if (!name) { err.textContent='Please enter your full name.'; err.style.display='block'; return; }
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    await cred.user.updateProfile({displayName:name});
-    await db.collection('users').doc(cred.user.uid).set({name, email, role:'viewer'});
-  } catch(e) { err.textContent=e.message; err.style.display='block'; }
+  if(!n){err.textContent='Please enter your full name.';err.style.display='block';return;}
+  try{
+    const c=await auth.createUserWithEmailAndPassword(e2,p);
+    await c.user.updateProfile({displayName:n});
+    await db.collection('users').doc(c.user.uid).set({name:n,email:e2,role:'viewer'});
+  }catch(e){err.textContent=e.message;err.style.display='block';}
 }
-async function doLogout() { await auth.signOut(); toast('Logged out'); }
+async function doLogout(){await auth.signOut();toast('Logged out');}
 
-// ══════════════════════════════════════════
-//  VIEW / PERIOD
-// ══════════════════════════════════════════
-function switchView(v) {
-  const isDash = v==='dashboard';
-  document.getElementById('viewDashboard').style.display = isDash ? 'block' : 'none';
-  document.getElementById('viewAdmin').style.display     = isDash ? 'none'  : 'block';
-  document.getElementById('navDash').classList.toggle('active', isDash);
-  document.getElementById('navAdmin').classList.toggle('active', !isDash);
+function switchView(v){
+  ['dashboard','workflow','admin'].forEach(id=>{
+    document.getElementById('view'+id.charAt(0).toUpperCase()+id.slice(1)).style.display=v===id?'block':'none';
+    document.getElementById('nav'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',v===id);
+  });
+  if(v==='workflow')renderWorkflow();
 }
-function populateSelects() {
-  ['selMonth','genMonth'].forEach(id => {
-    const el=document.getElementById(id); if(!el) return;
+
+function populateSelects(){
+  ['selMonth','genMonth'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
     el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
   });
   const yrs=[selYear-1,selYear,selYear+1];
-  ['selYear','genYear'].forEach(id => {
-    const el=document.getElementById(id); if(!el) return;
+  ['selYear','genYear'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
     el.innerHTML=yrs.map(y=>`<option value="${y}"${y===selYear?' selected':''}>${y}</option>`).join('');
   });
 }
-function onPeriodChange() {
+function onPeriodChange(){
   selMonth=+document.getElementById('selMonth').value;
-  selYear =+document.getElementById('selYear').value;
-  expandedCats.clear();
+  selYear=+document.getElementById('selYear').value;
   loadVouchers();
 }
 
-// ══════════════════════════════════════════
-//  DYNAMIC SUB-CATEGORIES
-// ══════════════════════════════════════════
-async function loadDynSubs() {
-  try {
-    const snap = await db.collection('dynamicSubCats').get();
-    snap.forEach(doc => { const d=doc.data(); if(dynSubs[d.categoryId]!==undefined) dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0}); });
+async function loadDynSubs(){
+  try{
+    const snap=await db.collection('dynamicSubCats').get();
+    snap.forEach(doc=>{
+      const d=doc.data();
+      if(dynSubs[d.categoryId]!==undefined)dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0});
+    });
     Object.keys(dynSubs).forEach(k=>dynSubs[k].sort((a,b)=>a.order-b.order));
-    CATS.forEach(c=>{ if(dynSubs[c.id]) c.subs=dynSubs[c.id]; });
-  } catch(e) { console.warn('loadDynSubs:',e); }
+    CATS.forEach(c=>{if(dynSubs[c.id])c.subs=dynSubs[c.id];});
+  }catch(e){console.warn('loadDynSubs:',e);}
 }
-function renderScLists() { renderScList('field_travel','scListField'); }
-function renderScList(catId, listId) {
-  const el=document.getElementById(listId), items=dynSubs[catId]||[];
-  if (!items.length) { el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>'; return; }
-  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
+function renderScList(catId,listId){
+  const el=document.getElementById(listId),items=dynSubs[catId]||[];
+  if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">&times;</button></div>`).join('');
 }
-async function addSubcat(catId, inputId, listId) {
-  const inp=document.getElementById(inputId), name=inp.value.trim(); if(!name) return;
-  try {
+async function addSubcat(catId,inputId,listId){
+  const inp=document.getElementById(inputId),name=inp.value.trim();if(!name)return;
+  try{
     const order=(dynSubs[catId]||[]).length;
     const ref=await db.collection('dynamicSubCats').add({categoryId:catId,name,order});
-    dynSubs[catId]=dynSubs[catId]||[]; dynSubs[catId].push({id:ref.id,name,order});
-    CATS.find(c=>c.id===catId).subs=dynSubs[catId]; inp.value=''; renderScList(catId,listId); toast('Sub-category added');
-  } catch(e) { toast(e.message,true); }
+    dynSubs[catId]=dynSubs[catId]||[];dynSubs[catId].push({id:ref.id,name,order});
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId];inp.value='';renderScList(catId,listId);toast('Added \u2713');
+  }catch(e){toast(e.message,true);}
 }
-async function delSubcat(docId, catId, listId) {
-  if (!confirm('Delete this sub-category?')) return;
-  try {
+async function delSubcat(docId,catId,listId){
+  if(!confirm('Delete this sub-category?'))return;
+  try{
     await db.collection('dynamicSubCats').doc(docId).delete();
     dynSubs[catId]=dynSubs[catId].filter(i=>i.id!==docId);
-    CATS.find(c=>c.id===catId).subs=dynSubs[catId]; renderScList(catId,listId); toast('Deleted');
-  } catch(e) { toast(e.message,true); }
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId];renderScList(catId,listId);toast('Deleted');
+  }catch(e){toast(e.message,true);}
 }
 
-// ══════════════════════════════════════════
-//  VOUCHERS — REAL-TIME
-// ══════════════════════════════════════════
-function loadVouchers() {
-  setPeriodLabel();
-  document.getElementById('accContent').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
-  if (unsub) unsub();
-  unsub = db.collection('vouchers').where('year','==',selYear).where('month','==',selMonth)
-    .onSnapshot(snap => {
+async function loadDynSubSubs(){
+  try{
+    const snap=await db.collection('dynamicSubSubCats').get();
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const key=`${d.categoryId}__${d.parentSubId}`;
+      if(dynSubSubs[key]!==undefined)dynSubSubs[key].push({id:doc.id,name:d.name,order:d.order||0});
+    });
+    Object.keys(dynSubSubs).forEach(k=>dynSubSubs[k].sort((a,b)=>a.order-b.order));
+    CATS.forEach(cat=>{
+      if(cat.hasSubSubs&&cat.subs){
+        cat.subs.forEach(sub=>{
+          const key=`${cat.id}__${sub.id}`;
+          sub.subSubs=dynSubSubs[key]||[];
+        });
+      }
+    });
+  }catch(e){console.warn('loadDynSubSubs:',e);}
+}
+const SSC_PARENTS={
+  staff_travel:[{val:'st_cg',lbl:'Central Government'},{val:'st_ncp',lbl:'NCP'},{val:'st_yo',lbl:'Yan Oya'}],
+  holiday_ot:[{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
+};
+function updateSscParents(){
+  const cat=document.getElementById('sscCatSel').value;
+  const pSel=document.getElementById('sscParentSel');
+  pSel.innerHTML=SSC_PARENTS[cat].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
+  refreshSscView();
+}
+function refreshSscView(){
+  const catId=document.getElementById('sscCatSel')?.value;
+  const parentId=document.getElementById('sscParentSel')?.value;
+  if(!catId||!parentId)return;
+  const key=`${catId}__${parentId}`;
+  const items=dynSubSubs[key]||[];
+  const el=document.getElementById('sscList');
+  if(!el)return;
+  if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubSubcat('${it.id}','${key}')">&times;</button></div>`).join('');
+}
+async function addSubSubcat(){
+  const catId=document.getElementById('sscCatSel').value;
+  const parentId=document.getElementById('sscParentSel').value;
+  const inp=document.getElementById('sscInput');
+  const name=inp.value.trim();if(!name)return;
+  const key=`${catId}__${parentId}`;
+  try{
+    const order=(dynSubSubs[key]||[]).length;
+    const ref=await db.collection('dynamicSubSubCats').add({categoryId:catId,parentSubId:parentId,name,order});
+    dynSubSubs[key]=dynSubSubs[key]||[];dynSubSubs[key].push({id:ref.id,name,order});
+    const cat=CATS.find(c=>c.id===catId);
+    if(cat){const sub=cat.subs.find(s=>s.id===parentId);if(sub)sub.subSubs=dynSubSubs[key];}
+    inp.value='';refreshSscView();toast('Added \u2713');
+  }catch(e){toast(e.message,true);}
+}
+async function delSubSubcat(docId,key){
+  if(!confirm('Delete this sub-category?'))return;
+  try{
+    await db.collection('dynamicSubSubCats').doc(docId).delete();
+    dynSubSubs[key]=dynSubSubs[key].filter(i=>i.id!==docId);
+    refreshSscView();toast('Deleted');
+  }catch(e){toast(e.message,true);}
+}
+
+function loadVouchers(){
+  document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
+  if(unsub)unsub();
+  unsub=db.collection('vouchers').where('year','==',selYear).where('month','==',selMonth)
+    .onSnapshot(snap=>{
       vouchers=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
       renderDash();
-    }, err => {
-      document.getElementById('accContent').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error</div><p class="empty-hint">${err.message}</p></div>`;
+      renderWorkflow();
+      if(openModalCatId)renderModalContent(openModalCatId);
+    },err=>{
+      document.getElementById('cardGrid').innerHTML=`<div class="empty"><div class="empty-icon">\u26a0\ufe0f</div><div class="empty-title">Error</div><p class="empty-hint">${err.message}</p></div>`;
     });
 }
-function setPeriodLabel() {
-  document.getElementById('accPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
-}
 
-// ══════════════════════════════════════════
-//  RENDER DASHBOARD — ACCORDION
-// ══════════════════════════════════════════
-function renderDash() {
-  setPeriodLabel();
-  document.getElementById('stTotal').textContent = vouchers.length;
-  document.getElementById('stFA').textContent    = vouchers.filter(v=>v.faStatus==='pending').length;
-  document.getElementById('stVL').textContent    = vouchers.filter(v=>v.stage2Status==='pending').length;
-  document.getElementById('stCigas').textContent = vouchers.filter(v=>v.cigasStatus==='pending').length;
-  document.getElementById('stPaid').textContent  = vouchers.filter(v=>v.cigasStatus==='paid').length;
-
-  if (!vouchers.length) {
-    document.getElementById('accContent').innerHTML=
-      `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been created yet.</p></div>`;
+function renderDash(){
+  document.getElementById('stTotal').textContent=vouchers.length;
+  document.getElementById('stFA').textContent=vouchers.filter(v=>v.faStatus==='pending').length;
+  document.getElementById('stVL').textContent=vouchers.filter(v=>v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
+  document.getElementById('stPay').textContent=vouchers.filter(v=>v.cigasStatus==='pending').length;
+  document.getElementById('stPaid').textContent=vouchers.filter(v=>v.cigasStatus==='paid').length;
+  if(!vouchers.length){
+    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">\ud83d\udced</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been generated yet.</p></div>`;
     return;
   }
-
-  // Group vouchers by category
-  const bycat = {};
-  vouchers.forEach(v => { if(!bycat[v.category]) bycat[v.category]=[]; bycat[v.category].push(v); });
-
-  // Build accordion rows in CATS order
-  let html = '';
-  CATS.forEach(cat => {
-    const catVouchers = bycat[cat.id] || [];
-    if (!catVouchers.length) return; // skip if no entries this month
-
-    const hasSubs = cat.subs !== null;
-    const isExpanded = expandedCats.has(cat.id);
-
-    if (hasSubs) {
-      // Summary pills
-      const paid    = catVouchers.filter(v=>v.cigasStatus==='paid').length;
-      const inProg  = catVouchers.filter(v=>v.cigasStatus!=='paid' && (v.faStatus==='received'||v.stage2Status==='received')).length;
-      const pending = catVouchers.length - paid - inProg;
-      let pills = '';
-      if (paid)    pills += `<span class="mini-pill paid">✓ ${paid} Paid</span>`;
-      if (inProg)  pills += `<span class="mini-pill progress">${inProg} In Progress</span>`;
-      if (pending) pills += `<span class="mini-pill pending">${pending} Pending</span>`;
-
-      html += `
-        <div class="cat-row${isExpanded?' expanded':''}" onclick="toggleCat('${cat.id}')">
-          <div class="cat-row-left">
-            <span class="cat-arrow${isExpanded?' open':''}">▶</span>
-            <span class="cat-name">${cat.name}</span>
-            <span class="cat-entry-count">(${catVouchers.length})</span>
-          </div>
-          <div class="cat-row-right">${pills}</div>
-        </div>
-        <div class="cat-subs${isExpanded?' open':''}" id="subs_${cat.id}">
-          ${buildSubTable(catVouchers)}
-        </div>`;
-    } else {
-      // Single entry — show status badges directly on the row
-      const v = catVouchers[0];
-      html += `
-        <div class="cat-row no-expand">
-          <div class="cat-row-left">
-            <span style="width:16px;flex-shrink:0"></span>
-            <span class="cat-name">${cat.name}</span>
-          </div>
-          <div class="cat-row-right single-status">
-            ${badge(v,'fa')}
-            ${badge(v,'stage2')}
-            ${badge(v,'cigas')}
-          </div>
-        </div>`;
-    }
+  const bycat={};
+  vouchers.forEach(v=>{if(!bycat[v.category])bycat[v.category]=[];bycat[v.category].push(v);});
+  let html='';
+  CATS.forEach(cat=>{
+    const cv=bycat[cat.id]||[];
+    if(!cv.length)return;
+    const paid=cv.filter(v=>v.cigasStatus==='paid').length;
+    const allocIssue=cv.filter(v=>v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
+    const inProg=cv.filter(v=>v.cigasStatus!=='paid'&&(v.faStatus==='received'||v.stage2Status==='received')&&v.stage2Status!=='alloc_insufficient'&&v.stage2Status!=='alloc_not_received').length;
+    const pend=cv.length-paid-allocIssue-inProg;
+    const pct=Math.round((paid/cv.length)*100);
+    let pills='';
+    if(paid)pills+=`<span class="cp paid">\u2713 ${paid} Paid</span>`;
+    if(allocIssue)pills+=`<span class="cp alloc">\u26a0 ${allocIssue} Alloc. Issue</span>`;
+    if(inProg)pills+=`<span class="cp prog">${inProg} In Progress</span>`;
+    if(pend)pills+=`<span class="cp pend">${pend} Pending</span>`;
+    html+=`<div class="cat-card" onclick="openCatModal('${cat.id}')">
+      <div class="card-top">
+        <div class="card-name">${cat.name}</div>
+        <div class="card-entries">${cv.length} ${cv.length===1?'entry':'entries'}</div>
+      </div>
+      <div class="card-body">
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div class="card-pills">${pills||'<span class="cp pend">All Pending</span>'}</div>
+      </div>
+    </div>`;
   });
-
-  document.getElementById('accContent').innerHTML = html;
+  document.getElementById('cardGrid').innerHTML=html;
 }
 
-function toggleCat(catId) {
-  if (expandedCats.has(catId)) {
-    expandedCats.delete(catId);
-  } else {
-    expandedCats.add(catId);
+function openCatModal(catId){
+  openModalCatId=catId;
+  document.getElementById('cmOverlay').style.display='flex';
+  renderModalContent(catId);
+}
+function closeCatModal(){
+  document.getElementById('cmOverlay').style.display='none';
+  openModalCatId=null;
+}
+document.getElementById('cmOverlay').addEventListener('click',e=>{if(e.target.id==='cmOverlay')closeCatModal();});
+
+function renderModalContent(catId){
+  const cat=CATS.find(c=>c.id===catId);
+  const cv=vouchers.filter(v=>v.category===catId).sort((a,b)=>(a.order||0)-(b.order||0));
+  document.getElementById('cmTitle').textContent=cat.name;
+  document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
+  if(!cv.length){
+    document.getElementById('cmBody').innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udced</div><div class="empty-title">No entries</div></div>';
+    return;
   }
-  renderDash();
+  let html='';
+  if(cat.subs===null){
+    const v=cv[0];
+    html=`<table style="width:100%;border-collapse:collapse"><tbody>
+      ${seRow('FA Check',badge(v,'fa'))}
+      ${seRow(v.s2==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
+      ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
+    </tbody></table>`;
+  }else if(cat.hasSubSubs){
+    const byParent={};
+    cv.forEach(v=>{const k=v.subCategory||'';if(!byParent[k])byParent[k]={name:v.subCategoryName,items:[]};byParent[k].items.push(v);});
+    cat.subs.forEach(sub=>{
+      const grp=byParent[sub.id];if(!grp||!grp.items.length)return;
+      html+=`<div class="grp-hdr">${sub.name}</div><div class="tbl-scroll"><table class="m-table">
+        <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead><tbody>`;
+      grp.items.forEach((v,i)=>{
+        html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subSubCategoryName||'\u2014'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+      });
+      html+='</tbody></table></div>';
+    });
+  }else{
+    html=`<div class="tbl-scroll"><table class="m-table">
+      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead><tbody>`;
+    cv.forEach((v,i)=>{
+      html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subCategoryName||'\u2014'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+    });
+    html+='</tbody></table></div>';
+  }
+  document.getElementById('cmBody').innerHTML=html;
+}
+function seRow(lbl,badgeHtml){
+  return`<tr><td style="padding:14px 20px;font-weight:700;color:var(--muted);font-size:12px;min-width:140px;border-bottom:1px solid #EDE8DF">${lbl}</td><td style="padding:14px 20px;border-bottom:1px solid #EDE8DF">${badgeHtml}</td></tr>`;
 }
 
-function buildSubTable(catVouchers) {
-  let html = `<table class="subs-table">
-    <thead><tr>
-      <th class="row-num">#</th>
-      <th>Sub-category</th>
-      <th>FA Status</th>
-      <th>VL / Deposit</th>
-      <th>Payment (CIGAS)</th>
-    </tr></thead><tbody>`;
-  catVouchers.forEach((v,i) => {
-    html += `<tr>
-      <td class="row-num">${i+1}</td>
-      <td><span class="sub-lbl">${v.subCategoryName||'—'}</span></td>
-      <td>${badge(v,'fa')}</td>
-      <td>${badge(v,'stage2')}</td>
-      <td>${badge(v,'cigas')}</td>
-    </tr>`;
-  });
-  return html + '</tbody></table>';
-}
-
-// ══════════════════════════════════════════
-//  STATUS BADGE
-// ══════════════════════════════════════════
-function badge(v, stage) {
-  let status, at, by, next, canClick;
-  if (stage==='fa') {
-    status=v.faStatus||'pending'; at=v.faAt; by=v.faBy;
+function badge(v,stage){
+  let status,at,by,next,canClick;
+  if(stage==='fa'){
+    status=v.faStatus||'pending';at=v.faAt;by=v.faBy;
     next=status==='pending'?'received':'pending';
     canClick=meData&&(meData.role==='fa'||meData.role==='superadmin');
-  } else if (stage==='stage2') {
-    status=v.stage2Status||'pending'; at=v.stage2At; by=v.stage2By;
+  }else if(stage==='stage2'){
+    status=v.stage2Status||'pending';at=v.stage2At;by=v.stage2By;
     next=status==='pending'?'received':'pending';
-    const isVL=v.stage2Type==='vl';
+    const isVL=v.s2==='vl';
     canClick=meData&&((meData.role==='vl'&&isVL)||(meData.role==='deposit'&&!isVL)||meData.role==='superadmin');
-  } else {
-    status=v.cigasStatus||'pending'; at=v.cigasAt; by=v.cigasBy;
+  }else{
+    status=v.cigasStatus||'pending';at=v.cigasAt;by=v.cigasBy;
     next=status==='pending'?'paid':'pending';
     canClick=meData&&meData.role==='superadmin';
   }
-  const cls=status==='paid'?'s-paid':status==='received'?'s-received':'s-pending';
-  const lbl=status==='paid'?'✓ Paid':status==='received'?'✓ Received':'Pending';
-  let timePart='', byPart='';
-  if (at) {
+  const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an'};
+  const lblMap={pending:'Pending',received:'\u2713 Received',paid:'\u2713 Paid',alloc_insufficient:'\u26a0 Alloc. Not Enough',alloc_not_received:'\u26a0 Alloc. Not Received'};
+  const cls=clsMap[status]||'s-pend';
+  const lbl=lblMap[status]||'Pending';
+  let timePart='',byPart='';
+  if(at){
     const d=at.toDate?at.toDate():new Date(at.seconds*1000);
     timePart=`<span class="b-time">${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>`;
-    if (by) byPart=`<span class="b-by">${by.split(' ')[0]}</span>`;
+    if(by)byPart=`<span class="b-by">${by.split(' ')[0]}</span>`;
   }
-  const esc=s=>(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-  if (canClick) return `<span class="sbadge ${cls} clickable" onclick="doUpdate('${v.id}','${stage}','${next}')">${lbl}${timePart}${byPart}</span>`;
-  return `<span class="sbadge ${cls}">${lbl}${timePart}${byPart}</span>`;
+  if(canClick)return`<span class="sbadge ${cls} clickable" onclick="doUpdate('${v.id}','${stage}','${next}')">${lbl}${timePart}${byPart}</span>`;
+  return`<span class="sbadge ${cls}">${lbl}${timePart}${byPart}</span>`;
 }
 
-// ══════════════════════════════════════════
-//  STATUS UPDATE — direct, no popup
-// ══════════════════════════════════════════
-async function doUpdate(vid, stage, next) {
-  try {
-    const ts=firebase.firestore.FieldValue.serverTimestamp(), name=meData.name, upd={};
-    if(stage==='fa')        {upd.faStatus=next;     upd.faAt=next==='pending'?null:ts;     upd.faBy=next==='pending'?null:name;}
-    else if(stage==='stage2'){upd.stage2Status=next; upd.stage2At=next==='pending'?null:ts; upd.stage2By=next==='pending'?null:name;}
-    else                    {upd.cigasStatus=next;  upd.cigasAt=next==='pending'?null:ts;  upd.cigasBy=next==='pending'?null:name;}
+function renderWorkflow(){
+  if(!meData||meData.role==='viewer')return;
+  const role=meData.role;
+  let items=[],stage='',actionLabel='';
+  if(role==='fa'){items=vouchers.filter(v=>v.faStatus==='pending');stage='fa';actionLabel='Mark Received';}
+  else if(role==='vl'){items=vouchers.filter(v=>v.stage2Type==='vl'&&(v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received'));stage='stage2';}
+  else if(role==='deposit'){items=vouchers.filter(v=>v.stage2Type==='deposit'&&v.stage2Status==='pending');stage='stage2';actionLabel='Mark Received';}
+  else if(role==='superadmin'){items=vouchers.filter(v=>v.cigasStatus==='pending');stage='cigas';actionLabel='Mark Paid';}
+  const wfTitle=document.getElementById('wfTitle');
+  const wfCount=document.getElementById('wfCount');
+  if(wfTitle)wfTitle.textContent=`${SROLES[role]||role} \u2014 Pending Items \u00b7 ${MONTHS[selMonth-1]} ${selYear}`;
+  if(wfCount)wfCount.textContent=items.length;
+  if(!items.length){
+    document.getElementById('wfContent').innerHTML=`<div class="empty"><div class="empty-icon">\u2705</div><div class="empty-title">All done for ${MONTHS[selMonth-1]} ${selYear}!</div><p class="empty-hint">No pending items for your role.</p></div>`;
+    return;
+  }
+  let html=`<table class="wf-table"><thead><tr><th>#</th><th>Category</th><th>Sub-category / Detail</th>${role==='vl'?'<th>Status</th>':''}<th>Other Stages</th><th>Action</th></tr></thead><tbody>`;
+  items.forEach((v,i)=>{
+    const subDetail=v.subSubCategoryName||v.subCategoryName||'\u2014';
+    const subParent=v.subSubCategoryName?`<span style="font-size:10px;color:var(--muted)">${v.subCategoryName} \u00b7 </span>`:'';
+    const isFlagged=v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received';
+    const otherStages=buildOtherStages(v,stage);
+    let actionHtml='';
+    if(role==='vl'){
+      if(isFlagged){
+        actionHtml=`<div class="btn-grp"><button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">\u2713 Mark OK</button><button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">\u21a9 Reset</button></div>`;
+      }else{
+        actionHtml=`<div class="btn-grp"><button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">\u2713 Received</button><button class="bwf ai" onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">\u26a0 Not Enough</button><button class="bwf an" onclick="doUpdate('${v.id}','stage2','alloc_not_received')">\u26a0 Not Received</button></div>`;
+      }
+    }else{
+      const nextVal=stage==='cigas'?'paid':'received';
+      actionHtml=`<button class="bwf ${stage==='cigas'?'paid':'recv'}" onclick="doUpdate('${v.id}','${stage}','${nextVal}')">${actionLabel}</button>`;
+    }
+    const flagBadge=isFlagged?`<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:${v.stage2Status==='alloc_insufficient'?'var(--ai-bg)':'var(--an-bg)'};color:${v.stage2Status==='alloc_insufficient'?'var(--ai-txt)':'var(--an-txt)'}">
+      ${v.stage2Status==='alloc_insufficient'?'\u26a0 Not Enough':'\u26a0 Not Received'}</span>`:'';
+    html+=`<tr${isFlagged?' class="flagged"':''}>
+      <td style="color:#bbb;font-size:11px">${i+1}</td>
+      <td><div class="wf-cat">${v.categoryName}</div></td>
+      <td><div style="font-size:12px">${subParent}${subDetail}</div></td>
+      ${role==='vl'?`<td>${flagBadge||'<span style="font-size:11px;color:var(--muted)">Pending</span>'}</td>`:''}
+      <td>${otherStages}</td>
+      <td>${actionHtml}</td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('wfContent').innerHTML=html;
+}
+function buildOtherStages(v,currentStage){
+  const parts=[];
+  if(currentStage!=='fa'){const s=v.faStatus||'pending';parts.push(`FA: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'\u2713':'-'}</strong>`);}
+  if(currentStage!=='stage2'){const s=v.stage2Status||'pending';parts.push(`VL: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'\u2713':'-'}</strong>`);}
+  if(currentStage!=='cigas'){const s=v.cigasStatus||'pending';parts.push(`Pay: <strong style="color:${s==='paid'?'var(--paid-txt)':'var(--muted)'}">${s==='paid'?'\u2713':'-'}</strong>`);}
+  return`<span style="font-size:11px;color:var(--muted)">${parts.join(' \u00b7 ')}</span>`;
+}
+
+async function doUpdate(vid,stage,next){
+  try{
+    const ts=firebase.firestore.FieldValue.serverTimestamp();
+    const name=meData.name;
+    const upd={};
+    const clearing=next==='pending';
+    if(stage==='fa'){upd.faStatus=next;upd.faAt=clearing?null:ts;upd.faBy=clearing?null:name;}
+    else if(stage==='stage2'){upd.stage2Status=next;upd.stage2At=clearing?null:ts;upd.stage2By=clearing?null:name;}
+    else{upd.cigasStatus=next;upd.cigasAt=clearing?null:ts;upd.cigasBy=clearing?null:name;}
     await db.collection('vouchers').doc(vid).update(upd);
-    toast('Status updated ✓');
-  } catch(e) { toast(e.message,true); }
+    toast('Updated \u2713');
+  }catch(e){toast(e.message,true);}
 }
 
-// ══════════════════════════════════════════
-//  GENERATE MONTH
-// ══════════════════════════════════════════
-async function generateMonth() {
-  const m=+document.getElementById('genMonth').value, y=+document.getElementById('genYear').value;
-  if (!confirm(`Generate all voucher entries for ${MONTHS[m-1]} ${y}?\nExisting entries will be skipped.`)) return;
-  toast('Generating…');
+async function generateMonth(){
+  const m=+document.getElementById('genMonth').value,y=+document.getElementById('genYear').value;
+  if(!confirm(`Generate all voucher entries for ${MONTHS[m-1]} ${y}?\nExisting entries will be skipped.`))return;
+  toast('Generating\u2026');
   const existing=await db.collection('vouchers').where('year','==',y).where('month','==',m).get();
   const existSet=new Set(existing.docs.map(d=>d.id));
-  const batch=db.batch(); let count=0,order=1;
+  const batch=db.batch();let count=0,order=1;
   const ts=firebase.firestore.FieldValue.serverTimestamp();
-  for (const cat of CATS) {
-    if (Array.isArray(cat.subs)&&cat.subs.length>0) {
-      for (const sub of cat.subs) {
-        const docId=`${y}_${m}_${cat.id}_${sub.id}`;
-        if (!existSet.has(docId)) {
-          batch.set(db.collection('vouchers').doc(docId),{
-            category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,
-            month:m,year:y,stage2Type:cat.stage2,
-            faStatus:'pending',faAt:null,faBy:null,
-            stage2Status:'pending',stage2At:null,stage2By:null,
-            cigasStatus:'pending',cigasAt:null,cigasBy:null,
-            createdAt:ts,createdBy:me.uid,order:order
-          }); count++;
+  const base={month:m,year:y,faStatus:'pending',faAt:null,faBy:null,stage2Status:'pending',stage2At:null,stage2By:null,cigasStatus:'pending',cigasAt:null,cigasBy:null,createdAt:ts,createdBy:me.uid};
+  for(const cat of CATS){
+    if(cat.subs===null){
+      const docId=`${y}_${m}_${cat.id}`;
+      if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});count++;}
+      order++;
+    }else if(cat.hasSubSubs){
+      for(const sub of cat.subs){
+        for(const ss of(sub.subSubs||[])){
+          const docId=`${y}_${m}_${cat.id}_${sub.id}_${ss.id}`;
+          if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:ss.id,subSubCategoryName:ss.name,stage2Type:cat.s2,order:order});count++;}
+          order++;
         }
+      }
+    }else if(Array.isArray(cat.subs)&&cat.subs.length>0){
+      for(const sub of cat.subs){
+        const docId=`${y}_${m}_${cat.id}_${sub.id}`;
+        if(!existSet.has(docId)){batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});count++;}
         order++;
       }
-    } else if (cat.subs===null) {
-      const docId=`${y}_${m}_${cat.id}`;
-      if (!existSet.has(docId)) {
-        batch.set(db.collection('vouchers').doc(docId),{
-          category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,
-          month:m,year:y,stage2Type:cat.stage2,
-          faStatus:'pending',faAt:null,faBy:null,
-          stage2Status:'pending',stage2At:null,stage2By:null,
-          cigasStatus:'pending',cigasAt:null,cigasBy:null,
-          createdAt:ts,createdBy:me.uid,order:order
-        }); count++;
-      }
-      order++;
     }
   }
-  if (count===0) { toast('All entries already exist for this month.'); return; }
-  try { await batch.commit(); toast(`${count} entries generated for ${MONTHS[m-1]} ${y} ✓`); }
-  catch(e) { toast(e.message,true); }
+  if(count===0){toast('All entries already exist for this month.');return;}
+  try{await batch.commit();toast(`${count} entries generated for ${MONTHS[m-1]} ${y} \u2713`);}
+  catch(e){toast(e.message,true);}
 }
 
-// ══════════════════════════════════════════
-//  USER MANAGEMENT
-// ══════════════════════════════════════════
-async function loadUsers() {
-  try {
+async function loadUsers(){
+  try{
     const snap=await db.collection('users').get();
     renderUsers(snap.docs.map(d=>({uid:d.id,...d.data()})));
-  } catch(e) { document.getElementById('usersList').innerHTML=`<p style="color:red;font-size:13px">${e.message}</p>`; }
+  }catch(e){document.getElementById('usersList').innerHTML=`<p style="color:red;font-size:13px">${e.message}</p>`;}
 }
-function renderUsers(users) {
+function renderUsers(users){
   let html=`<div style="overflow-x:auto"><table class="u-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
-  users.forEach(u => {
+  users.forEach(u=>{
     const isSelf=u.uid===me.uid;
-    html+=`<tr>
-      <td>${u.name||'—'}</td><td style="color:#888;font-size:11px">${u.email}</td>
+    html+=`<tr><td>${u.name||'\u2014'}</td><td style="color:#888;font-size:11px">${u.email}</td>
       <td>${isSelf?`<span class="role-pill">${ROLES[u.role]||u.role}</span>`
-        :`<select class="role-sel" id="role_${u.uid}">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}"${u.role===k?' selected':''}>${v}</option>`).join('')}<option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option></select>`}</td>
-      <td>${isSelf?'<span style="font-size:11px;color:#aaa">(You)</span>':`<button class="btn-save" onclick="saveRole('${u.uid}')">Save</button>`}</td>
+        :`<select class="role-sel" id="role_${u.uid}">${Object.entries(ROLES).map(([k,v2])=>`<option value="${k}"${u.role===k?' selected':''}>${v2}</option>`).join('')}<option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option></select>`}</td>
+      <td>${isSelf?'<span style="font-size:11px;color:#aaa">(You)</span>':`<button class="btn-sv" onclick="saveRole('${u.uid}')">Save</button>`}</td>
     </tr>`;
   });
   document.getElementById('usersList').innerHTML=html+'</tbody></table></div>';
 }
-async function saveRole(uid) {
+async function saveRole(uid){
   const role=document.getElementById('role_'+uid).value;
-  try { await db.collection('users').doc(uid).update({role}); toast('Role updated ✓'); loadUsers(); }
-  catch(e) { toast(e.message,true); }
+  try{await db.collection('users').doc(uid).update({role});toast('Role updated \u2713');loadUsers();}
+  catch(e){toast(e.message,true);}
 }
 
-// ══════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════
-function copyRules() {
+function copyRules(){
   navigator.clipboard.writeText(document.querySelector('.rules-pre').textContent)
-    .then(()=>toast('Rules copied ✓')).catch(()=>toast('Select and copy manually',true));
+    .then(()=>toast('Rules copied \u2713')).catch(()=>toast('Select and copy manually',true));
 }
 let toastTmr;
-function toast(msg, isErr=false) {
+function toast(msg,isErr=false){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.style.background=isErr?'#C0392B':'#2C2219'; el.style.display='block';
-  clearTimeout(toastTmr); toastTmr=setTimeout(()=>el.style.display='none',3200);
+  el.textContent=msg;el.style.background=isErr?'#C0392B':'#2C2219';el.style.display='block';
+  clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.style.display='none',3200);
 }
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
