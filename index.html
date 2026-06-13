@@ -878,7 +878,7 @@ function renderModalContent(catId){
     html=`<table style="width:100%;border-collapse:collapse">
       <tbody>
         ${seRow('FA Check',badge(v,'fa'))}
-        ${seRow(v.s2==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
+        ${seRow(v.stage2Type==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
         ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
       </tbody></table>`;
   } else if(cat.hasSubSubs){
@@ -927,7 +927,7 @@ function badge(v,stage){
     // In modal: alloc flags click → reset to pending; pending → received; received → pending
     if(status==='pending') next='received';
     else next='pending';
-    const isVL=v.s2==='vl';
+    const isVL=v.stage2Type==='vl';
     canClick=meData&&((meData.role==='vl'&&isVL)||(meData.role==='deposit'&&!isVL)||meData.role==='superadmin');
     // Alloc flags: clickable to reset to pending only
   } else {
