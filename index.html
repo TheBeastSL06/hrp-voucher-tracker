@@ -979,10 +979,10 @@ function renderWorkflow(){
       v.stage2Status==='pending'
     );
   } else if(role==='superadmin'){
-    items = vouchers.filter(v => v.cigasStatus==='pending');
+    items = vouchers.filter(v => v.cigasStatus!=='paid');
   }
 
-  const titleMap = {fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Payment (CIGAS)'};
+  const titleMap = {fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Super Admin — All Stages'};
   const wfTitle = document.getElementById('wfTitle');
   const wfCount = document.getElementById('wfCount');
   if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — Pending · ${periodStr}`;
@@ -1008,8 +1008,17 @@ function renderWorkflow(){
     const pendCount = cv.length - flagCount;
     const isOpen = wfOpenCat === cat.id;
     let pills = '';
-    if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} Pending</span>`;
-    if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} Flagged</span>`;
+    if(role==='superadmin'){
+      const pendFA  = cv.filter(v=>v.faStatus!=='received').length;
+      const flags   = flagCount;
+      const pendPay = cv.filter(v=>v.cigasStatus!=='paid').length;
+      if(pendFA)  pills += `<span class="wf-pend-pill">FA: ${pendFA}</span>`;
+      if(flags)   pills += `<span class="wf-flag-pill">⚠ ${flags}</span>`;
+      if(pendPay) pills += `<span class="wf-pend-pill">Pay: ${pendPay}</span>`;
+    } else {
+      if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} Pending</span>`;
+      if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} Flagged</span>`;
+    }
     html += `<div class="wf-cat-block" id="wfblock_${cat.id}">
       <div class="wf-cat-hdr${isOpen?' open':''}" onclick="toggleWfCat('${cat.id}')">
         <div class="wf-cat-hdr-l">
@@ -1067,15 +1076,49 @@ function buildWfItems(cv, role){
     } else if(role==='deposit'){
       actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>`;
     } else if(role==='superadmin'){
-      actions = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">✓ Mark Paid</button>`;
+      // FA stage buttons
+      const faStatus = v.faStatus||'pending';
+      const faBtn = faStatus==='received'
+        ? `<button class="bwf rst" onclick="doUpdate('${v.id}','fa','pending')">FA: ↩ Reset</button>`
+        : `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">FA: ✓ Received</button>`;
+
+      // Stage2 buttons (VL or Deposit)
+      const s2Status = v.stage2Status||'pending';
+      const s2Label = v.stage2Type==='deposit' ? 'Dep' : 'VL';
+      let s2Btns = '';
+      if(s2Status==='received'){
+        s2Btns = `<button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+      } else if(s2Status==='alloc_insufficient'){
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+      } else if(s2Status==='alloc_not_received'){
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+      } else {
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ Received</button>
+                  <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">${s2Label}: ⚠ Not Enough</button>
+                  <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${s2Label}: ⚠ Not Received</button>`;
+      }
+
+      // CIGAS payment button
+      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">💰 Mark Paid</button>`;
+
+      actions = faBtn + s2Btns + payBtn;
     }
     let stageInfo = '';
     if(role==='superadmin'){
-      const faOk  = v.faStatus==='received';
-      const vlStat= v.stage2Status||'pending';
-      const vlLbl = vlStat==='received'?'✓':vlStat==='alloc_insufficient'?'⚠ N.Enough':vlStat==='alloc_not_received'?'⚠ N.Received':'—';
-      const vlClr = vlStat==='received'?'#065F46':vlStat.startsWith('alloc')?'#92400E':'#6B5E52';
-      stageInfo = `<span style="font-size:10px;color:var(--muted)">FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?'✓':'—'}</b> &nbsp; VL: <b style="color:${vlClr}">${vlLbl}</b></span>`;
+      const faOk   = v.faStatus==='received';
+      const s2Stat = v.stage2Status||'pending';
+      const s2Lbl  = s2Stat==='received'?'✓':s2Stat==='alloc_insufficient'?'⚠ Not Enough':s2Stat==='alloc_not_received'?'⚠ Not Received':'Pending';
+      const s2Clr  = s2Stat==='received'?'#065F46':s2Stat.startsWith('alloc')?'#92400E':'#6B5E52';
+      const payLbl = v.cigasStatus==='paid'?'✓ Paid':'Pending';
+      const payClr = v.cigasStatus==='paid'?'#065F46':'#6B5E52';
+      const s2Name = v.stage2Type==='deposit'?'Dep':'VL';
+      stageInfo = `<div style="font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap">
+        <span>FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?'✓ Received':'Pending'}</b></span>
+        <span>${s2Name}: <b style="color:${s2Clr}">${s2Lbl}</b></span>
+        <span>Pay: <b style="color:${payClr}">${payLbl}</b></span>
+      </div>`;
     }
     html += `<div class="wf-item${isFlagged?' flagged':''}">
       <div class="wf-item-info">
