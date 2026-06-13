@@ -314,7 +314,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="admin-card">
         <h3>📂 Staff Travel & Holiday OT — Sub-categories</h3>
         <div class="aform" style="margin-bottom:12px">
-          <select id="sscCatSel" onchange="refreshSscView()">
+          <select id="sscCatSel" onchange="updateSscParents()">
             <option value="staff_travel">Office Staff Travel Expense</option>
             <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
           </select>
@@ -329,6 +329,34 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <input type="text" id="sscInput" placeholder="e.g. Driver">
           <button class="btn-a" onclick="addSubSubcat()">Add</button>
         </div>
+      </div>
+
+      <!-- Delete Category Entries Utility -->
+      <div class="admin-card">
+        <h3>🗑️ Delete Category Entries</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Use this to remove all voucher entries for a specific category and month. Useful when a category structure has changed.</p>
+        <div class="aform">
+          <select id="delCatSel">
+            <option value="">— Select Category —</option>
+            <option value="gn_travel">Grama Niladari Travel Expense</option>
+            <option value="field_travel">Field Officers Travel Expense</option>
+            <option value="staff_travel">Office Staff Travel Expense</option>
+            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
+            <option value="allowances">Disable/Kidney/Elder's Allowance</option>
+            <option value="nutrition">Nutrition / Guru Abimani / Pre-School</option>
+            <option value="mahajanadara">Mahajanadara</option>
+            <option value="mediation">Mediation Board</option>
+            <option value="fuel">Fuel</option>
+            <option value="bills">Bills</option>
+            <option value="postal">Postal Charge</option>
+            <option value="pension">Pension</option>
+            <option value="gsmb">GSMB Payment</option>
+          </select>
+          <select id="delMonth"></select>
+          <select id="delYear"></select>
+          <button class="btn-a" style="background:#C0392B" onclick="deleteCategoryEntries()">🗑️ Delete Entries</button>
+        </div>
+        <p class="a-hint">⚠️ This cannot be undone. After deleting, use Generate Month Entries to recreate with the updated structure.</p>
       </div>
 
       <div class="admin-card" style="grid-column:1/-1">
@@ -584,12 +612,12 @@ function switchView(v){
 //  PERIOD
 // ════════════════════════════════════════
 function populateSelects(){
-  ['selMonth','genMonth'].forEach(id=>{
+  ['selMonth','genMonth','delMonth'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
   });
   const yrs=[selYear-1,selYear,selYear+1];
-  ['selYear','genYear'].forEach(id=>{
+  ['selYear','genYear','delYear'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.innerHTML=yrs.map(y=>`<option value="${y}"${y===selYear?' selected':''}>${y}</option>`).join('');
   });
@@ -661,16 +689,38 @@ async function loadDynSubSubs(){
   }catch(e){console.warn('loadDynSubSubs:',e);}
 }
 
-// Get parent sub ID options for selected category in admin
 const SSC_PARENTS={
   staff_travel:[{val:'st_cg',lbl:'Central Government'},{val:'st_ncp',lbl:'NCP'},{val:'st_yo',lbl:'Yan Oya'}],
   holiday_ot:  [{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
 };
 
+async function deleteCategoryEntries(){
+  const catId  = document.getElementById('delCatSel').value;
+  const m      = +document.getElementById('delMonth').value;
+  const y      = +document.getElementById('delYear').value;
+  if(!catId){ toast('Please select a category.',true); return; }
+  const catName = document.getElementById('delCatSel').options[document.getElementById('delCatSel').selectedIndex].text;
+  if(!confirm(`Delete ALL entries for:\n"${catName}"\n${MONTHS[m-1]} ${y}\n\nThis cannot be undone. Continue?`)) return;
+  toast('Deleting…');
+  try{
+    const snap = await db.collection('vouchers')
+      .where('year','==',y).where('month','==',m).where('category','==',catId).get();
+    if(!snap.empty){
+      const batch = db.batch();
+      snap.docs.forEach(doc=>batch.delete(doc.ref));
+      await batch.commit();
+      toast(`Deleted ${snap.size} entries for ${catName} · ${MONTHS[m-1]} ${y} ✓`);
+    } else {
+      toast('No entries found for that category and period.',true);
+    }
+  }catch(e){ toast(e.message,true); }
+}
+
 function updateSscParents(){
   const cat=document.getElementById('sscCatSel').value;
   const pSel=document.getElementById('sscParentSel');
-  pSel.innerHTML=SSC_PARENTS[cat].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
+  const opts=SSC_PARENTS[cat];
+  pSel.innerHTML=opts.map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
   refreshSscView();
 }
 
