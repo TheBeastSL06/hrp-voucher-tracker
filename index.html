@@ -329,9 +329,58 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         </div>
       </div>
 
-      <!-- Staff Travel & Holiday OT sub-sub-cats -->
+      <!-- Manage Custom Categories -->
+      <div class="admin-card" style="grid-column:1/-1">
+        <h3>📁 Manage Categories</h3>
+
+        <!-- Create new category form -->
+        <div style="background:#F7F2EA;border-radius:8px;padding:16px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:800;color:var(--maroon);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">➕ New Category</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <input type="text" id="newCatName" placeholder="Category name" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
+            <select id="newCatStage2" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;">
+              <option value="vl">Vote Ledger</option>
+              <option value="deposit">Deposit Ledger</option>
+            </select>
+            <select id="newCatSubType" onchange="onNewCatSubTypeChange()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;">
+              <option value="none">No sub-categories</option>
+              <option value="subs">Fixed sub-categories</option>
+              <option value="subsubs">Sub-sub-category structure</option>
+            </select>
+          </div>
+
+          <!-- Fixed subs editor -->
+          <div id="newCatSubsArea" style="display:none;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Sub-categories:</div>
+            <div id="newCatSubsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="newCatSubInput" placeholder="Sub-category name" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatSub()">Add</button>
+            </div>
+          </div>
+
+          <!-- Sub-sub-cat groups editor -->
+          <div id="newCatGroupsArea" style="display:none;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Parent groups (e.g. Central Government, NCP):</div>
+            <div id="newCatGroupsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="newCatGroupInput" placeholder="Group name" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatGroup()">Add</button>
+            </div>
+            <p style="font-size:10px;color:var(--muted);margin-top:6px">Sub-sub-categories under each group can be added after saving, via the sub-sub-category panel below.</p>
+          </div>
+
+          <button class="btn-a" onclick="saveNewCategory()" style="width:100%">💾 Save Category</button>
+        </div>
+
+        <!-- Existing custom categories list -->
+        <div style="font-size:12px;font-weight:800;color:var(--maroon);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Custom Categories</div>
+        <div id="customCatList"><div style="font-size:12px;color:var(--muted);padding:10px 0">Loading...</div></div>
+      </div>
+
+      <!-- Staff Travel & Holiday OT + custom subsubs sub-sub-cats -->
       <div class="admin-card">
-        <h3>📂 Staff Travel & Holiday OT — Sub-categories</h3>
+        <h3>📂 Sub-Sub-Category Manager</h3>
         <div class="aform" style="margin-bottom:12px">
           <select id="sscCatSel" onchange="updateSscParents()">
             <option value="staff_travel">Office Staff Travel Expense</option>
@@ -395,6 +444,7 @@ service cloud.firestore {
     }
     match /dynamicSubCats/{id}    { allow read: if true; allow write: if isAdmin(); }
     match /dynamicSubSubCats/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /customCats/{id}        { allow read: if true; allow write: if isAdmin(); }
     match /users/{uid} {
       allow read:   if isAuth() && (request.auth.uid == uid || isAdmin());
       allow create: if isAuth() && request.auth.uid == uid;
@@ -534,6 +584,10 @@ let dynSubSubs={
   'staff_travel__st_cg':[],'staff_travel__st_ncp':[],'staff_travel__st_yo':[],
   'holiday_ot__ho_cg':[], 'holiday_ot__ho_ncp':[], 'holiday_ot__ho_yo':[],
 };
+let customCats = []; // loaded from Firestore
+// temp state for new category form
+let newCatSubs  = []; // [{id,name}] for subType='subs'
+let newCatGroups= []; // [{id,name}] for subType='subsubs'
 let openModalCatId=null;
 const now=new Date();
 selMonth=now.getMonth()+1; selYear=now.getFullYear();
@@ -543,7 +597,7 @@ selMonth=now.getMonth()+1; selYear=now.getFullYear();
 // ════════════════════════════════════════
 (async function boot(){
   populateSelects();
-  await Promise.all([loadDynSubs(), loadDynSubSubs()]);
+  await Promise.all([loadDynSubs(), loadDynSubSubs(), loadCustomCats()]);
   loadVouchers();
 })();
 
@@ -570,6 +624,7 @@ auth.onAuthStateChanged(async user=>{
     if(meData.role==='superadmin'){
       document.getElementById('navAdmin').style.display='';
       loadUsers(); refreshSscView(); renderScList('field_travel','scListField');
+      renderCustomCatList(); updateDelCatDropdown();
     }
     closeLogin(); renderDash(); renderWorkflow();
     toast(`Welcome, ${meData.name} ✓`);
@@ -736,10 +791,20 @@ async function deleteCategoryEntries(){
 }
 
 function updateSscParents(){
-  const cat=document.getElementById('sscCatSel').value;
-  const pSel=document.getElementById('sscParentSel');
-  const opts=SSC_PARENTS[cat];
-  pSel.innerHTML=opts.map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
+  const catId = document.getElementById('sscCatSel').value;
+  const pSel  = document.getElementById('sscParentSel');
+  // Check built-in first
+  if(SSC_PARENTS[catId]){
+    pSel.innerHTML = SSC_PARENTS[catId].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
+  } else {
+    // Custom subsubs category — use its groups
+    const cc = customCats.find(c=>c.id===catId);
+    if(cc && cc.groups){
+      pSel.innerHTML = cc.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+    } else {
+      pSel.innerHTML = '';
+    }
+  }
   refreshSscView();
 }
 
@@ -1148,6 +1213,195 @@ async function doUpdate(vid,stage,next){
     await db.collection('vouchers').doc(vid).update(upd);
     toast('Updated ✓');
   }catch(e){toast(e.message,true);}
+}
+
+// ════════════════════════════════════════
+//  CUSTOM CATEGORIES
+// ════════════════════════════════════════
+async function loadCustomCats(){
+  try{
+    const snap = await db.collection('customCats').orderBy('order').get();
+    customCats = snap.docs.map(d=>({...d.data(), id:d.id}));
+    // Merge into CATS (remove old custom entries first)
+    CATS = CATS.filter(c=>!c.isCustom);
+    customCats.forEach(cc=>{
+      const cat = {
+        id: cc.id,
+        name: cc.name,
+        s2: cc.stage2Type,
+        isCustom: true,
+        subs: cc.subType==='none' ? null
+            : cc.subType==='subs' ? (cc.subs||[])
+            : (cc.groups||[]).map(g=>({...g, subSubs:[]})),
+        hasSubSubs: cc.subType==='subsubs',
+      };
+      // Load dynSubSubs keys for custom subsubs cats
+      if(cc.subType==='subsubs'){
+        (cc.groups||[]).forEach(g=>{
+          const key=`${cc.id}__${g.id}`;
+          if(!dynSubSubs[key]) dynSubSubs[key]=[];
+        });
+      }
+      CATS.push(cat);
+    });
+    // Re-apply dynSubSubs to custom subsubs cats
+    CATS.forEach(cat=>{
+      if(cat.isCustom && cat.hasSubSubs && cat.subs){
+        cat.subs.forEach(sub=>{
+          const key=`${cat.id}__${sub.id}`;
+          sub.subSubs = dynSubSubs[key]||[];
+        });
+      }
+    });
+  }catch(e){ console.warn('loadCustomCats:',e); }
+}
+
+// ── New category form state ──
+function onNewCatSubTypeChange(){
+  const t = document.getElementById('newCatSubType').value;
+  document.getElementById('newCatSubsArea').style.display   = t==='subs'    ? 'block' : 'none';
+  document.getElementById('newCatGroupsArea').style.display = t==='subsubs' ? 'block' : 'none';
+}
+function addNewCatSub(){
+  const inp = document.getElementById('newCatSubInput');
+  const name = inp.value.trim(); if(!name) return;
+  const id = 'sub_' + Date.now();
+  newCatSubs.push({id, name});
+  inp.value='';
+  renderNewCatSubsList();
+}
+function removeNewCatSub(id){
+  newCatSubs = newCatSubs.filter(s=>s.id!==id);
+  renderNewCatSubsList();
+}
+function renderNewCatSubsList(){
+  document.getElementById('newCatSubsList').innerHTML =
+    newCatSubs.map(s=>`<div class="sc-item"><span>${s.name}</span><button class="btn-del" onclick="removeNewCatSub('${s.id}')">×</button></div>`).join('') ||
+    '<div style="font-size:11px;color:#bbb;padding:4px 0">No sub-categories yet</div>';
+}
+function addNewCatGroup(){
+  const inp = document.getElementById('newCatGroupInput');
+  const name = inp.value.trim(); if(!name) return;
+  const id = 'grp_' + Date.now();
+  newCatGroups.push({id, name});
+  inp.value='';
+  renderNewCatGroupsList();
+}
+function removeNewCatGroup(id){
+  newCatGroups = newCatGroups.filter(g=>g.id!==id);
+  renderNewCatGroupsList();
+}
+function renderNewCatGroupsList(){
+  document.getElementById('newCatGroupsList').innerHTML =
+    newCatGroups.map(g=>`<div class="sc-item"><span>${g.name}</span><button class="btn-del" onclick="removeNewCatGroup('${g.id}')">×</button></div>`).join('') ||
+    '<div style="font-size:11px;color:#bbb;padding:4px 0">No groups yet</div>';
+}
+
+async function saveNewCategory(){
+  const name     = document.getElementById('newCatName').value.trim();
+  const stage2   = document.getElementById('newCatStage2').value;
+  const subType  = document.getElementById('newCatSubType').value;
+  if(!name){ toast('Please enter a category name.',true); return; }
+  if(subType==='subs' && newCatSubs.length===0){ toast('Please add at least one sub-category.',true); return; }
+  if(subType==='subsubs' && newCatGroups.length===0){ toast('Please add at least one group.',true); return; }
+
+  try{
+    const order = 1000 + customCats.length;
+    const data = { name, stage2Type:stage2, subType, order,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+    if(subType==='subs')    data.subs   = newCatSubs;
+    if(subType==='subsubs') data.groups = newCatGroups;
+
+    const ref = await db.collection('customCats').add(data);
+    toast(`Category "${name}" created ✓`);
+
+    // Reset form
+    document.getElementById('newCatName').value='';
+    document.getElementById('newCatSubType').value='none';
+    onNewCatSubTypeChange();
+    newCatSubs=[]; newCatGroups=[];
+    renderNewCatSubsList(); renderNewCatGroupsList();
+
+    // Reload and re-render
+    await loadCustomCats();
+    renderCustomCatList();
+    updateSscCatOptions();
+    updateDelCatDropdown();
+  }catch(e){ toast(e.message,true); }
+}
+
+async function deleteCustomCat(catId, catName){
+  // Check if any vouchers exist for this category
+  const snap = await db.collection('vouchers').where('category','==',catId).limit(1).get();
+  if(!snap.empty){
+    if(!confirm(`"${catName}" has existing voucher entries.\nDeleting the category will NOT delete those vouchers — they will stay in Firestore.\n\nAre you sure you want to remove this category definition?`)) return;
+  } else {
+    if(!confirm(`Delete category "${catName}"? This cannot be undone.`)) return;
+  }
+  try{
+    await db.collection('customCats').doc(catId).delete();
+    toast(`"${catName}" deleted ✓`);
+    await loadCustomCats();
+    renderCustomCatList();
+    updateSscCatOptions();
+    updateDelCatDropdown();
+  }catch(e){ toast(e.message,true); }
+}
+
+function renderCustomCatList(){
+  const el = document.getElementById('customCatList');
+  if(!el) return;
+  if(!customCats.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px 0">No custom categories yet.</div>';
+    return;
+  }
+  const subTypeLabel = {none:'No sub-cats', subs:'Fixed subs', subsubs:'Sub-sub-cat structure'};
+  el.innerHTML = customCats.map(cc=>`
+    <div class="sc-item" style="padding:10px 12px;align-items:flex-start;flex-direction:column;gap:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <span style="font-weight:700;font-size:13px;color:var(--maroon)">${cc.name}</span>
+        <button class="btn-del" style="font-size:18px" onclick="deleteCustomCat('${cc.id}','${cc.name.replace(/'/g,"\\'")}')">×</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap">
+        <span>${cc.stage2Type==='deposit'?'Deposit Ledger':'Vote Ledger'}</span>
+        <span>·</span>
+        <span>${subTypeLabel[cc.subType]||cc.subType}</span>
+        ${cc.subType==='subs'&&cc.subs?`<span>· ${cc.subs.length} sub-cats</span>`:''}
+        ${cc.subType==='subsubs'&&cc.groups?`<span>· ${cc.groups.length} groups</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// Update sscCatSel to include custom subsubs categories
+function updateSscCatOptions(){
+  const sel = document.getElementById('sscCatSel');
+  if(!sel) return;
+  // Remove old custom options
+  Array.from(sel.options).filter(o=>o.dataset.custom).forEach(o=>o.remove());
+  // Add custom subsubs cats
+  customCats.filter(cc=>cc.subType==='subsubs').forEach(cc=>{
+    const opt = document.createElement('option');
+    opt.value = cc.id;
+    opt.textContent = cc.name;
+    opt.dataset.custom = '1';
+    sel.appendChild(opt);
+  });
+}
+
+// Update delete category dropdown to include custom cats
+function updateDelCatDropdown(){
+  const sel = document.getElementById('delCatSel');
+  if(!sel) return;
+  // Remove old custom options
+  Array.from(sel.options).filter(o=>o.dataset.custom).forEach(o=>o.remove());
+  // Add custom cats
+  customCats.forEach(cc=>{
+    const opt = document.createElement('option');
+    opt.value = cc.id;
+    opt.textContent = cc.name;
+    opt.dataset.custom = '1';
+    sel.appendChild(opt);
+  });
 }
 
 // ════════════════════════════════════════
