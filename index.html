@@ -116,22 +116,45 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .b-time{font-size:9px;font-weight:400;opacity:.8;}
 .b-by{font-size:9px;font-weight:600;}
 
-/* WORKFLOW */
+/* WORKFLOW ACCORDION */
+.wf-accordion { display:flex; flex-direction:column; gap:10px; }
+.wf-cat-block { background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border); }
+.wf-cat-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 16px; cursor:pointer; user-select:none;
+  transition:background .15s; gap:10px;
+}
+.wf-cat-hdr:hover { background:#FAF7F2; }
+.wf-cat-hdr.open  { background:#FDF9F4; }
+.wf-cat-hdr-l { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.wf-cat-arrow { font-size:12px; color:var(--maroon); width:16px; flex-shrink:0; transition:transform .2s; }
+.wf-cat-arrow.open { transform:rotate(90deg); }
+.wf-cat-label { font-size:13px; font-weight:700; color:var(--maroon); }
+.wf-cat-hdr-r { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.wf-pend-pill { background:var(--ai-bg); color:var(--ai-txt); border:1px solid var(--ai-bdr); font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; white-space:nowrap; }
+.wf-flag-pill { background:var(--an-bg); color:var(--an-txt); border:1px solid var(--an-bdr); font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; white-space:nowrap; }
+
+.wf-cat-body { display:none; border-top:2px solid #EDE8DF; }
+.wf-cat-body.open { display:block; }
+.wf-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 16px; border-bottom:1px solid #EDE8DF; gap:12px; flex-wrap:wrap;
+}
+.wf-item:last-child { border-bottom:none; }
+.wf-item.flagged { background:#FFFBEB; }
+.wf-item-info { flex:1; min-width:0; }
+.wf-item-name { font-size:12px; font-weight:600; color:var(--text); }
+.wf-item-sub  { font-size:10px; color:var(--muted); margin-top:2px; }
+.wf-item-flag { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; margin-top:4px; padding:2px 7px; border-radius:10px; }
+.wf-item-flag.ai { background:var(--ai-bg); color:var(--ai-txt); border:1px solid var(--ai-bdr); }
+.wf-item-flag.an { background:var(--an-bg); color:var(--an-txt); border:1px solid var(--an-bdr); }
+.wf-item-actions { display:flex; gap:5px; flex-wrap:wrap; flex-shrink:0; }
+
+/* WORKFLOW (old table styles kept for reference but accordion replaces) */
 .wf-info{background:#fff;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .wf-title{font-size:15px;font-weight:800;color:var(--maroon);flex:1;}
 .wf-cnt{background:var(--maroon);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
-.wf-wrap{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
-.wf-scroll{overflow-x:auto;}
-.wf-table{width:100%;border-collapse:collapse;min-width:580px;}
-.wf-table thead th{background:#F7F2EA;padding:9px 12px;text-align:left;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);white-space:nowrap;}
-.wf-table tbody td{padding:10px 12px;font-size:12px;border-bottom:1px solid #EDE8DF;vertical-align:middle;}
-.wf-table tbody tr:last-child td{border-bottom:none;}
-.wf-table tbody tr:hover{background:#FAF7F2;}
-.wf-table tbody tr.flagged{background:#FFFBEB;}
-.wf-cat{font-weight:700;color:var(--maroon);font-size:12px;}
-.wf-sub{color:var(--muted);font-size:11px;margin-top:2px;}
-.btn-grp{display:flex;gap:5px;flex-wrap:wrap;}
-.bwf{padding:5px 10px;border:1.5px solid;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:#fff;white-space:nowrap;transition:opacity .15s;}
+.bwf{padding:6px 11px;border:1.5px solid;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:#fff;white-space:nowrap;transition:opacity .15s;}
 .bwf:hover{opacity:.8;}
 .bwf.recv{color:var(--recv-txt);border-color:var(--recv-bdr);background:var(--recv-bg);}
 .bwf.paid{color:var(--paid-txt);border-color:var(--paid-bdr);background:var(--paid-bg);}
@@ -265,11 +288,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="wf-title" id="wfTitle">My Pending Tasks</div>
       <span class="wf-cnt" id="wfCount">0</span>
     </div>
-    <div class="wf-wrap">
-      <div class="wf-scroll">
-        <div id="wfContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-      </div>
-    </div>
+    <div class="wf-accordion" id="wfAccordion"></div>
   </div>
 
   <!-- ADMIN -->
@@ -934,97 +953,141 @@ function badge(v,stage){
 }
 
 // ════════════════════════════════════════
-//  WORKFLOW TAB
+//  WORKFLOW — ACCORDION
 // ════════════════════════════════════════
-function renderWorkflow(){
-  if(!meData||meData.role==='viewer')return;
-  const role=meData.role;
-  let items=[],stage='',actionLabel='';
+let wfOpenCat = null;
 
+function renderWorkflow(){
+  if(!meData || meData.role==='viewer') return;
+  const role = meData.role;
+  const periodStr = `${MONTHS[selMonth-1]} ${selYear}`;
+
+  // Filter by role & workflow stage logic
+  let items = [];
   if(role==='fa'){
-    items=vouchers.filter(v=>v.faStatus==='pending');
-    stage='fa'; actionLabel='Mark Received';
+    items = vouchers.filter(v => v.faStatus==='pending');
   } else if(role==='vl'){
-    items=vouchers.filter(v=>v.stage2Type==='vl'&&(v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received'));
-    stage='stage2';
+    items = vouchers.filter(v =>
+      v.stage2Type==='vl' &&
+      v.faStatus==='received' &&
+      (v.stage2Status==='pending' || v.stage2Status==='alloc_insufficient' || v.stage2Status==='alloc_not_received')
+    );
   } else if(role==='deposit'){
-    items=vouchers.filter(v=>v.stage2Type==='deposit'&&v.stage2Status==='pending');
-    stage='stage2'; actionLabel='Mark Received';
+    items = vouchers.filter(v =>
+      v.stage2Type==='deposit' &&
+      v.faStatus==='received' &&
+      v.stage2Status==='pending'
+    );
   } else if(role==='superadmin'){
-    items=vouchers.filter(v=>v.cigasStatus==='pending');
-    stage='cigas'; actionLabel='Mark Paid';
+    items = vouchers.filter(v => v.cigasStatus==='pending');
   }
 
-  const wfTitle=document.getElementById('wfTitle');
-  const wfCount=document.getElementById('wfCount');
-  if(wfTitle)wfTitle.textContent=`${SROLES[role]||role} — Pending Items · ${MONTHS[selMonth-1]} ${selYear}`;
-  if(wfCount)wfCount.textContent=items.length;
+  const titleMap = {fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Payment (CIGAS)'};
+  const wfTitle = document.getElementById('wfTitle');
+  const wfCount = document.getElementById('wfCount');
+  if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — Pending · ${periodStr}`;
+  if(wfCount) wfCount.textContent = items.length;
+
+  const acc = document.getElementById('wfAccordion');
+  if(!acc) return;
 
   if(!items.length){
-    document.getElementById('wfContent').innerHTML=`<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All done for ${MONTHS[selMonth-1]} ${selYear}!</div><p class="empty-hint">No pending items for your role.</p></div>`;
+    acc.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All done for ${periodStr}!</div><p class="empty-hint">No pending items for your role this month.</p></div>`;
     return;
   }
 
-  let html=`<table class="wf-table"><thead><tr><th>#</th><th>Category</th><th>Sub-category / Detail</th>${role==='vl'?'<th>Status</th>':''}<th>Other Stages</th><th>Action</th></tr></thead><tbody>`;
+  // Group by category in CATS order
+  const bycat = {};
+  items.forEach(v => { if(!bycat[v.category]) bycat[v.category]=[]; bycat[v.category].push(v); });
 
-  items.forEach((v,i)=>{
-    const subDetail=v.subSubCategoryName||v.subCategoryName||'—';
-    const subParent=v.subSubCategoryName?`<span style="font-size:10px;color:var(--muted)">${v.subCategoryName} · </span>`:'';
-    const isFlagged=v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received';
-    const otherStages=buildOtherStages(v,stage);
-
-    let actionHtml='';
-    if(role==='vl'){
-      if(isFlagged){
-        // Show current flag + option to mark OK or reset
-        actionHtml=`<div class="btn-grp">
-          <button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Mark OK</button>
-          <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">↩ Reset</button>
-        </div>`;
-      } else {
-        actionHtml=`<div class="btn-grp">
-          <button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>
-          <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">⚠ Not Enough</button>
-          <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">⚠ Not Received</button>
-        </div>`;
-      }
-    } else {
-      const nextVal=stage==='cigas'?'paid':'received';
-      actionHtml=`<button class="bwf ${stage==='cigas'?'paid':'recv'}" onclick="doUpdate('${v.id}','${stage}','${nextVal}')">${actionLabel}</button>`;
-    }
-
-    const flagBadge=isFlagged?`<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:${v.stage2Status==='alloc_insufficient'?'var(--ai-bg)':'var(--an-bg)'};color:${v.stage2Status==='alloc_insufficient'?'var(--ai-txt)':'var(--an-txt)'}">
-      ${v.stage2Status==='alloc_insufficient'?'⚠ Not Enough':'⚠ Not Received'}</span>`:'';
-
-    html+=`<tr${isFlagged?' class="flagged"':''}>
-      <td style="color:#bbb;font-size:11px">${i+1}</td>
-      <td><div class="wf-cat">${v.categoryName}</div></td>
-      <td><div style="font-size:12px">${subParent}${subDetail}</div></td>
-      ${role==='vl'?`<td>${flagBadge||'<span style="font-size:11px;color:var(--muted)">Pending</span>'}</td>`:''}
-      <td>${otherStages}</td>
-      <td>${actionHtml}</td>
-    </tr>`;
+  let html = '';
+  CATS.forEach(cat => {
+    const cv = bycat[cat.id];
+    if(!cv || !cv.length) return;
+    const flagCount = cv.filter(v => v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
+    const pendCount = cv.length - flagCount;
+    const isOpen = wfOpenCat === cat.id;
+    let pills = '';
+    if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} Pending</span>`;
+    if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} Flagged</span>`;
+    html += `<div class="wf-cat-block" id="wfblock_${cat.id}">
+      <div class="wf-cat-hdr${isOpen?' open':''}" onclick="toggleWfCat('${cat.id}')">
+        <div class="wf-cat-hdr-l">
+          <span class="wf-cat-arrow${isOpen?' open':''}">▶</span>
+          <span class="wf-cat-label">${cat.name}</span>
+        </div>
+        <div class="wf-cat-hdr-r">${pills}</div>
+      </div>
+      <div class="wf-cat-body${isOpen?' open':''}" id="wfbody_${cat.id}">
+        ${buildWfItems(cv, role)}
+      </div>
+    </div>`;
   });
-
-  html+='</tbody></table>';
-  document.getElementById('wfContent').innerHTML=html;
+  acc.innerHTML = html;
 }
 
-function buildOtherStages(v,currentStage){
-  const parts=[];
-  if(currentStage!=='fa'){
-    const s=v.faStatus||'pending';
-    parts.push(`FA: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'✓':'-'}</strong>`);
-  }
-  if(currentStage!=='stage2'){
-    const s=v.stage2Status||'pending';
-    parts.push(`VL: <strong style="color:${s==='received'?'var(--recv-txt)':'var(--muted)'}">${s==='received'?'✓':'-'}</strong>`);
-  }
-  if(currentStage!=='cigas'){
-    const s=v.cigasStatus||'pending';
-    parts.push(`Pay: <strong style="color:${s==='paid'?'var(--paid-txt)':'var(--muted)'}">${s==='paid'?'✓':'-'}</strong>`);
-  }
-  return`<span style="font-size:11px;color:var(--muted)">${parts.join(' · ')}</span>`;
+function toggleWfCat(catId){
+  wfOpenCat = (wfOpenCat === catId) ? null : catId;
+  document.querySelectorAll('.wf-cat-block').forEach(block => {
+    const id   = block.id.replace('wfblock_','');
+    const hdr  = block.querySelector('.wf-cat-hdr');
+    const arrow= block.querySelector('.wf-cat-arrow');
+    const body = block.querySelector('.wf-cat-body');
+    const open = id === wfOpenCat;
+    hdr.classList.toggle('open', open);
+    arrow.classList.toggle('open', open);
+    body.classList.toggle('open', open);
+  });
+}
+
+function buildWfItems(cv, role){
+  let html = '';
+  cv.forEach(v => {
+    const isFlagged = v.stage2Status==='alloc_insufficient' || v.stage2Status==='alloc_not_received';
+    const name  = v.subSubCategoryName || v.subCategoryName || v.categoryName;
+    const sub   = v.subSubCategoryName ? (v.subCategoryName||'') : '';
+    let flagHtml = '';
+    if(isFlagged){
+      const cls = v.stage2Status==='alloc_insufficient'?'ai':'an';
+      const lbl = v.stage2Status==='alloc_insufficient'?'⚠ Alloc. Not Enough':'⚠ Alloc. Not Received';
+      flagHtml = `<span class="wf-item-flag ${cls}">${lbl}</span>`;
+    }
+    let actions = '';
+    if(role==='fa'){
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">✓ Received</button>`;
+    } else if(role==='vl'){
+      if(isFlagged){
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Mark OK</button>
+                   <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">↩ Reset</button>`;
+      } else {
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>
+                   <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">⚠ Not Enough</button>
+                   <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">⚠ Not Received</button>`;
+      }
+    } else if(role==='deposit'){
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>`;
+    } else if(role==='superadmin'){
+      actions = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">✓ Mark Paid</button>`;
+    }
+    let stageInfo = '';
+    if(role==='superadmin'){
+      const faOk  = v.faStatus==='received';
+      const vlStat= v.stage2Status||'pending';
+      const vlLbl = vlStat==='received'?'✓':vlStat==='alloc_insufficient'?'⚠ N.Enough':vlStat==='alloc_not_received'?'⚠ N.Received':'—';
+      const vlClr = vlStat==='received'?'#065F46':vlStat.startsWith('alloc')?'#92400E':'#6B5E52';
+      stageInfo = `<span style="font-size:10px;color:var(--muted)">FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?'✓':'—'}</b> &nbsp; VL: <b style="color:${vlClr}">${vlLbl}</b></span>`;
+    }
+    html += `<div class="wf-item${isFlagged?' flagged':''}">
+      <div class="wf-item-info">
+        <div class="wf-item-name">${name}</div>
+        ${sub?`<div class="wf-item-sub">${sub}</div>`:''}
+        ${flagHtml}
+        ${stageInfo}
+      </div>
+      <div class="wf-item-actions">${actions}</div>
+    </div>`;
+  });
+  return html;
 }
 
 // ════════════════════════════════════════
