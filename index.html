@@ -1114,16 +1114,23 @@ async function generateMonth(){
   const m=+document.getElementById('genMonth').value,y=+document.getElementById('genYear').value;
   if(!confirm(`Generate all voucher entries for ${MONTHS[m-1]} ${y}?\nExisting entries will be skipped.`))return;
   toast('Generating…');
+
   const existing=await db.collection('vouchers').where('year','==',y).where('month','==',m).get();
-  const existSet=new Set(existing.docs.map(d=>d.id));
+  // Build exist set from FIELD VALUES (not doc IDs) to reliably detect duplicates
+  const existSet=new Set(existing.docs.map(d=>{
+    const v=d.data();
+    return `${v.category}|${v.subCategory||''}|${v.subSubCategory||''}`;
+  }));
+
   const batch=db.batch();let count=0,order=1;
   const ts=firebase.firestore.FieldValue.serverTimestamp();
   const base={month:m,year:y,faStatus:'pending',faAt:null,faBy:null,stage2Status:'pending',stage2At:null,stage2By:null,cigasStatus:'pending',cigasAt:null,cigasBy:null,createdAt:ts,createdBy:me.uid};
 
   for(const cat of CATS){
     if(cat.subs===null){
-      const docId=`${y}_${m}_${cat.id}`;
-      if(!existSet.has(docId)){
+      const key=`${cat.id}||`;
+      if(!existSet.has(key)){
+        const docId=`${y}_${m}_${cat.id}`;
         batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:null,subCategoryName:null,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});
         count++;
       }
@@ -1131,8 +1138,9 @@ async function generateMonth(){
     } else if(cat.hasSubSubs){
       for(const sub of cat.subs){
         for(const ss of (sub.subSubs||[])){
-          const docId=`${y}_${m}_${cat.id}_${sub.id}_${ss.id}`;
-          if(!existSet.has(docId)){
+          const key=`${cat.id}|${sub.id}|${ss.id}`;
+          if(!existSet.has(key)){
+            const docId=`${y}_${m}_${cat.id}_${sub.id}_${ss.id}`;
             batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:ss.id,subSubCategoryName:ss.name,stage2Type:cat.s2,order:order});
             count++;
           }
@@ -1141,8 +1149,9 @@ async function generateMonth(){
       }
     } else if(Array.isArray(cat.subs)&&cat.subs.length>0){
       for(const sub of cat.subs){
-        const docId=`${y}_${m}_${cat.id}_${sub.id}`;
-        if(!existSet.has(docId)){
+        const key=`${cat.id}|${sub.id}|`;
+        if(!existSet.has(key)){
+          const docId=`${y}_${m}_${cat.id}_${sub.id}`;
           batch.set(db.collection('vouchers').doc(docId),{...base,category:cat.id,categoryName:cat.name,subCategory:sub.id,subCategoryName:sub.name,subSubCategory:null,subSubCategoryName:null,stage2Type:cat.s2,order:order});
           count++;
         }
