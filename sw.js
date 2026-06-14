@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hrp-voucher-v9';
+const CACHE_NAME = 'hrp-voucher-v10';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {

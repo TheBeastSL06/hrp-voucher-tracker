@@ -451,6 +451,7 @@ service cloud.firestore {
       allow read:   if isAuth() && (request.auth.uid == uid || isAdmin());
       allow create: if isAuth() && request.auth.uid == uid;
       allow update: if isAuth() && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
     }
   }
 }</pre>
