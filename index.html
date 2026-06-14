@@ -1471,13 +1471,32 @@ async function loadUsers(){
   }catch(e){document.getElementById('usersList').innerHTML=`<p style="color:red;font-size:13px">${e.message}</p>`;}
 }
 function renderUsers(users){
-  let html=`<div style="overflow-x:auto"><table class="u-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody>`;
+  if(!users.length){
+    document.getElementById('usersList').innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px 0">No users found.</div>';
+    return;
+  }
+  let html=`<div style="overflow-x:auto"><table class="u-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Change Role</th><th>Action</th></tr></thead><tbody>`;
   users.forEach(u=>{
-    const isSelf=u.uid===me.uid;
-    html+=`<tr><td>${u.name||'—'}</td><td style="color:#888;font-size:11px">${u.email}</td>
-      <td>${isSelf?`<span class="role-pill">${ROLES[u.role]||u.role}</span>`
-        :`<select class="role-sel" id="role_${u.uid}">${Object.entries(ROLES).map(([k,v2])=>`<option value="${k}"${u.role===k?' selected':''}>${v2}</option>`).join('')}<option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option></select>`}</td>
-      <td>${isSelf?'<span style="font-size:11px;color:#aaa">(You)</span>':`<button class="btn-sv" onclick="saveRole('${u.uid}')">Save</button>`}</td>
+    const isSelf = u.uid===me.uid;
+    const name   = u.name  || '<span style="color:#e53e3e;font-style:italic">Missing name</span>';
+    const email  = u.email || '<span style="color:#e53e3e;font-style:italic">Missing email</span>';
+    html+=`<tr>
+      <td>${name}</td>
+      <td style="color:#888;font-size:11px">${email}</td>
+      <td><span class="role-pill" style="background:${isSelf?'var(--gold)':'#e9e0d5'};color:${isSelf?'var(--maroon-dark)':'var(--muted)'}">${ROLES[u.role]||u.role||'Unknown'}</span></td>
+      <td>${isSelf ? '<span style="font-size:11px;color:#aaa">(You)</span>'
+        :`<div style="display:flex;gap:6px;align-items:center">
+            <select class="role-sel" id="role_${u.uid}">
+              ${Object.entries(ROLES).map(([k,v2])=>`<option value="${k}"${u.role===k?' selected':''}>${v2}</option>`).join('')}
+              <option value="viewer"${u.role==='viewer'?' selected':''}>Viewer</option>
+            </select>
+            <button class="btn-sv" onclick="saveRole('${u.uid}')">Save</button>
+          </div>`}
+      </td>
+      <td>${isSelf ? '<span style="font-size:11px;color:#aaa">—</span>'
+        : `<button class="btn-sv" style="background:#C0392B" onclick="deleteUser('${u.uid}','${(u.name||'this user').replace(/'/g,"\\'")}')">🗑 Delete</button>`}
+      </td>
     </tr>`;
   });
   document.getElementById('usersList').innerHTML=html+'</tbody></table></div>';
@@ -1486,6 +1505,15 @@ async function saveRole(uid){
   const role=document.getElementById('role_'+uid).value;
   try{await db.collection('users').doc(uid).update({role});toast('Role updated ✓');loadUsers();}
   catch(e){toast(e.message,true);}
+}
+
+async function deleteUser(uid, name){
+  if(!confirm(`Remove "${name}" from the system?\n\nThis deletes their profile and role. If they log in again they will be recreated as a Viewer.\n\nTo fully block login, also delete them from Firebase Console → Authentication.`)) return;
+  try{
+    await db.collection('users').doc(uid).delete();
+    toast(`"${name}" removed ✓`);
+    loadUsers();
+  }catch(e){ toast(e.message, true); }
 }
 
 // ════════════════════════════════════════
