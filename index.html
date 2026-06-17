@@ -234,11 +234,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   .stats-row{grid-template-columns:repeat(3,1fr);}
   .card-grid{grid-template-columns:repeat(3,1fr);}
 }
-/* LANGUAGE SWITCHER */
-.lang-sw{display:flex;border:1px solid rgba(255,255,255,.35);border-radius:6px;overflow:hidden;}
-.lang-btn{background:transparent;color:rgba(255,255,255,.7);border:none;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;}
-.lang-btn:hover{background:rgba(255,255,255,.15);color:#fff;}
-.lang-btn.lang-active{background:rgba(255,255,255,.25);color:#fff;}
 </style>
 </head>
 <body>
@@ -254,10 +249,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       </div>
     </div>
     <div class="hdr-r">
-      <div class="lang-sw">
-        <button id="btnLangEn" class="lang-btn lang-active" onclick="setLang('en')">EN</button>
-        <button id="btnLangSi" class="lang-btn" onclick="setLang('si')">සිං</button>
-      </div>
       <span class="role-pill" id="hdrRole" style="display:none"></span>
       <span class="hdr-name"  id="hdrName" style="display:none"></span>
       <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none">Logout</button>
@@ -282,11 +273,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   <!-- DASHBOARD -->
   <div id="viewDashboard" class="content">
     <div class="stats-row">
-      <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l" id="stLabelTotal">Total</div></div>
-      <div class="stat-card s-fa"> <div class="stat-v" id="stFA">0</div>   <div class="stat-l" id="stLabelFA">Pending FA</div></div>
-      <div class="stat-card s-vl"> <div class="stat-v" id="stVL">0</div>   <div class="stat-l" id="stLabelVL">Pending VL/Dep</div></div>
-      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div>  <div class="stat-l" id="stLabelPay">Pending Payment</div></div>
-      <div class="stat-card s-pd"> <div class="stat-v" id="stPaid">0</div> <div class="stat-l" id="stLabelPaid">Paid</div></div>
+      <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l">Total</div></div>
+      <div class="stat-card s-fa"> <div class="stat-v" id="stFA">0</div>   <div class="stat-l">Pending FA</div></div>
+      <div class="stat-card s-vl"> <div class="stat-v" id="stVL">0</div>   <div class="stat-l">Pending VL/Dep</div></div>
+      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div>  <div class="stat-l">Pending Payment</div></div>
+      <div class="stat-card s-pd"> <div class="stat-v" id="stPaid">0</div> <div class="stat-l">Paid</div></div>
     </div>
     <div class="card-grid" id="cardGrid">
       <div class="loading"><div class="spinner"></div>Loading...</div>
@@ -337,52 +328,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         <div class="sc-add">
           <input type="text" id="scInputField" placeholder="e.g. Agriculture Officer">
           <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField')">Add</button>
-        </div>
-      </div>
-
-      <!-- Office Staff Travel sub-cats -->
-      <div class="admin-card">
-        <h3>📂 Office Staff Travel — Central Govt Sub-categories</h3>
-        <div class="sc-list" id="scListOtcg"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputOtcg" placeholder="e.g. Director">
-          <button class="btn-a" onclick="addSubcat('office_travel_cg','scInputOtcg','scListOtcg')">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h3>📂 Office Staff Travel — Provincial Council Sub-categories</h3>
-        <div class="sc-list" id="scListOtpc"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputOtpc" placeholder="e.g. Director">
-          <button class="btn-a" onclick="addSubcat('office_travel_pc','scInputOtpc','scListOtpc')">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h3>📂 Office Staff Travel — Yan Oya Sub-categories</h3>
-        <div class="sc-list" id="scListOtyo"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputOtyo" placeholder="e.g. Director">
-          <button class="btn-a" onclick="addSubcat('office_travel_yo','scInputOtyo','scListOtyo')">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h3>📂 Office Staff Holiday Pay/OT — Central Govt Sub-categories</h3>
-        <div class="sc-list" id="scListOhcg"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputOhcg" placeholder="e.g. Clerk">
-          <button class="btn-a" onclick="addSubcat('office_holiday_cg','scInputOhcg','scListOhcg')">Add</button>
-        </div>
-      </div>
-
-      <div class="admin-card">
-        <h3>📂 Office Staff Holiday Pay/OT — Provincial Council Sub-categories</h3>
-        <div class="sc-list" id="scListOhpc"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputOhpc" placeholder="e.g. Clerk">
-          <button class="btn-a" onclick="addSubcat('office_holiday_pc','scInputOhpc','scListOhpc')">Add</button>
         </div>
       </div>
 
@@ -440,9 +385,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         <h3>📂 Sub-Sub-Category Manager</h3>
         <div class="aform" style="margin-bottom:12px">
           <select id="sscCatSel" onchange="updateSscParents()">
-            <option value="">— No sub-sub-category structures yet —</option>
+            <option value="staff_travel">Office Staff Travel Expense</option>
+            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
           </select>
-          <select id="sscParentSel" onchange="refreshSscView()"></select>
+          <select id="sscParentSel" onchange="refreshSscView()">
+            <option value="st_cg">Central Government</option>
+            <option value="st_ncp">NCP</option>
+            <option value="st_yo">Yan Oya</option>
+          </select>
         </div>
         <div class="sc-list" id="sscList"></div>
         <div class="sc-add">
@@ -460,17 +410,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
             <option value="">— Select Category —</option>
             <option value="gn_travel">Grama Niladari Travel Expense</option>
             <option value="field_travel">Field Officers Travel Expense</option>
-            <option value="office_travel_cg">Office Staff Travel Expense - Central Government</option>
-            <option value="office_travel_pc">Office Staff Travel Expense - Provincial Council</option>
-            <option value="office_travel_yo">Office Staff Travel Expense - Yan Oya</option>
-            <option value="office_holiday_cg">Office Staff Holiday Pay/OT - Central Government</option>
-            <option value="office_holiday_pc">Office Staff Holiday Pay/OT - Provincial Council</option>
+            <option value="staff_travel">Office Staff Travel Expense</option>
+            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
             <option value="allowances">Disable/Kidney/Elder's Allowance</option>
             <option value="nutrition">Nutrition / Guru Abimani / Pre-School</option>
             <option value="mahajanadara">Mahajanadara</option>
             <option value="mediation">Mediation Board</option>
             <option value="fuel">Fuel</option>
             <option value="bills">Bills</option>
+            <option value="postal">Postal Charge</option>
             <option value="pension">Pension</option>
             <option value="gsmb">GSMB Payment</option>
           </select>
@@ -575,88 +523,6 @@ const db=firebase.firestore();
 db.enablePersistence().catch(()=>{});
 
 // ════════════════════════════════════════
-//  LANGUAGE
-// ════════════════════════════════════════
-let LANG = localStorage.getItem('hrp_lang')||'en';
-const SI = {
-  // NAV
-  'Dashboard':'ප්‍රධාන දර්ශනය','Workflow':'කාර්ය ප්‍රවාහය','Admin':'පරිපාලනය',
-  // HEADER
-  'Officer Login':'නිලධාරී පිවිසුම','Logout':'ඉවත් වන්න',
-  'Voucher Tracker':'වවුචර් ලුහුබැඳීම',
-  // PERIOD
-  'Period:':'කාලය:',
-  // STATS
-  'Total':'සමස්ත','Pending FA':'FA ශේෂ','Pending VL/Dep':'VL/Dep ශේෂ',
-  'Pending Payment':'ගෙවීම් ශේෂ','Paid':'ගෙවා ඇත',
-  // CARD PILLS
-  'Paid':'ගෙවා ඇත','Alloc. Issue':'ව්‍යාප්ති ගැටලුව','In Progress':'ක‍‍ාර්‍යාවලිය','Pending':'ශේෂ',
-  'All Pending':'සියල්ල ශේෂ',
-  'entry':'ප්‍රවේශය','entries':'ප්‍රවේශ',
-  // WORKFLOW
-  'My Pending Tasks':'මගේ ශේෂ කාර්යයන්',
-  'FA Check':'FA පරීක්ෂාව','Vote Ledger':'ඡන්ද ලෙජරය','Deposit Ledger':'තැන්පතු ලෙජරය',
-  'Payment (CIGAS)':'ගෙවීම (CIGAS)',
-  // STATUS LABELS
-  '✓ Received':'✓ ලැබී ඇත','✓ Paid':'✓ ගෙවා ඇත','⚠ Alloc. Not Enough':'⚠ ව්‍යාප්ති ප්‍රමාණවත් නොවේ',
-  '⚠ Alloc. Not Received':'⚠ ව්‍යාප්ති ලැබී නොමැත',
-  'Pending':'ශේෂ','Received':'ලැබී ඇත',
-  // MODAL
-  'FA Status':'FA තත්ත්වය','VL / Deposit':'VL / තැන්පතු','Payment':'ගෙවීම',
-  'Updated by':'යාවත්කාලීන කළේ','—':'—',
-  // BUTTONS
-  '✓ Received':'✓ ලැබී ඇත','↩ Reset':'↩ යළි සකසන්',
-  'Mark OK':'හරි','💰 Mark Paid':'💰 ගෙවීම් සළකුණු කරන්',
-  // EMPTY
-  'No vouchers for':'සඳහා වවුචර් නොමැත',
-  'Entries for this month have not been generated yet.':'මෙම මාසයේ ප්‍රවේශ තවමත් නිර්මාණය කර නොමැත.',
-  'All done for this period!':'මෙම කාලය සඳහා සියල්ල සම්පූර්ණයි!',
-  // LOGIN MODAL
-  'Sign In':'පිවිසෙන්න','Register':'ලියාපදිංචි වන්න',
-  'Email':'විද්‍යුත් තැපෑල','Password':'මුරපදය','Full Name':'සම්පූර්ණ නම',
-  'Create Account':'ගිණුම සාදන්න',
-  'Super Admin will assign your role after registration.':'ලියාපදිංචියෙන් පසු ඔබේ භූමිකාව Super Admin විසින් පවරනු ලැබේ.',
-  // MONTHS
-  'January':'ජනවාරි','February':'පෙබරවාරි','March':'මාර්තු','April':'අප්‍රේල්',
-  'May':'මැයි','June':'ජූනි','July':'ජූලි','August':'අගෝස්තු',
-  'September':'සැප්තැම්බර්','October':'ඔක්තෝබර්','November':'නොවැම්බර්','December':'දෙසැම්බර්',
-  // ROLES
-  'Super Admin':'ප්‍රධාන පරිපාලක','FA':'FA','Vote Ledger':'ඡන්ද ලෙජරය',
-  'Deposit Ledger':'තැන්පතු ලෙජරය',
-};
-function T(key){ return LANG==='si' && SI[key] ? SI[key] : key; }
-function catName(cat){ return LANG==='si' && cat.nameSi ? cat.nameSi : cat.name; }
-function subName(sub){ return LANG==='si' && sub.nameSi ? sub.nameSi : sub.name; }
-function setLang(l){
-  LANG=l; localStorage.setItem('hrp_lang',l);
-  document.getElementById('btnLangEn').classList.toggle('lang-active', l==='en');
-  document.getElementById('btnLangSi').classList.toggle('lang-active', l==='si');
-  applyLangUI();
-  renderDash(); renderWorkflow();
-  if(openModalCatId) renderModalContent(openModalCatId);
-}
-function applyLangUI(){
-  // Header
-  document.querySelector('.hdr-title').textContent = T('Voucher Tracker');
-  document.getElementById('btnLogin').textContent  = '🔒 '+T('Officer Login');
-  document.getElementById('btnLogout').textContent = T('Logout');
-  // Nav
-  document.getElementById('navDashboard').innerHTML = '📋 '+T('Dashboard');
-  document.getElementById('navWorkflow').innerHTML  = '⚡ '+T('Workflow');
-  document.getElementById('navAdmin').innerHTML     = '⚙️ '+T('Admin');
-  // Period label
-  document.querySelector('.period-bar label').textContent = T('Period:');
-  // Stat labels
-  document.getElementById('stLabelTotal').textContent = T('Total');
-  document.getElementById('stLabelFA').textContent    = T('Pending FA');
-  document.getElementById('stLabelVL').textContent    = T('Pending VL/Dep');
-  document.getElementById('stLabelPay').textContent   = T('Pending Payment');
-  document.getElementById('stLabelPaid').textContent  = T('Paid');
-  // Month selects
-  populateSelects();
-}
-
-// ════════════════════════════════════════
 //  CATEGORIES
 // ════════════════════════════════════════
 const GN=[
@@ -682,28 +548,28 @@ const GN=[
 ];
 
 // Categories with hasSubSubs:true use subCategory + subSubCategory levels
-const GN_SI = null; // GN division place names kept in English only (no official Sinhala set provided)
+// parentSubs for staff_travel and holiday_ot share same names but different IDs
+const ST_SUBS=[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}];
+const HO_SUBS=[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}];
 
 let CATS=[
-  {id:'gn_travel',   name:'Grama Niladari Travel Expense', nameSi:'ග්‍රාම නිලධාරී ගමන් වියදම්',                            s2:'vl', subs:GN},
-  {id:'field_travel',name:'Field Officers Travel Expense',  nameSi:'ක්ෂේත්‍ර නිලධාරී ගමන් වියදම්',                          s2:'vl', subs:[]},
-  {id:'office_travel_cg',name:'Office Staff Travel Expense - Central Government', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - මධ්‍යම රජය', s2:'vl', subs:[]},
-  {id:'office_travel_pc',name:'Office Staff Travel Expense - Provincial Council', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - පළාත් සභාව', s2:'vl', subs:[]},
-  {id:'office_travel_yo',name:'Office Staff Travel Expense - Yan Oya', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - යාන් ඔය ව්‍යාපෘතිය', s2:'vl', subs:[]},
-  {id:'office_holiday_cg',name:'Office Staff Holiday Pay/OT - Central Government', nameSi:'කාර්ය මණ්ඩල නිවාඩු දින වැටුප්/අතිකාල - මධ්‍යම රජය', s2:'vl', subs:[]},
-  {id:'office_holiday_pc',name:'Office Staff Holiday Pay/OT - Provincial Council', nameSi:'කාර්ය මණ්ඩල නිවාඩු දින වැටුප්/අතිකාල - පළාත් සභාව', s2:'vl', subs:[]},
-  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance", nameSi:'ආබාධිත/වකුගඩු/වැඩිහිටි දීමනා',                       s2:'vl',
-    subs:[{id:'al_dis',name:'Disable Allowance',nameSi:'ආබාධිත දීමනාව'},{id:'al_kid',name:'Kidney Allowance',nameSi:'වකුගඩු රෝගී දීමනාව'},{id:'al_eld',name:"Elder's Allowance",nameSi:'වැඩිහිටි දීමනාව'}]},
-  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School", nameSi:'ගර්භනී මව්වරුන්ගේ පෝෂණ / ගුරු අභිමානී / පෙරපාසල් උදෑසන ආහාර වේල වැඩසටහන', s2:'vl',
-    subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program",nameSi:'ගර්භනී මව්වරුන්ගේ පෝෂණ වැඩසටහන'},{id:'nu_guru',name:'Guru Abimani',nameSi:'ගුරු අභිමානී'},{id:'nu_pre',name:'Pre-School Meal Program',nameSi:'පෙරපාසල් උදෑසන ආහාර වේල වැඩසටහන'}]},
-  {id:'mahajanadara',name:'Mahajanadara',   nameSi:'මහජනාධාර', s2:'vl',      subs:null},
-  {id:'mediation',   name:'Mediation Board', nameSi:'සමථ මණ්ඩල', s2:'vl',     subs:null},
-  {id:'fuel',        name:'Fuel',            nameSi:'ඉන්ධන',     s2:'vl',
-    subs:[{id:'fu_ds',name:'DS Vehicle',nameSi:'ප්‍රාදේශීය ලේකම් ඉන්ධන දීමනාව'},{id:'fu_pl',name:'Pool Vehicle',nameSi:'සංචිත වාහනයේ ඉන්ධන වියදම්'}]},
-  {id:'bills',       name:'Bills',           nameSi:'බිල්පත්',   s2:'vl',
-    subs:[{id:'bi_eo',name:'Electricity Bill - Office',nameSi:'විදුලි බිල්පත - කාර්යාලය'},{id:'bi_en',name:'Electricity Bill - NIC',nameSi:'විදුලි බිල්පත - ජාතික හැඳුනුම්පත් අංශය'},{id:'bi_tel',name:'Telephone Bill',nameSi:'දුරකථන බිල්පත'},{id:'bi_wat',name:'Water Bill',nameSi:'ජල බිල්පත'}]},
-  {id:'pension',     name:'Pension',        nameSi:'විශ්‍රාම වැටුප්', s2:'vl',      subs:null},
-  {id:'gsmb',        name:'GSMB Payment',   nameSi:'භූ විද්‍යා සමීක්ෂණ හා පතල් කැණීම් කාර්‍යාංශය වෙත ගෙවීම්', s2:'deposit', subs:null},
+  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                            s2:'vl', subs:GN},
+  {id:'field_travel',name:'Field Officers Travel Expense',                            s2:'vl', subs:[]},
+  {id:'staff_travel',name:'Office Staff Travel Expense',                              s2:'vl', subs:ST_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
+  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                           s2:'vl', subs:HO_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
+  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                        s2:'vl',
+    subs:[{id:'al_dis',name:'Disable Allowance'},{id:'al_kid',name:'Kidney Allowance'},{id:'al_eld',name:"Elder's Allowance"}]},
+  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School", s2:'vl',
+    subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nu_guru',name:'Guru Abimani'},{id:'nu_pre',name:'Pre-School Meal Program'}]},
+  {id:'mahajanadara',name:'Mahajanadara',   s2:'vl',      subs:null},
+  {id:'mediation',   name:'Mediation Board', s2:'vl',     subs:null},
+  {id:'fuel',        name:'Fuel',            s2:'vl',
+    subs:[{id:'fu_ds',name:'DS Vehicle'},{id:'fu_pl',name:'Pool Vehicle'}]},
+  {id:'bills',       name:'Bills',           s2:'vl',
+    subs:[{id:'bi_eo',name:'Electricity Bill - Office'},{id:'bi_en',name:'Electricity Bill - NIC'},{id:'bi_tel',name:'Telephone Bill'},{id:'bi_wat',name:'Water Bill'}]},
+  {id:'postal',      name:'Postal Charge',  s2:'vl',      subs:null},
+  {id:'pension',     name:'Pension',        s2:'vl',      subs:null},
+  {id:'gsmb',        name:'GSMB Payment',   s2:'deposit', subs:null},
 ];
 
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -716,8 +582,11 @@ const SROLES={fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin
 let me=null,meData=null;
 let selMonth,selYear;
 let vouchers=[],unsub=null;
-let dynSubs={field_travel:[],office_travel_cg:[],office_travel_pc:[],office_travel_yo:[],office_holiday_cg:[],office_holiday_pc:[]};
-let dynSubSubs={};
+let dynSubs={field_travel:[]};
+let dynSubSubs={
+  'staff_travel__st_cg':[],'staff_travel__st_ncp':[],'staff_travel__st_yo':[],
+  'holiday_ot__ho_cg':[], 'holiday_ot__ho_ncp':[], 'holiday_ot__ho_yo':[],
+};
 let customCats = []; // loaded from Firestore
 // temp state for new category form
 let newCatSubs  = []; // [{id,name}] for subType='subs'
@@ -730,9 +599,6 @@ selMonth=now.getMonth()+1; selYear=now.getFullYear();
 //  BOOT
 // ════════════════════════════════════════
 (async function boot(){
-  // Set initial language button state
-  document.getElementById('btnLangEn').classList.toggle('lang-active', LANG==='en');
-  document.getElementById('btnLangSi').classList.toggle('lang-active', LANG==='si');
   populateSelects();
   await Promise.all([loadDynSubs(), loadDynSubSubs(), loadCustomCats()]);
   loadVouchers();
@@ -760,11 +626,8 @@ auth.onAuthStateChanged(async user=>{
     }
     if(meData.role==='superadmin'){
       document.getElementById('navAdmin').style.display='';
-      loadUsers(); renderScList('field_travel','scListField');
-      renderOfficeScList();
-      renderCustomCatList(); updateDelCatDropdown(); updateSscCatOptions();
-      // Apply language to UI elements
-      setTimeout(applyLangUI, 50);
+      loadUsers(); refreshSscView(); renderScList('field_travel','scListField');
+      renderCustomCatList(); updateDelCatDropdown();
     }
     closeLogin(); renderDash(); renderWorkflow();
     toast(`Welcome, ${meData.name} ✓`);
@@ -828,7 +691,7 @@ function switchView(v){
 function populateSelects(){
   ['selMonth','genMonth','delMonth'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
-    el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${T(m)}</option>`).join('');
+    el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
   });
   const yrs=[selYear-1,selYear,selYear+1];
   ['selYear','genYear','delYear'].forEach(id=>{
@@ -860,22 +723,6 @@ function renderScList(catId,listId){
   const el=document.getElementById(listId),items=dynSubs[catId]||[];
   if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
   el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
-}
-
-// Render all 5 office sub-cat lists
-function renderOfficeScList(){
-  const officeCats = [
-    {id:'office_travel_cg',  listId:'scListOtcg'},
-    {id:'office_travel_pc',  listId:'scListOtpc'},
-    {id:'office_travel_yo',  listId:'scListOtyo'},
-    {id:'office_holiday_cg', listId:'scListOhcg'},
-    {id:'office_holiday_pc', listId:'scListOhpc'},
-  ];
-  officeCats.forEach(({id,listId})=>{
-    const el=document.getElementById(listId);
-    if(!el)return;
-    renderScList(id,listId);
-  });
 }
 async function addSubcat(catId,inputId,listId){
   const inp=document.getElementById(inputId),name=inp.value.trim();if(!name)return;
@@ -919,7 +766,10 @@ async function loadDynSubSubs(){
   }catch(e){console.warn('loadDynSubSubs:',e);}
 }
 
-// SSC_PARENTS removed — sub-sub-category structure is now only used by custom categories (see customCats)
+const SSC_PARENTS={
+  staff_travel:[{val:'st_cg',lbl:'Central Government'},{val:'st_ncp',lbl:'NCP'},{val:'st_yo',lbl:'Yan Oya'}],
+  holiday_ot:  [{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
+};
 
 async function deleteCategoryEntries(){
   const catId  = document.getElementById('delCatSel').value;
@@ -946,12 +796,17 @@ async function deleteCategoryEntries(){
 function updateSscParents(){
   const catId = document.getElementById('sscCatSel').value;
   const pSel  = document.getElementById('sscParentSel');
-  if(!catId){ pSel.innerHTML=''; document.getElementById('sscList').innerHTML=''; return; }
-  const cc = customCats.find(c=>c.id===catId);
-  if(cc && cc.groups){
-    pSel.innerHTML = cc.groups.map(g=>`<option value="${g.id}">${g.name}${g.nameSi?' / '+g.nameSi:''}</option>`).join('');
+  // Check built-in first
+  if(SSC_PARENTS[catId]){
+    pSel.innerHTML = SSC_PARENTS[catId].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
   } else {
-    pSel.innerHTML = '';
+    // Custom subsubs category — use its groups
+    const cc = customCats.find(c=>c.id===catId);
+    if(cc && cc.groups){
+      pSel.innerHTML = cc.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+    } else {
+      pSel.innerHTML = '';
+    }
   }
   refreshSscView();
 }
@@ -1024,7 +879,7 @@ function renderDash(){
   document.getElementById('stPaid').textContent =vouchers.filter(v=>v.cigasStatus==='paid').length;
 
   if(!vouchers.length){
-    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div class="empty-title">${T('No vouchers for')} ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">${T('Entries for this month have not been generated yet.')}</p></div>`;
+    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been generated yet.</p></div>`;
     return;
   }
 
@@ -1040,20 +895,19 @@ function renderDash(){
     const inProg=cv.filter(v=>v.cigasStatus!=='paid'&&(v.faStatus==='received'||v.stage2Status==='received')&&v.stage2Status!=='alloc_insufficient'&&v.stage2Status!=='alloc_not_received').length;
     const pend=cv.length-paid-allocIssue-inProg;
     const pct=Math.round((paid/cv.length)*100);
-    const entryWord = cv.length===1 ? T('entry') : T('entries');
     let pills='';
-    if(paid)       pills+=`<span class="cp paid">✓ ${paid} ${T('Paid')}</span>`;
-    if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} ${T('Alloc. Issue')}</span>`;
-    if(inProg)     pills+=`<span class="cp prog">${inProg} ${T('In Progress')}</span>`;
-    if(pend)       pills+=`<span class="cp pend">${pend} ${T('Pending')}</span>`;
+    if(paid)       pills+=`<span class="cp paid">✓ ${paid} Paid</span>`;
+    if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} Alloc. Issue</span>`;
+    if(inProg)     pills+=`<span class="cp prog">${inProg} In Progress</span>`;
+    if(pend)       pills+=`<span class="cp pend">${pend} Pending</span>`;
     html+=`<div class="cat-card" onclick="openCatModal('${cat.id}')">
       <div class="card-top">
-        <div class="card-name">${catName(cat)}</div>
-        <div class="card-entries">${cv.length} ${entryWord}</div>
+        <div class="card-name">${cat.name}</div>
+        <div class="card-entries">${cv.length} ${cv.length===1?'entry':'entries'}</div>
       </div>
       <div class="card-body">
         <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <div class="card-pills">${pills||`<span class="cp pend">${T('All Pending')}</span>`}</div>
+        <div class="card-pills">${pills||'<span class="cp pend">All Pending</span>'}</div>
       </div>
     </div>`;
   });
@@ -1077,7 +931,7 @@ document.getElementById('cmOverlay').addEventListener('click',e=>{if(e.target.id
 function renderModalContent(catId){
   const cat=CATS.find(c=>c.id===catId);
   const cv=vouchers.filter(v=>v.category===catId).sort((a,b)=>(a.order||0)-(b.order||0));
-  document.getElementById('cmTitle').textContent=catName(cat);
+  document.getElementById('cmTitle').textContent=cat.name;
   document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
 
   if(!cv.length){
@@ -1085,17 +939,15 @@ function renderModalContent(catId){
     return;
   }
 
-  const s2ColLabel = cat.s2==='deposit' ? T('Deposit Ledger') : T('Vote Ledger');
-
   let html='';
   if(cat.subs===null){
     // Single entry — show status rows
     const v=cv[0];
     html=`<table style="width:100%;border-collapse:collapse">
       <tbody>
-        ${seRow(T('FA Check'),badge(v,'fa'))}
-        ${seRow(v.stage2Type==='deposit'?T('Deposit Ledger'):T('Vote Ledger'),badge(v,'stage2'))}
-        ${seRow(T('Payment (CIGAS)'),badge(v,'cigas'))}
+        ${seRow('FA Check',badge(v,'fa'))}
+        ${seRow(v.stage2Type==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
+        ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
       </tbody></table>`;
   } else if(cat.hasSubSubs){
     // Grouped by parent sub → sub-sub-cat table
@@ -1103,9 +955,9 @@ function renderModalContent(catId){
     cv.forEach(v=>{const k=v.subCategory||'';if(!byParent[k])byParent[k]={name:v.subCategoryName,items:[]};byParent[k].items.push(v);});
     cat.subs.forEach(sub=>{
       const grp=byParent[sub.id];if(!grp||!grp.items.length)return;
-      html+=`<div class="grp-hdr">${subName(sub)}</div>
+      html+=`<div class="grp-hdr">${sub.name}</div>
         <div class="tbl-scroll"><table class="m-table">
-          <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>${T('FA Check')}</th><th>${s2ColLabel}</th><th>${T('Payment')}</th></tr></thead>
+          <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
           <tbody>`;
       grp.items.forEach((v,i)=>{
         html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subSubCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
@@ -1115,7 +967,7 @@ function renderModalContent(catId){
   } else {
     // Regular sub-cat table
     html=`<div class="tbl-scroll"><table class="m-table">
-      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>${T('FA Check')}</th><th>${s2ColLabel}</th><th>${T('Payment')}</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
       <tbody>`;
     cv.forEach((v,i)=>{
       html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
@@ -1153,7 +1005,7 @@ function badge(v,stage){
   }
 
   const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an'};
-  const lblMap={pending:T('Pending'),received:T('✓ Received'),paid:T('✓ Paid'),alloc_insufficient:T('⚠ Alloc. Not Enough'),alloc_not_received:T('⚠ Alloc. Not Received')};
+  const lblMap={pending:'Pending',received:'✓ Received',paid:'✓ Paid',alloc_insufficient:'⚠ Alloc. Not Enough',alloc_not_received:'⚠ Alloc. Not Received'};
   const cls=clsMap[status]||'s-pend';
   const lbl=lblMap[status]||'Pending';
 
@@ -1198,17 +1050,17 @@ function renderWorkflow(){
     items = vouchers.filter(v => v.cigasStatus!=='paid');
   }
 
-  const titleMap = {fa:T('FA Check'),vl:T('Vote Ledger'),deposit:T('Deposit Ledger'),superadmin:'Super Admin — All Stages'};
+  const titleMap = {fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Super Admin — All Stages'};
   const wfTitle = document.getElementById('wfTitle');
   const wfCount = document.getElementById('wfCount');
-  if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — ${T('Pending')} · ${periodStr}`;
+  if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — Pending · ${periodStr}`;
   if(wfCount) wfCount.textContent = items.length;
 
   const acc = document.getElementById('wfAccordion');
   if(!acc) return;
 
   if(!items.length){
-    acc.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">${T('All done for this period!')}</div><p class="empty-hint">No pending items for your role this month.</p></div>`;
+    acc.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All done for ${periodStr}!</div><p class="empty-hint">No pending items for your role this month.</p></div>`;
     return;
   }
 
@@ -1232,14 +1084,14 @@ function renderWorkflow(){
       if(flags)   pills += `<span class="wf-flag-pill">⚠ ${flags}</span>`;
       if(pendPay) pills += `<span class="wf-pend-pill">Pay: ${pendPay}</span>`;
     } else {
-      if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} ${T('Pending')}</span>`;
+      if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} Pending</span>`;
       if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} Flagged</span>`;
     }
     html += `<div class="wf-cat-block" id="wfblock_${cat.id}">
       <div class="wf-cat-hdr${isOpen?' open':''}" onclick="toggleWfCat('${cat.id}')">
         <div class="wf-cat-hdr-l">
           <span class="wf-cat-arrow${isOpen?' open':''}">▶</span>
-          <span class="wf-cat-label">${catName(cat)}</span>
+          <span class="wf-cat-label">${cat.name}</span>
         </div>
         <div class="wf-cat-hdr-r">${pills}</div>
       </div>
@@ -1274,55 +1126,64 @@ function buildWfItems(cv, role){
     let flagHtml = '';
     if(isFlagged){
       const cls = v.stage2Status==='alloc_insufficient'?'ai':'an';
-      const lbl = v.stage2Status==='alloc_insufficient'?T('⚠ Alloc. Not Enough'):T('⚠ Alloc. Not Received');
+      const lbl = v.stage2Status==='alloc_insufficient'?'⚠ Alloc. Not Enough':'⚠ Alloc. Not Received';
       flagHtml = `<span class="wf-item-flag ${cls}">${lbl}</span>`;
     }
     let actions = '';
     if(role==='fa'){
-      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">✓ ${T('Received')}</button>`;
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">✓ Received</button>`;
     } else if(role==='vl'){
       if(isFlagged){
-        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ ${T('Mark OK')}</button>
-                   <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${T('↩ Reset')}</button>`;
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Mark OK</button>
+                   <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">↩ Reset</button>`;
       } else {
-        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ ${T('Received')}</button>
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>
                    <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">⚠ Not Enough</button>
                    <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">⚠ Not Received</button>`;
       }
     } else if(role==='deposit'){
-      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ ${T('Received')}</button>`;
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>`;
     } else if(role==='superadmin'){
+      // FA stage buttons
       const faStatus = v.faStatus||'pending';
       const faBtn = faStatus==='received'
-        ? `<button class="bwf rst" onclick="doUpdate('${v.id}','fa','pending')">FA: ${T('↩ Reset')}</button>`
-        : `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">FA: ✓ ${T('Received')}</button>`;
+        ? `<button class="bwf rst" onclick="doUpdate('${v.id}','fa','pending')">FA: ↩ Reset</button>`
+        : `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">FA: ✓ Received</button>`;
+
+      // Stage2 buttons (VL or Deposit)
       const s2Status = v.stage2Status||'pending';
       const s2Label = v.stage2Type==='deposit' ? 'Dep' : 'VL';
       let s2Btns = '';
       if(s2Status==='received'){
-        s2Btns = `<button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ${T('↩ Reset')}</button>`;
-      } else if(s2Status==='alloc_insufficient'||s2Status==='alloc_not_received'){
-        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ ${T('Mark OK')}</button>
-                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ${T('↩ Reset')}</button>`;
+        s2Btns = `<button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+      } else if(s2Status==='alloc_insufficient'){
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+      } else if(s2Status==='alloc_not_received'){
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
       } else {
-        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ ${T('Received')}</button>
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ Received</button>
                   <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">${s2Label}: ⚠ Not Enough</button>
                   <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${s2Label}: ⚠ Not Received</button>`;
       }
-      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">${T('💰 Mark Paid')}</button>`;
+
+      // CIGAS payment button
+      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">💰 Mark Paid</button>`;
+
       actions = faBtn + s2Btns + payBtn;
     }
     let stageInfo = '';
     if(role==='superadmin'){
       const faOk   = v.faStatus==='received';
       const s2Stat = v.stage2Status||'pending';
-      const s2Lbl  = s2Stat==='received'?T('✓ Received'):s2Stat==='alloc_insufficient'?T('⚠ Alloc. Not Enough'):s2Stat==='alloc_not_received'?T('⚠ Alloc. Not Received'):T('Pending');
+      const s2Lbl  = s2Stat==='received'?'✓':s2Stat==='alloc_insufficient'?'⚠ Not Enough':s2Stat==='alloc_not_received'?'⚠ Not Received':'Pending';
       const s2Clr  = s2Stat==='received'?'#065F46':s2Stat.startsWith('alloc')?'#92400E':'#6B5E52';
-      const payLbl = v.cigasStatus==='paid'?T('✓ Paid'):T('Pending');
+      const payLbl = v.cigasStatus==='paid'?'✓ Paid':'Pending';
       const payClr = v.cigasStatus==='paid'?'#065F46':'#6B5E52';
       const s2Name = v.stage2Type==='deposit'?'Dep':'VL';
       stageInfo = `<div style="font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap">
-        <span>FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?T('✓ Received'):T('Pending')}</b></span>
+        <span>FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?'✓ Received':'Pending'}</b></span>
         <span>${s2Name}: <b style="color:${s2Clr}">${s2Lbl}</b></span>
         <span>Pay: <b style="color:${payClr}">${payLbl}</b></span>
       </div>`;
@@ -1514,19 +1375,20 @@ function renderCustomCatList(){
     </div>`).join('');
 }
 
-// Populate sscCatSel with custom subsubs categories (no built-ins remain)
+// Update sscCatSel to include custom subsubs categories
 function updateSscCatOptions(){
   const sel = document.getElementById('sscCatSel');
   if(!sel) return;
-  const subsubCats = customCats.filter(cc=>cc.subType==='subsubs');
-  if(!subsubCats.length){
-    sel.innerHTML = '<option value="">— No sub-sub-category structures yet —</option>';
-    document.getElementById('sscParentSel').innerHTML='';
-    document.getElementById('sscList').innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">Create a category with "Sub-sub-category structure" above first.</div>';
-    return;
-  }
-  sel.innerHTML = subsubCats.map(cc=>`<option value="${cc.id}">${cc.name}</option>`).join('');
-  updateSscParents();
+  // Remove old custom options
+  Array.from(sel.options).filter(o=>o.dataset.custom).forEach(o=>o.remove());
+  // Add custom subsubs cats
+  customCats.filter(cc=>cc.subType==='subsubs').forEach(cc=>{
+    const opt = document.createElement('option');
+    opt.value = cc.id;
+    opt.textContent = cc.name;
+    opt.dataset.custom = '1';
+    sel.appendChild(opt);
+  });
 }
 
 // Update delete category dropdown to include custom cats
