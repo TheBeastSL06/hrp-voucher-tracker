@@ -184,6 +184,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .sc-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg);border-radius:6px;font-size:12px;}
 .btn-del{background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px;padding:0 4px;}
 .sc-add{display:flex;gap:6px;}
+.sc-add input { flex:1; min-width:120px; }
 .sc-add input{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;}
 .sc-add input:focus{border-color:var(--maroon);}
 .rules-pre{background:#1e1e1e;color:#9CDCFE;padding:14px;border-radius:8px;font-size:11px;line-height:1.7;overflow-x:auto;font-family:monospace;max-height:200px;overflow-y:auto;}
@@ -222,8 +223,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 /* ── RESPONSIVE ─────────────────────────────────── */
 
 /* Prevent any element from busting viewport width */
-html, body { max-width:100%; overflow-x:hidden; }
-.content    { overflow-x:hidden; }
+.admin-card { overflow: hidden; }
+.wf-cat-block { overflow: hidden; }
 
 /* ── MOBILE  ≤ 480px ─── */
 @media(max-width:480px){
@@ -284,12 +285,32 @@ html, body { max-width:100%; overflow-x:hidden; }
   .cm-hdr-l h3{font-size:14px;}
   .se-lbl{min-width:100px;font-size:11px;}
 
-  /* Admin */
+  .cat-form-selects { grid-template-columns:1fr !important; }
+  /* Admin — stack paired EN/SI inputs vertically */
+  .sc-add input, .sc-add select {
+    width:100% !important; flex:none !important; min-width:0 !important;
+  }
+  /* New-category form — two select dropdowns stack */
+  #newCatStage2, #newCatSubType {
+    width:100% !important;
+  }
+  /* Sub-editor flex rows: inputs stack */
+  #newCatSubsArea input, #newCatGroupsArea input {
+    width:100% !important; flex:none !important; min-width:0 !important;
+  }
+  /* SSC manager inputs */
+  #sscInput, #sscInputSi {
+    width:100% !important; flex:none !important; min-width:0 !important;
+  }
+  /* Admin card overflow — allow horizontal scroll per card only where needed */
+  .admin-card { overflow:visible; }
+  .u-table-wrap { overflow-x:auto; }
+  /* Period selects shouldn't force width */
+  #selMonth, #selYear { max-width:48%; }
+  /* Admin grid / card sizing */
   .admin-grid{grid-template-columns:1fr;gap:12px;}
   .admin-card{padding:16px;}
   .aform select,.aform input{font-size:12px;padding:8px 10px;}
-  .sc-add{flex-wrap:wrap;}
-  .sc-add input{min-width:100%;flex:none;}
   .u-table th,.u-table td{padding:7px 8px;font-size:11px;}
 
   /* Toast */
@@ -420,8 +441,8 @@ html, body { max-width:100%; overflow-x:hidden; }
         <h3>📂 Field Officers Travel — Sub-categories</h3>
         <div class="sc-list" id="scListField"></div>
         <div class="sc-add" style="flex-wrap:wrap">
-          <input type="text" id="scInputField" placeholder="Name (English)" style="flex:1;min-width:120px">
-          <input type="text" id="scInputFieldSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:120px">
+          <input type="text" id="scInputField" placeholder="Name (English)" style="flex:1;min-width:0">
+          <input type="text" id="scInputFieldSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:0">
           <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField','scInputFieldSi')">Add</button>
         </div>
       </div>
@@ -438,8 +459,8 @@ html, body { max-width:100%; overflow-x:hidden; }
         </select>
         <div class="sc-list" id="officeScList"></div>
         <div class="sc-add" style="flex-wrap:wrap">
-          <input type="text" id="officeScInput" placeholder="Name (English)" style="flex:1;min-width:120px">
-          <input type="text" id="officeScInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:120px">
+          <input type="text" id="officeScInput" placeholder="Name (English)" style="flex:1;min-width:0">
+          <input type="text" id="officeScInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:0">
           <button class="btn-a" onclick="addOfficeSubcat()">Add</button>
         </div>
       </div>
@@ -451,7 +472,7 @@ html, body { max-width:100%; overflow-x:hidden; }
         <!-- Create new category form -->
         <div style="background:#F7F2EA;border-radius:8px;padding:16px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:800;color:var(--maroon);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">➕ New Category</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="cat-form-selects" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
             <input type="text" id="newCatName" placeholder="Category name (English)" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
             <input type="text" id="newCatNameSi" placeholder="Category name (Sinhala) — optional" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
             <select id="newCatStage2" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;">
@@ -470,8 +491,8 @@ html, body { max-width:100%; overflow-x:hidden; }
             <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Sub-categories:</div>
             <div id="newCatSubsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <input type="text" id="newCatSubInput" placeholder="Name (English)" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
-              <input type="text" id="newCatSubInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatSubInput" placeholder="Name (English)" style="flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatSubInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
               <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatSub()">Add</button>
             </div>
           </div>
@@ -481,8 +502,8 @@ html, body { max-width:100%; overflow-x:hidden; }
             <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Parent groups (e.g. Central Government, Provincial Council):</div>
             <div id="newCatGroupsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <input type="text" id="newCatGroupInput" placeholder="Name (English)" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
-              <input type="text" id="newCatGroupInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatGroupInput" placeholder="Name (English)" style="flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatGroupInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:0;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
               <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatGroup()">Add</button>
             </div>
             <p style="font-size:10px;color:var(--muted);margin-top:6px">Sub-sub-categories under each group can be added after saving, via the Sub-Sub-Category Manager panel.</p>
@@ -507,8 +528,8 @@ html, body { max-width:100%; overflow-x:hidden; }
         </div>
         <div class="sc-list" id="sscList"></div>
         <div class="sc-add" style="flex-wrap:wrap">
-          <input type="text" id="sscInput" placeholder="Name (English)" style="flex:1;min-width:100px">
-          <input type="text" id="sscInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px">
+          <input type="text" id="sscInput" placeholder="Name (English)" style="flex:1;min-width:0">
+          <input type="text" id="sscInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:0">
           <button class="btn-a" onclick="addSubSubcat()">Add</button>
         </div>
       </div>
