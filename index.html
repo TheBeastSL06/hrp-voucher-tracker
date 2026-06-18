@@ -151,7 +151,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .wf-item-flag { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; margin-top:4px; padding:2px 7px; border-radius:10px; }
 .wf-item-flag.ai { background:var(--ai-bg); color:var(--ai-txt); border:1px solid var(--ai-bdr); }
 .wf-item-flag.an { background:var(--an-bg); color:var(--an-txt); border:1px solid var(--an-bdr); }
-.wf-item-actions { display:flex; gap:5px; flex-wrap:wrap; flex-shrink:0; }
+.wf-item-actions { display:flex; gap:5px; flex-wrap:wrap; flex-shrink:1; min-width:0; }
 
 /* WORKFLOW (old table styles kept for reference but accordion replaces) */
 .wf-info{background:#fff;border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -219,23 +219,110 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2C2219;color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:600;z-index:300;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.25);}
 
-/* RESPONSIVE */
-@media(max-width:640px){
-  .stats-row{grid-template-columns:repeat(3,1fr);}
-  .stat-card.s-pay,.stat-card.s-pd{display:block;}
-  .stat-v{font-size:20px;}
-  .stat-l{font-size:10px;}
-  .hdr-sub,.hdr-name{display:none;}
-  .nav-item{padding:12px 10px;font-size:12px;}
-  .content{padding:12px 8px;}
-  .admin-grid{grid-template-columns:1fr;}
-  .card-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-  .cm-box{max-height:92vh;border-radius:12px;}
-  .period-bar{flex-wrap:wrap;gap:6px;}
+/* ── RESPONSIVE ─────────────────────────────────── */
+
+/* Prevent any element from busting viewport width */
+html, body { max-width:100%; overflow-x:hidden; }
+.content    { overflow-x:hidden; }
+
+/* ── MOBILE  ≤ 480px ─── */
+@media(max-width:480px){
+  /* Header — two rows */
+  .hdr{height:auto;padding:6px 10px;flex-wrap:wrap;gap:4px;}
+  .hdr-l{gap:7px;}
+  .hdr-logo{width:32px;height:32px;font-size:9px;}
+  .hdr-title{font-size:13px;}
+  .hdr-sub{display:none;}
+  .hdr-r{gap:5px;flex-wrap:nowrap;}
+  .hdr-name{display:none;}
+  .role-pill{font-size:9px;padding:2px 7px;}
+  .lang-btn{padding:4px 7px;font-size:11px;}
+  .btn-hdr{padding:4px 9px;font-size:11px;}
+
+  /* Nav */
+  .nav-item{padding:10px 8px;font-size:11px;}
+
+  /* Period bar */
+  .period-bar{padding:7px 10px;gap:6px;}
+  .period-bar label{font-size:11px;}
+  .period-bar select{padding:4px 8px;font-size:12px;}
+
+  /* Content */
+  .content{padding:10px 8px;}
+
+  /* Stats — 3 cols top row, 2 cols bottom */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:auto auto;
+    gap:7px;
+    margin-bottom:14px;
+  }
+  .stat-card.s-pay{grid-column:1/span 2;}
+  .stat-card.s-pd {grid-column:3/span 1;}
+  .stat-v{font-size:19px;}
+  .stat-l{font-size:9px;}
+  .stat-card{padding:9px 10px;}
+
+  /* Card grid — 2 columns */
+  .card-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .card-name{font-size:11px;}
+  .card-body{padding:9px 10px;}
+
+  /* Workflow items — actions drop below name */
+  .wf-item{padding:10px 12px;gap:8px;}
+  .wf-item-info{flex:1 1 100%;}
+  .wf-item-actions{flex:1 1 100%;justify-content:flex-start;}
+  .bwf{font-size:10px;padding:5px 8px;}
+  .wf-info{padding:10px 12px;}
+  .wf-title{font-size:13px;}
+
+  /* Category modal */
+  .cm-overlay{padding:8px;}
+  .cm-box{max-height:94vh;border-radius:10px;}
+  .cm-hdr{padding:12px 14px;}
+  .cm-hdr-l h3{font-size:14px;}
+  .se-lbl{min-width:100px;font-size:11px;}
+
+  /* Admin */
+  .admin-grid{grid-template-columns:1fr;gap:12px;}
+  .admin-card{padding:16px;}
+  .aform select,.aform input{font-size:12px;padding:8px 10px;}
+  .sc-add{flex-wrap:wrap;}
+  .sc-add input{min-width:100%;flex:none;}
+  .u-table th,.u-table td{padding:7px 8px;font-size:11px;}
+
+  /* Toast */
+  .toast{white-space:normal;text-align:center;width:calc(100% - 32px);font-size:12px;bottom:16px;}
 }
-@media(min-width:641px) and (max-width:900px){
+
+/* ── SMALL MOBILE  ≤ 360px ─── */
+@media(max-width:360px){
+  .hdr-title{font-size:12px;}
+  .role-pill{display:none;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .stat-card.s-pay{grid-column:auto;}
+  .stat-card.s-pd{grid-column:auto;}
+  .card-grid{grid-template-columns:1fr;}
+}
+
+/* ── TABLET  481px – 900px ─── */
+@media(min-width:481px) and (max-width:900px){
   .stats-row{grid-template-columns:repeat(3,1fr);}
+  .stat-card.s-pay{grid-column:1/span 2;}
+  .stat-card.s-pd{grid-column:3/span 1;}
   .card-grid{grid-template-columns:repeat(3,1fr);}
+  .admin-grid{grid-template-columns:repeat(2,1fr);}
+  .hdr-sub{display:none;}
+  .wf-item{flex-wrap:wrap;}
+  .wf-item-actions{flex:1 1 100%;}
+}
+
+/* ── DESKTOP  > 900px ─── */
+@media(min-width:901px){
+  .stats-row{grid-template-columns:repeat(5,1fr);}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(195px,1fr));}
+  .wf-item-actions{flex:0 1 auto;}
 }
 </style>
 </head>
