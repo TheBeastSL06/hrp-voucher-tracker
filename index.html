@@ -42,6 +42,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .hdr-name{font-size:12px;opacity:.88;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .btn-hdr{border:1px solid rgba(255,255,255,.32);color:#fff;padding:5px 13px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,.13);}
 .btn-hdr:hover{background:rgba(255,255,255,.22);}
+.lang-switch{display:flex;border:1px solid rgba(255,255,255,.32);border-radius:6px;overflow:hidden;flex-shrink:0;}
+.lang-btn{border:none;background:transparent;color:rgba(255,255,255,.7);padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+.lang-btn.active{background:var(--gold);color:var(--maroon-dark);}
 
 /* NAV + PERIOD */
 .nav-bar{background:#fff;border-bottom:2px solid var(--border);display:flex;padding:0 8px;overflow-x:auto;}
@@ -249,23 +252,27 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       </div>
     </div>
     <div class="hdr-r">
+      <div class="lang-switch">
+        <button class="lang-btn active" id="langBtnEn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="langBtnSi" onclick="setLang('si')">සිං</button>
+      </div>
       <span class="role-pill" id="hdrRole" style="display:none"></span>
       <span class="hdr-name"  id="hdrName" style="display:none"></span>
-      <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none">Logout</button>
-      <button class="btn-hdr" id="btnLogin"  onclick="openLogin()">🔒 Officer Login</button>
+      <button class="btn-hdr" id="btnLogout" onclick="doLogout()" style="display:none"></button>
+      <button class="btn-hdr" id="btnLogin"  onclick="openLogin()"></button>
     </div>
   </div>
 
   <!-- NAV -->
   <div class="nav-bar">
-    <div class="nav-item active" id="navDashboard" onclick="switchView('dashboard')">📋 Dashboard</div>
-    <div class="nav-item"        id="navWorkflow" onclick="switchView('workflow')"  style="display:none">⚡ Workflow</div>
-    <div class="nav-item"        id="navAdmin"    onclick="switchView('admin')"     style="display:none">⚙️ Admin</div>
+    <div class="nav-item active" id="navDashboard" onclick="switchView('dashboard')"><span id="navDashboardTxt">📋 Dashboard</span></div>
+    <div class="nav-item"        id="navWorkflow" onclick="switchView('workflow')"  style="display:none"><span id="navWorkflowTxt">⚡ Workflow</span></div>
+    <div class="nav-item"        id="navAdmin"    onclick="switchView('admin')"     style="display:none"><span id="navAdminTxt">⚙️ Admin</span></div>
   </div>
 
   <!-- PERIOD BAR (shared) -->
   <div class="period-bar">
-    <label>Period:</label>
+    <label id="lblPeriod">Period:</label>
     <select id="selMonth" onchange="onPeriodChange()"></select>
     <select id="selYear"  onchange="onPeriodChange()"></select>
   </div>
@@ -273,11 +280,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   <!-- DASHBOARD -->
   <div id="viewDashboard" class="content">
     <div class="stats-row">
-      <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l">Total</div></div>
-      <div class="stat-card s-fa"> <div class="stat-v" id="stFA">0</div>   <div class="stat-l">Pending FA</div></div>
-      <div class="stat-card s-vl"> <div class="stat-v" id="stVL">0</div>   <div class="stat-l">Pending VL/Dep</div></div>
-      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div>  <div class="stat-l">Pending Payment</div></div>
-      <div class="stat-card s-pd"> <div class="stat-v" id="stPaid">0</div> <div class="stat-l">Paid</div></div>
+      <div class="stat-card s-tot"><div class="stat-v" id="stTotal">0</div><div class="stat-l" id="stLblTotal">Total</div></div>
+      <div class="stat-card s-fa"> <div class="stat-v" id="stFA">0</div>   <div class="stat-l" id="stLblFA">Pending FA</div></div>
+      <div class="stat-card s-vl"> <div class="stat-v" id="stVL">0</div>   <div class="stat-l" id="stLblVL">Pending VL/Dep</div></div>
+      <div class="stat-card s-pay"><div class="stat-v" id="stPay">0</div>  <div class="stat-l" id="stLblPay">Pending Payment</div></div>
+      <div class="stat-card s-pd"> <div class="stat-v" id="stPaid">0</div> <div class="stat-l" id="stLblPaid">Paid</div></div>
     </div>
     <div class="card-grid" id="cardGrid">
       <div class="loading"><div class="spinner"></div>Loading...</div>
@@ -325,9 +332,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="admin-card">
         <h3>📂 Field Officers Travel — Sub-categories</h3>
         <div class="sc-list" id="scListField"></div>
-        <div class="sc-add">
-          <input type="text" id="scInputField" placeholder="e.g. Agriculture Officer">
-          <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField')">Add</button>
+        <div class="sc-add" style="flex-wrap:wrap">
+          <input type="text" id="scInputField" placeholder="Name (English)" style="flex:1;min-width:120px">
+          <input type="text" id="scInputFieldSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:120px">
+          <button class="btn-a" onclick="addSubcat('field_travel','scInputField','scListField','scInputFieldSi')">Add</button>
+        </div>
+      </div>
+
+      <!-- Office Staff Categories dynamic subs (Travel CG/PC/YO + Holiday CG/PC) -->
+      <div class="admin-card">
+        <h3>📂 Office Staff Categories — Sub-categories</h3>
+        <select id="officeCatSel" onchange="renderOfficeScList()" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;margin-bottom:12px">
+          <option value="office_travel_cg">Office Staff Travel Expense - Central Government</option>
+          <option value="office_travel_pc">Office Staff Travel Expense - Provincial Council</option>
+          <option value="office_travel_yo">Office Staff Travel Expense - Yan Oya</option>
+          <option value="office_holiday_cg">Office Staff Holiday Pay/OT - Central Government</option>
+          <option value="office_holiday_pc">Office Staff Holiday Pay/OT - Provincial Council</option>
+        </select>
+        <div class="sc-list" id="officeScList"></div>
+        <div class="sc-add" style="flex-wrap:wrap">
+          <input type="text" id="officeScInput" placeholder="Name (English)" style="flex:1;min-width:120px">
+          <input type="text" id="officeScInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:120px">
+          <button class="btn-a" onclick="addOfficeSubcat()">Add</button>
         </div>
       </div>
 
@@ -339,7 +365,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         <div style="background:#F7F2EA;border-radius:8px;padding:16px;margin-bottom:16px">
           <div style="font-size:12px;font-weight:800;color:var(--maroon);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">➕ New Category</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-            <input type="text" id="newCatName" placeholder="Category name" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
+            <input type="text" id="newCatName" placeholder="Category name (English)" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
+            <input type="text" id="newCatNameSi" placeholder="Category name (Sinhala) — optional" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;grid-column:1/-1">
             <select id="newCatStage2" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;">
               <option value="vl">Vote Ledger</option>
               <option value="deposit">Deposit Ledger</option>
@@ -355,21 +382,23 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <div id="newCatSubsArea" style="display:none;margin-bottom:10px">
             <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Sub-categories:</div>
             <div id="newCatSubsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="newCatSubInput" placeholder="Sub-category name" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <input type="text" id="newCatSubInput" placeholder="Name (English)" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatSubInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
               <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatSub()">Add</button>
             </div>
           </div>
 
           <!-- Sub-sub-cat groups editor -->
           <div id="newCatGroupsArea" style="display:none;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Parent groups (e.g. Central Government, NCP):</div>
+            <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">Parent groups (e.g. Central Government, Provincial Council):</div>
             <div id="newCatGroupsList" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
-            <div style="display:flex;gap:6px">
-              <input type="text" id="newCatGroupInput" placeholder="Group name" style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <input type="text" id="newCatGroupInput" placeholder="Name (English)" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
+              <input type="text" id="newCatGroupInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none">
               <button class="btn-a" style="padding:7px 13px;font-size:12px" onclick="addNewCatGroup()">Add</button>
             </div>
-            <p style="font-size:10px;color:var(--muted);margin-top:6px">Sub-sub-categories under each group can be added after saving, via the sub-sub-category panel below.</p>
+            <p style="font-size:10px;color:var(--muted);margin-top:6px">Sub-sub-categories under each group can be added after saving, via the Sub-Sub-Category Manager panel.</p>
           </div>
 
           <button class="btn-a" onclick="saveNewCategory()" style="width:100%">💾 Save Category</button>
@@ -380,23 +409,19 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         <div id="customCatList"><div style="font-size:12px;color:var(--muted);padding:10px 0">Loading...</div></div>
       </div>
 
-      <!-- Staff Travel & Holiday OT + custom subsubs sub-sub-cats -->
+      <!-- Sub-Sub-Category Manager (for custom subsubs categories only) -->
       <div class="admin-card">
         <h3>📂 Sub-Sub-Category Manager</h3>
         <div class="aform" style="margin-bottom:12px">
           <select id="sscCatSel" onchange="updateSscParents()">
-            <option value="staff_travel">Office Staff Travel Expense</option>
-            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
+            <option value="">— No sub-sub-category structures yet —</option>
           </select>
-          <select id="sscParentSel" onchange="refreshSscView()">
-            <option value="st_cg">Central Government</option>
-            <option value="st_ncp">NCP</option>
-            <option value="st_yo">Yan Oya</option>
-          </select>
+          <select id="sscParentSel" onchange="refreshSscView()"></select>
         </div>
         <div class="sc-list" id="sscList"></div>
-        <div class="sc-add">
-          <input type="text" id="sscInput" placeholder="e.g. Driver">
+        <div class="sc-add" style="flex-wrap:wrap">
+          <input type="text" id="sscInput" placeholder="Name (English)" style="flex:1;min-width:100px">
+          <input type="text" id="sscInputSi" placeholder="Name (Sinhala) — optional" style="flex:1;min-width:100px">
           <button class="btn-a" onclick="addSubSubcat()">Add</button>
         </div>
       </div>
@@ -410,15 +435,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
             <option value="">— Select Category —</option>
             <option value="gn_travel">Grama Niladari Travel Expense</option>
             <option value="field_travel">Field Officers Travel Expense</option>
-            <option value="staff_travel">Office Staff Travel Expense</option>
-            <option value="holiday_ot">Office Staff Holiday Pay & OT</option>
+            <option value="office_travel_cg">Office Staff Travel Expense - Central Government</option>
+            <option value="office_travel_pc">Office Staff Travel Expense - Provincial Council</option>
+            <option value="office_travel_yo">Office Staff Travel Expense - Yan Oya</option>
+            <option value="office_holiday_cg">Office Staff Holiday Pay/OT - Central Government</option>
+            <option value="office_holiday_pc">Office Staff Holiday Pay/OT - Provincial Council</option>
             <option value="allowances">Disable/Kidney/Elder's Allowance</option>
             <option value="nutrition">Nutrition / Guru Abimani / Pre-School</option>
             <option value="mahajanadara">Mahajanadara</option>
             <option value="mediation">Mediation Board</option>
             <option value="fuel">Fuel</option>
             <option value="bills">Bills</option>
-            <option value="postal">Postal Charge</option>
             <option value="pension">Pension</option>
             <option value="gsmb">GSMB Payment</option>
           </select>
@@ -548,33 +575,115 @@ const GN=[
 ];
 
 // Categories with hasSubSubs:true use subCategory + subSubCategory levels
-// parentSubs for staff_travel and holiday_ot share same names but different IDs
-const ST_SUBS=[{id:'st_cg',name:'Central Government'},{id:'st_ncp',name:'NCP'},{id:'st_yo',name:'Yan Oya'}];
-const HO_SUBS=[{id:'ho_cg',name:'Central Government'},{id:'ho_ncp',name:'NCP'},{id:'ho_yo',name:'Yan Oya'}];
+const GN_SI = null; // GN division place names kept in English only (no official Sinhala set provided)
 
 let CATS=[
-  {id:'gn_travel',   name:'Grama Niladari Travel Expense',                            s2:'vl', subs:GN},
-  {id:'field_travel',name:'Field Officers Travel Expense',                            s2:'vl', subs:[]},
-  {id:'staff_travel',name:'Office Staff Travel Expense',                              s2:'vl', subs:ST_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
-  {id:'holiday_ot',  name:'Office Staff Holiday Pay & OT',                           s2:'vl', subs:HO_SUBS.map(s=>({...s,subSubs:[]})), hasSubSubs:true},
-  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance",                        s2:'vl',
-    subs:[{id:'al_dis',name:'Disable Allowance'},{id:'al_kid',name:'Kidney Allowance'},{id:'al_eld',name:"Elder's Allowance"}]},
-  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School", s2:'vl',
-    subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program"},{id:'nu_guru',name:'Guru Abimani'},{id:'nu_pre',name:'Pre-School Meal Program'}]},
-  {id:'mahajanadara',name:'Mahajanadara',   s2:'vl',      subs:null},
-  {id:'mediation',   name:'Mediation Board', s2:'vl',     subs:null},
-  {id:'fuel',        name:'Fuel',            s2:'vl',
-    subs:[{id:'fu_ds',name:'DS Vehicle'},{id:'fu_pl',name:'Pool Vehicle'}]},
-  {id:'bills',       name:'Bills',           s2:'vl',
-    subs:[{id:'bi_eo',name:'Electricity Bill - Office'},{id:'bi_en',name:'Electricity Bill - NIC'},{id:'bi_tel',name:'Telephone Bill'},{id:'bi_wat',name:'Water Bill'}]},
-  {id:'postal',      name:'Postal Charge',  s2:'vl',      subs:null},
-  {id:'pension',     name:'Pension',        s2:'vl',      subs:null},
-  {id:'gsmb',        name:'GSMB Payment',   s2:'deposit', subs:null},
+  {id:'gn_travel',   name:'Grama Niladari Travel Expense', nameSi:'ග්‍රාම නිලධාරී ගමන් වියදම්',                            s2:'vl', subs:GN},
+  {id:'field_travel',name:'Field Officers Travel Expense',  nameSi:'ක්ෂේත්‍ර නිලධාරී ගමන් වියදම්',                          s2:'vl', subs:[]},
+  {id:'office_travel_cg',name:'Office Staff Travel Expense - Central Government', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - මධ්‍යම රජය', s2:'vl', subs:[]},
+  {id:'office_travel_pc',name:'Office Staff Travel Expense - Provincial Council', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - පළාත් සභාව', s2:'vl', subs:[]},
+  {id:'office_travel_yo',name:'Office Staff Travel Expense - Yan Oya', nameSi:'කාර්ය මණ්ඩල ගමන් වියදම් - යාන් ඔය ව්‍යාපෘතිය', s2:'vl', subs:[]},
+  {id:'office_holiday_cg',name:'Office Staff Holiday Pay/OT - Central Government', nameSi:'කාර්ය මණ්ඩල නිවාඩු දින වැටුප්/අතිකාල - මධ්‍යම රජය', s2:'vl', subs:[]},
+  {id:'office_holiday_pc',name:'Office Staff Holiday Pay/OT - Provincial Council', nameSi:'කාර්ය මණ්ඩල නිවාඩු දින වැටුප්/අතිකාල - පළාත් සභාව', s2:'vl', subs:[]},
+  {id:'allowances',  name:"Disable/Kidney/Elder's Allowance", nameSi:'ආබාධිත/වකුගඩු/වැඩිහිටි දීමනා',                       s2:'vl',
+    subs:[{id:'al_dis',name:'Disable Allowance',nameSi:'ආබාධිත දීමනාව'},{id:'al_kid',name:'Kidney Allowance',nameSi:'වකුගඩු රෝගී දීමනාව'},{id:'al_eld',name:"Elder's Allowance",nameSi:'වැඩිහිටි දීමනාව'}]},
+  {id:'nutrition',   name:"Pregnant Mother's Nutrition / Guru Abimani / Pre-School", nameSi:'ගර්භනී මව්වරුන්ගේ පෝෂණ / ගුරු අභිමානී / පෙරපාසල් උදෑසන ආහාර වේල වැඩසටහන', s2:'vl',
+    subs:[{id:'nu_preg',name:"Pregnant Mother's Nutrition Program",nameSi:'ගර්භනී මව්වරුන්ගේ පෝෂණ වැඩසටහන'},{id:'nu_guru',name:'Guru Abimani',nameSi:'ගුරු අභිමානී'},{id:'nu_pre',name:'Pre-School Meal Program',nameSi:'පෙරපාසල් උදෑසන ආහාර වේල වැඩසටහන'}]},
+  {id:'mahajanadara',name:'Mahajanadara',   nameSi:'මහජනාධාර', s2:'vl',      subs:null},
+  {id:'mediation',   name:'Mediation Board', nameSi:'සමථ මණ්ඩල', s2:'vl',     subs:null},
+  {id:'fuel',        name:'Fuel',            nameSi:'ඉන්ධන',     s2:'vl',
+    subs:[{id:'fu_ds',name:'DS Vehicle',nameSi:'ප්‍රාදේශීය ලේකම් ඉන්ධන දීමනාව'},{id:'fu_pl',name:'Pool Vehicle',nameSi:'සංචිත වාහනයේ ඉන්ධන වියදම්'}]},
+  {id:'bills',       name:'Bills',           nameSi:'බිල්පත්',   s2:'vl',
+    subs:[{id:'bi_eo',name:'Electricity Bill - Office',nameSi:'විදුලි බිල්පත - කාර්යාලය'},{id:'bi_en',name:'Electricity Bill - NIC',nameSi:'විදුලි බිල්පත - ජාතික හැඳුනුම්පත් අංශය'},{id:'bi_tel',name:'Telephone Bill',nameSi:'දුරකථන බිල්පත'},{id:'bi_wat',name:'Water Bill',nameSi:'ජල බිල්පත'}]},
+  {id:'pension',     name:'Pension',        nameSi:'විශ්‍රාම වැටුප්', s2:'vl',      subs:null},
+  {id:'gsmb',        name:'GSMB Payment',   nameSi:'භූ විද්‍යා සමීක්ෂණ හා පතල් කැණීම් කාර්‍යාංශය වෙත ගෙවීම්', s2:'deposit', subs:null},
 ];
 
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SI=['ජනවාරි','පෙබරවාරි','මාර්තු','අප්‍රේල්','මැයි','ජූනි','ජූලි','අගෝස්තු','සැප්තැම්බර්','ඔක්තෝබර්','නොවැම්බර්','දෙසැම්බර්'];
 const ROLES={superadmin:'Super Admin',fa:'FA',vl:'Vote Ledger',deposit:'Deposit Ledger'};
 const SROLES={fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Payment (CIGAS)'};
+
+// ════════════════════════════════════════
+//  I18N — English / Sinhala
+// ════════════════════════════════════════
+const I18N = {
+  en: {
+    nav_dashboard:'📋 Dashboard', nav_workflow:'⚡ Workflow', nav_admin:'⚙️ Admin',
+    period_label:'Period:',
+    stat_total:'Total', stat_pendingFA:'Pending FA', stat_pendingVLDep:'Pending VL/Dep',
+    stat_pendingPayment:'Pending Payment', stat_paid:'Paid',
+    officer_login:'🔒 Officer Login', logout:'Logout',
+    stage_fa:'FA Check', stage_vl:'Vote Ledger', stage_deposit:'Deposit Ledger', stage_payment:'Payment (CIGAS)',
+    badge_pending:'Pending', badge_received:'✓ Received', badge_paid:'✓ Paid',
+    badge_allocNotEnough:'⚠ Alloc. Not Enough', badge_allocNotReceived:'⚠ Alloc. Not Received',
+    pill_paid:'Paid', pill_inProgress:'In Progress', pill_pending:'Pending', pill_allocIssue:'Alloc. Issue',
+    wf_superadmin:'Super Admin — All Stages', wf_pendingSuffix:'Pending',
+    wf_allDone:'All done for', wf_noPending:'No pending items for your role this month.',
+    no_subsub_cats:'— No sub-sub-category structures yet —',
+    tbl_subcat:'Sub-category', tbl_fa:'FA', tbl_vl:'VL', tbl_deposit:'Deposit', tbl_payment:'Payment',
+    modal_noEntries:'No entries', modal_noVouchers:'No vouchers for', modal_notGenerated:'Entries for this month have not been generated yet.',
+    wf_flagged:'Flagged', wf_faShort:'FA', wf_paymentShort:'Pay',
+    wf_markOk:'✓ Mark OK', wf_reset:'↩ Reset', wf_notEnough:'⚠ Not Enough', wf_notReceived:'⚠ Not Received',
+    wf_markPaid:'💰 Mark Paid',
+    unit_entry:'entry', unit_entries:'entries',
+  },
+  si: {
+    nav_dashboard:'📋 මුල් පුවරුව', nav_workflow:'⚡ කාර්ය ප්‍රවාහය', nav_admin:'⚙️ පරිපාලනය',
+    period_label:'කාල පරිච්ඡේදය:',
+    stat_total:'සමස්ත', stat_pendingFA:'FA ශේෂ', stat_pendingVLDep:'VL/තැන්පතු ශේෂ',
+    stat_pendingPayment:'ගෙවීම් ශේෂ', stat_paid:'ගෙවා ඇත',
+    officer_login:'🔒 නිලධාරී පිවිසුම', logout:'ඉවත් වන්න',
+    stage_fa:'මුදල් සහකාර පරීක්ෂාව', stage_vl:'වැය ලේජරය', stage_deposit:'තැන්පතු ලේජරය', stage_payment:'ගෙවීම් (CIGAS)',
+    badge_pending:'ශේෂ', badge_received:'✓ ලැබී ඇත', badge_paid:'✓ ගෙවා ඇත',
+    badge_allocNotEnough:'⚠ ප්‍රතිපාදන ප්‍රමාණවත් නොවේ', badge_allocNotReceived:'⚠ ප්‍රතිපාදන ලැබී නොමැත',
+    pill_paid:'ගෙවා ඇත', pill_inProgress:'ක්‍රියාත්මක වෙමින්', pill_pending:'ශේෂ', pill_allocIssue:'ප්‍රතිපාදන ගැටළුව',
+    wf_superadmin:'අධිපති පරිපාලක — සියලු අදියර්', wf_pendingSuffix:'ශේෂ',
+    wf_allDone:'සියල්ල අවසන් කර ඇත —', wf_noPending:'මෙම මාසය සඳහා ඔබේ භූමිකාවට ශේෂව ඇති කාර්යයන් නොමැත.',
+    no_subsub_cats:'— තවම උප-උප-ප්‍රවර්ග ව්‍යුහයන් නොමැත —',
+    tbl_subcat:'උප-ප්‍රවර්ගය', tbl_fa:'FA', tbl_vl:'VL', tbl_deposit:'තැන්පතු', tbl_payment:'ගෙවීම',
+    modal_noEntries:'ප්‍රවිෂ්ට නොමැත', modal_noVouchers:'වවුචර් නොමැත —', modal_notGenerated:'මෙම මාසය සඳහා ප්‍රවිෂ්ට තවම ජනනය කර නොමැත.',
+    wf_flagged:'සංඥා කළ', wf_faShort:'FA', wf_paymentShort:'ගෙවීම',
+    wf_markOk:'✓ නිවැරදියි', wf_reset:'↩ යථා තත්ත්වයට', wf_notEnough:'⚠ ප්‍රමාණවත් නොවේ', wf_notReceived:'⚠ ලැබී නොමැත',
+    wf_markPaid:'💰 ගෙවා ඇත',
+    unit_entry:'ප්‍රවිෂ්ටය', unit_entries:'ප්‍රවිෂ්ට',
+  }
+};
+
+let LANG = (function(){ try { return localStorage.getItem('hrp_lang') || 'en'; } catch(e){ return 'en'; } })();
+
+function tr(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key; }
+// Returns the Sinhala name if current language is Sinhala and a Sinhala name exists, else falls back to English
+function catName(cat){ if(!cat) return ''; return (LANG==='si' && cat.nameSi) ? cat.nameSi : cat.name; }
+function subName(sub){ if(!sub) return ''; return (LANG==='si' && sub.nameSi) ? sub.nameSi : sub.name; }
+function monthName(i){ return (LANG==='si' && MONTHS_SI[i]) ? MONTHS_SI[i] : MONTHS[i]; }
+
+function setLang(l){
+  LANG = l;
+  try { localStorage.setItem('hrp_lang', l); } catch(e){}
+  document.getElementById('langBtnEn').classList.toggle('active', l==='en');
+  document.getElementById('langBtnSi').classList.toggle('active', l==='si');
+  applyStaticTranslations();
+  renderDash();
+  renderWorkflow();
+  if (openModalCatId) renderModalContent(openModalCatId);
+}
+
+function applyStaticTranslations(){
+  document.getElementById('navDashboardTxt').textContent = tr('nav_dashboard');
+  document.getElementById('navWorkflowTxt').textContent  = tr('nav_workflow');
+  document.getElementById('navAdminTxt').textContent     = tr('nav_admin');
+  document.getElementById('lblPeriod').textContent       = tr('period_label');
+  document.getElementById('stLblTotal').textContent      = tr('stat_total');
+  document.getElementById('stLblFA').textContent         = tr('stat_pendingFA');
+  document.getElementById('stLblVL').textContent         = tr('stat_pendingVLDep');
+  document.getElementById('stLblPay').textContent        = tr('stat_pendingPayment');
+  document.getElementById('stLblPaid').textContent       = tr('stat_paid');
+  document.getElementById('btnLogin').textContent         = tr('officer_login');
+  document.getElementById('btnLogout').textContent        = tr('logout');
+  const selM = document.getElementById('selMonth');
+  if(selM) Array.from(selM.options).forEach((opt,i)=>{ opt.textContent = monthName(i); });
+}
 
 // ════════════════════════════════════════
 //  STATE
@@ -582,11 +691,8 @@ const SROLES={fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin
 let me=null,meData=null;
 let selMonth,selYear;
 let vouchers=[],unsub=null;
-let dynSubs={field_travel:[]};
-let dynSubSubs={
-  'staff_travel__st_cg':[],'staff_travel__st_ncp':[],'staff_travel__st_yo':[],
-  'holiday_ot__ho_cg':[], 'holiday_ot__ho_ncp':[], 'holiday_ot__ho_yo':[],
-};
+let dynSubs={field_travel:[],office_travel_cg:[],office_travel_pc:[],office_travel_yo:[],office_holiday_cg:[],office_holiday_pc:[]};
+let dynSubSubs={};
 let customCats = []; // loaded from Firestore
 // temp state for new category form
 let newCatSubs  = []; // [{id,name}] for subType='subs'
@@ -599,6 +705,9 @@ selMonth=now.getMonth()+1; selYear=now.getFullYear();
 //  BOOT
 // ════════════════════════════════════════
 (async function boot(){
+  document.getElementById('langBtnEn').classList.toggle('active', LANG==='en');
+  document.getElementById('langBtnSi').classList.toggle('active', LANG==='si');
+  applyStaticTranslations();
   populateSelects();
   await Promise.all([loadDynSubs(), loadDynSubSubs(), loadCustomCats()]);
   loadVouchers();
@@ -626,8 +735,9 @@ auth.onAuthStateChanged(async user=>{
     }
     if(meData.role==='superadmin'){
       document.getElementById('navAdmin').style.display='';
-      loadUsers(); refreshSscView(); renderScList('field_travel','scListField');
-      renderCustomCatList(); updateDelCatDropdown();
+      loadUsers(); renderScList('field_travel','scListField');
+      renderOfficeScList();
+      renderCustomCatList(); updateDelCatDropdown(); updateSscCatOptions();
     }
     closeLogin(); renderDash(); renderWorkflow();
     toast(`Welcome, ${meData.name} ✓`);
@@ -689,7 +799,9 @@ function switchView(v){
 //  PERIOD
 // ════════════════════════════════════════
 function populateSelects(){
-  ['selMonth','genMonth','delMonth'].forEach(id=>{
+  const selM=document.getElementById('selMonth');
+  if(selM) selM.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${monthName(i)}</option>`).join('');
+  ['genMonth','delMonth'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     el.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}"${i+1===selMonth?' selected':''}>${m}</option>`).join('');
   });
@@ -713,7 +825,7 @@ async function loadDynSubs(){
     const snap=await db.collection('dynamicSubCats').get();
     snap.forEach(doc=>{
       const d=doc.data();
-      if(dynSubs[d.categoryId]!==undefined) dynSubs[d.categoryId].push({id:doc.id,name:d.name,order:d.order||0});
+      if(dynSubs[d.categoryId]!==undefined) dynSubs[d.categoryId].push({id:doc.id,name:d.name,nameSi:d.nameSi||'',order:d.order||0});
     });
     Object.keys(dynSubs).forEach(k=>dynSubs[k].sort((a,b)=>a.order-b.order));
     CATS.forEach(c=>{if(dynSubs[c.id])c.subs=dynSubs[c.id];});
@@ -722,15 +834,20 @@ async function loadDynSubs(){
 function renderScList(catId,listId){
   const el=document.getElementById(listId),items=dynSubs[catId]||[];
   if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
-  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}${it.nameSi?' <span style=\"color:var(--muted)\">/ '+it.nameSi+'</span>':''}</span><button class="btn-del" onclick="delSubcat('${it.id}','${catId}','${listId}')">×</button></div>`).join('');
 }
-async function addSubcat(catId,inputId,listId){
+async function addSubcat(catId,inputId,listId,inputSiId){
   const inp=document.getElementById(inputId),name=inp.value.trim();if(!name)return;
+  const nameSi = inputSiId ? (document.getElementById(inputSiId).value.trim()) : '';
   try{
     const order=(dynSubs[catId]||[]).length;
-    const ref=await db.collection('dynamicSubCats').add({categoryId:catId,name,order});
-    dynSubs[catId]=dynSubs[catId]||[];dynSubs[catId].push({id:ref.id,name,order});
-    CATS.find(c=>c.id===catId).subs=dynSubs[catId];inp.value='';renderScList(catId,listId);toast('Added ✓');
+    const data={categoryId:catId,name,order};
+    if(nameSi) data.nameSi=nameSi;
+    const ref=await db.collection('dynamicSubCats').add(data);
+    dynSubs[catId]=dynSubs[catId]||[];dynSubs[catId].push({id:ref.id,name,nameSi,order});
+    CATS.find(c=>c.id===catId).subs=dynSubs[catId];
+    inp.value=''; if(inputSiId) document.getElementById(inputSiId).value='';
+    renderScList(catId,listId);toast('Added ✓');
   }catch(e){toast(e.message,true);}
 }
 async function delSubcat(docId,catId,listId){
@@ -743,6 +860,21 @@ async function delSubcat(docId,catId,listId){
 }
 
 // ════════════════════════════════════════
+//  OFFICE STAFF CATEGORIES — sub-category manager
+//  (Office Staff Travel CG/PC/YO and Holiday CG/PC use the same
+//   generic dynamic-subs mechanism as Field Officers Travel)
+// ════════════════════════════════════════
+function renderOfficeScList(){
+  const sel = document.getElementById('officeCatSel');
+  if(!sel) return;
+  renderScList(sel.value, 'officeScList');
+}
+async function addOfficeSubcat(){
+  const catId = document.getElementById('officeCatSel').value;
+  await addSubcat(catId, 'officeScInput', 'officeScList', 'officeScInputSi');
+}
+
+// ════════════════════════════════════════
 //  DYNAMIC SUB-SUB-CATEGORIES
 // ════════════════════════════════════════
 async function loadDynSubSubs(){
@@ -751,7 +883,8 @@ async function loadDynSubSubs(){
     snap.forEach(doc=>{
       const d=doc.data();
       const key=`${d.categoryId}__${d.parentSubId}`;
-      if(dynSubSubs[key]!==undefined) dynSubSubs[key].push({id:doc.id,name:d.name,order:d.order||0});
+      if(dynSubSubs[key]===undefined) dynSubSubs[key]=[];
+      dynSubSubs[key].push({id:doc.id,name:d.name,nameSi:d.nameSi||'',order:d.order||0});
     });
     Object.keys(dynSubSubs).forEach(k=>dynSubSubs[k].sort((a,b)=>a.order-b.order));
     // Push into CATS subs
@@ -766,10 +899,7 @@ async function loadDynSubSubs(){
   }catch(e){console.warn('loadDynSubSubs:',e);}
 }
 
-const SSC_PARENTS={
-  staff_travel:[{val:'st_cg',lbl:'Central Government'},{val:'st_ncp',lbl:'NCP'},{val:'st_yo',lbl:'Yan Oya'}],
-  holiday_ot:  [{val:'ho_cg',lbl:'Central Government'},{val:'ho_ncp',lbl:'NCP'},{val:'ho_yo',lbl:'Yan Oya'}],
-};
+// SSC_PARENTS removed — sub-sub-category structure is now only used by custom categories (see customCats)
 
 async function deleteCategoryEntries(){
   const catId  = document.getElementById('delCatSel').value;
@@ -796,17 +926,12 @@ async function deleteCategoryEntries(){
 function updateSscParents(){
   const catId = document.getElementById('sscCatSel').value;
   const pSel  = document.getElementById('sscParentSel');
-  // Check built-in first
-  if(SSC_PARENTS[catId]){
-    pSel.innerHTML = SSC_PARENTS[catId].map(p=>`<option value="${p.val}">${p.lbl}</option>`).join('');
+  if(!catId){ pSel.innerHTML=''; document.getElementById('sscList').innerHTML=''; return; }
+  const cc = customCats.find(c=>c.id===catId);
+  if(cc && cc.groups){
+    pSel.innerHTML = cc.groups.map(g=>`<option value="${g.id}">${g.name}${g.nameSi?' / '+g.nameSi:''}</option>`).join('');
   } else {
-    // Custom subsubs category — use its groups
-    const cc = customCats.find(c=>c.id===catId);
-    if(cc && cc.groups){
-      pSel.innerHTML = cc.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
-    } else {
-      pSel.innerHTML = '';
-    }
+    pSel.innerHTML = '';
   }
   refreshSscView();
 }
@@ -820,23 +945,29 @@ function refreshSscView(){
   const el=document.getElementById('sscList');
   if(!el)return;
   if(!items.length){el.innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">No sub-categories yet</div>';return;}
-  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}</span><button class="btn-del" onclick="delSubSubcat('${it.id}','${key}')">×</button></div>`).join('');
+  el.innerHTML=items.map(it=>`<div class="sc-item"><span>${it.name}${it.nameSi?' <span style=\"color:var(--muted)\">/ '+it.nameSi+'</span>':''}</span><button class="btn-del" onclick="delSubSubcat('${it.id}','${key}')">×</button></div>`).join('');
 }
 
 async function addSubSubcat(){
   const catId=document.getElementById('sscCatSel').value;
   const parentId=document.getElementById('sscParentSel').value;
+  if(!catId||!parentId){ toast('Please select a category and group first.',true); return; }
   const inp=document.getElementById('sscInput');
+  const inpSi=document.getElementById('sscInputSi');
   const name=inp.value.trim();if(!name)return;
+  const nameSi=inpSi?inpSi.value.trim():'';
   const key=`${catId}__${parentId}`;
   try{
     const order=(dynSubSubs[key]||[]).length;
-    const ref=await db.collection('dynamicSubSubCats').add({categoryId:catId,parentSubId:parentId,name,order});
-    dynSubSubs[key]=dynSubSubs[key]||[];dynSubSubs[key].push({id:ref.id,name,order});
-    // Update CATS
+    const data={categoryId:catId,parentSubId:parentId,name,order};
+    if(nameSi) data.nameSi=nameSi;
+    const ref=await db.collection('dynamicSubSubCats').add(data);
+    dynSubSubs[key]=dynSubSubs[key]||[];dynSubSubs[key].push({id:ref.id,name,nameSi,order});
+    // Update CATS (built-in hasSubSubs, if any) or customCats groups
     const cat=CATS.find(c=>c.id===catId);
-    if(cat){const sub=cat.subs.find(s=>s.id===parentId);if(sub)sub.subSubs=dynSubSubs[key];}
-    inp.value='';refreshSscView();toast('Added ✓');
+    if(cat&&cat.subs){const sub=cat.subs.find(s=>s.id===parentId);if(sub)sub.subSubs=dynSubSubs[key];}
+    inp.value=''; if(inpSi) inpSi.value='';
+    refreshSscView();toast('Added ✓');
   }catch(e){toast(e.message,true);}
 }
 
@@ -853,7 +984,7 @@ async function delSubSubcat(docId,key){
 //  VOUCHERS — REAL-TIME
 // ════════════════════════════════════════
 function loadVouchers(){
-  const periodLbl=`${MONTHS[selMonth-1]} ${selYear}`;
+  const periodLbl=`${monthName(selMonth-1)} ${selYear}`;
   document.getElementById('cmPeriod').textContent=periodLbl;
   if(unsub)unsub();
   unsub=db.collection('vouchers').where('year','==',selYear).where('month','==',selMonth)
@@ -879,7 +1010,7 @@ function renderDash(){
   document.getElementById('stPaid').textContent =vouchers.filter(v=>v.cigasStatus==='paid').length;
 
   if(!vouchers.length){
-    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div class="empty-title">No vouchers for ${MONTHS[selMonth-1]} ${selYear}</div><p class="empty-hint">Entries for this month have not been generated yet.</p></div>`;
+    document.getElementById('cardGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><div class="empty-title">${tr('modal_noVouchers')} ${monthName(selMonth-1)} ${selYear}</div><p class="empty-hint">${tr('modal_notGenerated')}</p></div>`;
     return;
   }
 
@@ -896,18 +1027,18 @@ function renderDash(){
     const pend=cv.length-paid-allocIssue-inProg;
     const pct=Math.round((paid/cv.length)*100);
     let pills='';
-    if(paid)       pills+=`<span class="cp paid">✓ ${paid} Paid</span>`;
-    if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} Alloc. Issue</span>`;
-    if(inProg)     pills+=`<span class="cp prog">${inProg} In Progress</span>`;
-    if(pend)       pills+=`<span class="cp pend">${pend} Pending</span>`;
+    if(paid)       pills+=`<span class="cp paid">✓ ${paid} ${tr('pill_paid')}</span>`;
+    if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} ${tr('pill_allocIssue')}</span>`;
+    if(inProg)     pills+=`<span class="cp prog">${inProg} ${tr('pill_inProgress')}</span>`;
+    if(pend)       pills+=`<span class="cp pend">${pend} ${tr('pill_pending')}</span>`;
     html+=`<div class="cat-card" onclick="openCatModal('${cat.id}')">
       <div class="card-top">
-        <div class="card-name">${cat.name}</div>
-        <div class="card-entries">${cv.length} ${cv.length===1?'entry':'entries'}</div>
+        <div class="card-name">${catName(cat)}</div>
+        <div class="card-entries">${cv.length} ${cv.length===1?tr('unit_entry'):tr('unit_entries')}</div>
       </div>
       <div class="card-body">
         <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <div class="card-pills">${pills||'<span class="cp pend">All Pending</span>'}</div>
+        <div class="card-pills">${pills||`<span class="cp pend">${tr('pill_pending')}</span>`}</div>
       </div>
     </div>`;
   });
@@ -931,13 +1062,29 @@ document.getElementById('cmOverlay').addEventListener('click',e=>{if(e.target.id
 function renderModalContent(catId){
   const cat=CATS.find(c=>c.id===catId);
   const cv=vouchers.filter(v=>v.category===catId).sort((a,b)=>(a.order||0)-(b.order||0));
-  document.getElementById('cmTitle').textContent=cat.name;
-  document.getElementById('cmPeriod').textContent=`${MONTHS[selMonth-1]} ${selYear}`;
+  document.getElementById('cmTitle').textContent=catName(cat);
+  document.getElementById('cmPeriod').textContent=`${monthName(selMonth-1)} ${selYear}`;
 
   if(!cv.length){
-    document.getElementById('cmBody').innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No entries</div></div>';
+    document.getElementById('cmBody').innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">${tr('modal_noEntries')}</div></div>`;
     return;
   }
+
+  // Helper: get the live (translatable) name for a stored sub/sub-sub id, falling back to the stored name
+  function liveSubName(sub_id, storedName){
+    if(!cat.subs) return storedName||'—';
+    const sub = cat.subs.find(s=>s.id===sub_id);
+    return sub ? subName(sub) : (storedName||'—');
+  }
+  function liveSubSubName(sub_id, subSubId, storedName){
+    if(!cat.subs) return storedName||'—';
+    const sub = cat.subs.find(s=>s.id===sub_id);
+    if(!sub || !sub.subSubs) return storedName||'—';
+    const ss = sub.subSubs.find(x=>x.id===subSubId);
+    return ss ? subName(ss) : (storedName||'—');
+  }
+
+  const s2Hdr = cat.s2==='deposit' ? tr('tbl_deposit') : tr('tbl_vl');
 
   let html='';
   if(cat.subs===null){
@@ -945,32 +1092,34 @@ function renderModalContent(catId){
     const v=cv[0];
     html=`<table style="width:100%;border-collapse:collapse">
       <tbody>
-        ${seRow('FA Check',badge(v,'fa'))}
-        ${seRow(v.stage2Type==='deposit'?'Deposit Ledger':'Vote Ledger',badge(v,'stage2'))}
-        ${seRow('Payment (CIGAS)',badge(v,'cigas'))}
+        ${seRow(tr('stage_fa'),badge(v,'fa'))}
+        ${seRow(v.stage2Type==='deposit'?tr('stage_deposit'):tr('stage_vl'),badge(v,'stage2'))}
+        ${seRow(tr('stage_payment'),badge(v,'cigas'))}
       </tbody></table>`;
   } else if(cat.hasSubSubs){
     // Grouped by parent sub → sub-sub-cat table
     const byParent={};
-    cv.forEach(v=>{const k=v.subCategory||'';if(!byParent[k])byParent[k]={name:v.subCategoryName,items:[]};byParent[k].items.push(v);});
+    cv.forEach(v=>{const k=v.subCategory||'';if(!byParent[k])byParent[k]={items:[]};byParent[k].items.push(v);});
     cat.subs.forEach(sub=>{
       const grp=byParent[sub.id];if(!grp||!grp.items.length)return;
-      html+=`<div class="grp-hdr">${sub.name}</div>
+      html+=`<div class="grp-hdr">${subName(sub)}</div>
         <div class="tbl-scroll"><table class="m-table">
-          <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
+          <thead><tr><th style="width:28px">#</th><th>${tr('tbl_subcat')}</th><th>${tr('tbl_fa')}</th><th>${s2Hdr}</th><th>${tr('tbl_payment')}</th></tr></thead>
           <tbody>`;
       grp.items.forEach((v,i)=>{
-        html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subSubCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+        const ssName = liveSubSubName(v.subCategory, v.subSubCategory, v.subSubCategoryName);
+        html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${ssName}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
       });
       html+='</tbody></table></div>';
     });
   } else {
     // Regular sub-cat table
     html=`<div class="tbl-scroll"><table class="m-table">
-      <thead><tr><th style="width:28px">#</th><th>Sub-category</th><th>FA</th><th>${cat.s2==='deposit'?'Deposit':'VL'}</th><th>Payment</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>${tr('tbl_subcat')}</th><th>${tr('tbl_fa')}</th><th>${s2Hdr}</th><th>${tr('tbl_payment')}</th></tr></thead>
       <tbody>`;
     cv.forEach((v,i)=>{
-      html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${v.subCategoryName||'—'}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
+      const sName = liveSubName(v.subCategory, v.subCategoryName);
+      html+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="font-weight:500">${sName}</td><td>${badge(v,'fa')}</td><td>${badge(v,'stage2')}</td><td>${badge(v,'cigas')}</td></tr>`;
     });
     html+='</tbody></table></div>';
   }
@@ -1005,9 +1154,9 @@ function badge(v,stage){
   }
 
   const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an'};
-  const lblMap={pending:'Pending',received:'✓ Received',paid:'✓ Paid',alloc_insufficient:'⚠ Alloc. Not Enough',alloc_not_received:'⚠ Alloc. Not Received'};
+  const lblMap={pending:tr('badge_pending'),received:tr('badge_received'),paid:tr('badge_paid'),alloc_insufficient:tr('badge_allocNotEnough'),alloc_not_received:tr('badge_allocNotReceived')};
   const cls=clsMap[status]||'s-pend';
-  const lbl=lblMap[status]||'Pending';
+  const lbl=lblMap[status]||tr('badge_pending');
 
   let timePart='',byPart='';
   if(at){
@@ -1028,7 +1177,7 @@ let wfOpenCat = null;
 function renderWorkflow(){
   if(!meData || meData.role==='viewer') return;
   const role = meData.role;
-  const periodStr = `${MONTHS[selMonth-1]} ${selYear}`;
+  const periodStr = `${monthName(selMonth-1)} ${selYear}`;
 
   // Filter by role & workflow stage logic
   let items = [];
@@ -1050,17 +1199,17 @@ function renderWorkflow(){
     items = vouchers.filter(v => v.cigasStatus!=='paid');
   }
 
-  const titleMap = {fa:'FA Check',vl:'Vote Ledger',deposit:'Deposit Ledger',superadmin:'Super Admin — All Stages'};
+  const titleMap = {fa:tr('stage_fa'),vl:tr('stage_vl'),deposit:tr('stage_deposit'),superadmin:tr('wf_superadmin')};
   const wfTitle = document.getElementById('wfTitle');
   const wfCount = document.getElementById('wfCount');
-  if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — Pending · ${periodStr}`;
+  if(wfTitle) wfTitle.textContent = `${titleMap[role]||role} — ${tr('wf_pendingSuffix')} · ${periodStr}`;
   if(wfCount) wfCount.textContent = items.length;
 
   const acc = document.getElementById('wfAccordion');
   if(!acc) return;
 
   if(!items.length){
-    acc.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All done for ${periodStr}!</div><p class="empty-hint">No pending items for your role this month.</p></div>`;
+    acc.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">${tr('wf_allDone')} ${periodStr}!</div><p class="empty-hint">${tr('wf_noPending')}</p></div>`;
     return;
   }
 
@@ -1080,23 +1229,23 @@ function renderWorkflow(){
       const pendFA  = cv.filter(v=>v.faStatus!=='received').length;
       const flags   = flagCount;
       const pendPay = cv.filter(v=>v.cigasStatus!=='paid').length;
-      if(pendFA)  pills += `<span class="wf-pend-pill">FA: ${pendFA}</span>`;
+      if(pendFA)  pills += `<span class="wf-pend-pill">${tr('wf_faShort')}: ${pendFA}</span>`;
       if(flags)   pills += `<span class="wf-flag-pill">⚠ ${flags}</span>`;
-      if(pendPay) pills += `<span class="wf-pend-pill">Pay: ${pendPay}</span>`;
+      if(pendPay) pills += `<span class="wf-pend-pill">${tr('wf_paymentShort')}: ${pendPay}</span>`;
     } else {
-      if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} Pending</span>`;
-      if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} Flagged</span>`;
+      if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} ${tr('pill_pending')}</span>`;
+      if(flagCount) pills += `<span class="wf-flag-pill">⚠ ${flagCount} ${tr('wf_flagged')}</span>`;
     }
     html += `<div class="wf-cat-block" id="wfblock_${cat.id}">
       <div class="wf-cat-hdr${isOpen?' open':''}" onclick="toggleWfCat('${cat.id}')">
         <div class="wf-cat-hdr-l">
           <span class="wf-cat-arrow${isOpen?' open':''}">▶</span>
-          <span class="wf-cat-label">${cat.name}</span>
+          <span class="wf-cat-label">${catName(cat)}</span>
         </div>
         <div class="wf-cat-hdr-r">${pills}</div>
       </div>
       <div class="wf-cat-body${isOpen?' open':''}" id="wfbody_${cat.id}">
-        ${buildWfItems(cv, role)}
+        ${buildWfItems(cv, role, cat)}
       </div>
     </div>`;
   });
@@ -1117,59 +1266,70 @@ function toggleWfCat(catId){
   });
 }
 
-function buildWfItems(cv, role){
+function buildWfItems(cv, role, cat){
   let html = '';
   cv.forEach(v => {
     const isFlagged = v.stage2Status==='alloc_insufficient' || v.stage2Status==='alloc_not_received';
-    const name  = v.subSubCategoryName || v.subCategoryName || v.categoryName;
-    const sub   = v.subSubCategoryName ? (v.subCategoryName||'') : '';
+
+    // Live (translatable) name lookup, falling back to the stored snapshot name
+    let name, sub='';
+    const subObj = (cat && cat.subs) ? cat.subs.find(s=>s.id===v.subCategory) : null;
+    if (v.subSubCategory && subObj && subObj.subSubs) {
+      const ssObj = subObj.subSubs.find(x=>x.id===v.subSubCategory);
+      name = ssObj ? subName(ssObj) : (v.subSubCategoryName || v.categoryName);
+      sub  = subObj ? subName(subObj) : (v.subCategoryName || '');
+    } else if (v.subCategory && subObj) {
+      name = subName(subObj);
+    } else if (v.subCategoryName || v.subSubCategoryName) {
+      name = v.subSubCategoryName || v.subCategoryName;
+    } else {
+      name = catName(cat);
+    }
+
     let flagHtml = '';
     if(isFlagged){
       const cls = v.stage2Status==='alloc_insufficient'?'ai':'an';
-      const lbl = v.stage2Status==='alloc_insufficient'?'⚠ Alloc. Not Enough':'⚠ Alloc. Not Received';
+      const lbl = v.stage2Status==='alloc_insufficient'?tr('badge_allocNotEnough'):tr('badge_allocNotReceived');
       flagHtml = `<span class="wf-item-flag ${cls}">${lbl}</span>`;
     }
     let actions = '';
     if(role==='fa'){
-      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">✓ Received</button>`;
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">${tr('badge_received')}</button>`;
     } else if(role==='vl'){
       if(isFlagged){
-        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Mark OK</button>
-                   <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">↩ Reset</button>`;
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${tr('wf_markOk')}</button>
+                   <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${tr('wf_reset')}</button>`;
       } else {
-        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>
-                   <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">⚠ Not Enough</button>
-                   <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">⚠ Not Received</button>`;
+        actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${tr('badge_received')}</button>
+                   <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">${tr('wf_notEnough')}</button>
+                   <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${tr('wf_notReceived')}</button>`;
       }
     } else if(role==='deposit'){
-      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">✓ Received</button>`;
+      actions = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${tr('badge_received')}</button>`;
     } else if(role==='superadmin'){
       // FA stage buttons
       const faStatus = v.faStatus||'pending';
       const faBtn = faStatus==='received'
-        ? `<button class="bwf rst" onclick="doUpdate('${v.id}','fa','pending')">FA: ↩ Reset</button>`
-        : `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">FA: ✓ Received</button>`;
+        ? `<button class="bwf rst" onclick="doUpdate('${v.id}','fa','pending')">${tr('wf_faShort')}: ${tr('wf_reset')}</button>`
+        : `<button class="bwf recv" onclick="doUpdate('${v.id}','fa','received')">${tr('wf_faShort')}: ${tr('badge_received')}</button>`;
 
       // Stage2 buttons (VL or Deposit)
       const s2Status = v.stage2Status||'pending';
-      const s2Label = v.stage2Type==='deposit' ? 'Dep' : 'VL';
+      const s2Label = v.stage2Type==='deposit' ? tr('tbl_deposit') : tr('tbl_vl');
       let s2Btns = '';
       if(s2Status==='received'){
-        s2Btns = `<button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
-      } else if(s2Status==='alloc_insufficient'){
-        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
-                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
-      } else if(s2Status==='alloc_not_received'){
-        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ OK</button>
-                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ↩ Reset</button>`;
+        s2Btns = `<button class="bwf rst" onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ${tr('wf_reset')}</button>`;
+      } else if(s2Status==='alloc_insufficient' || s2Status==='alloc_not_received'){
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ${tr('wf_markOk')}</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','stage2','pending')">${s2Label}: ${tr('wf_reset')}</button>`;
       } else {
-        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ✓ Received</button>
-                  <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">${s2Label}: ⚠ Not Enough</button>
-                  <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${s2Label}: ⚠ Not Received</button>`;
+        s2Btns = `<button class="bwf recv" onclick="doUpdate('${v.id}','stage2','received')">${s2Label}: ${tr('badge_received')}</button>
+                  <button class="bwf ai"   onclick="doUpdate('${v.id}','stage2','alloc_insufficient')">${s2Label}: ${tr('wf_notEnough')}</button>
+                  <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${s2Label}: ${tr('wf_notReceived')}</button>`;
       }
 
       // CIGAS payment button
-      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">💰 Mark Paid</button>`;
+      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">${tr('wf_markPaid')}</button>`;
 
       actions = faBtn + s2Btns + payBtn;
     }
@@ -1177,15 +1337,15 @@ function buildWfItems(cv, role){
     if(role==='superadmin'){
       const faOk   = v.faStatus==='received';
       const s2Stat = v.stage2Status||'pending';
-      const s2Lbl  = s2Stat==='received'?'✓':s2Stat==='alloc_insufficient'?'⚠ Not Enough':s2Stat==='alloc_not_received'?'⚠ Not Received':'Pending';
+      const s2Lbl  = s2Stat==='received'?'✓':s2Stat==='alloc_insufficient'?tr('wf_notEnough'):s2Stat==='alloc_not_received'?tr('wf_notReceived'):tr('badge_pending');
       const s2Clr  = s2Stat==='received'?'#065F46':s2Stat.startsWith('alloc')?'#92400E':'#6B5E52';
-      const payLbl = v.cigasStatus==='paid'?'✓ Paid':'Pending';
+      const payLbl = v.cigasStatus==='paid'?tr('badge_paid'):tr('badge_pending');
       const payClr = v.cigasStatus==='paid'?'#065F46':'#6B5E52';
-      const s2Name = v.stage2Type==='deposit'?'Dep':'VL';
+      const s2Name = v.stage2Type==='deposit'?tr('tbl_deposit'):tr('tbl_vl');
       stageInfo = `<div style="font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap">
-        <span>FA: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?'✓ Received':'Pending'}</b></span>
+        <span>${tr('wf_faShort')}: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?tr('badge_received'):tr('badge_pending')}</b></span>
         <span>${s2Name}: <b style="color:${s2Clr}">${s2Lbl}</b></span>
-        <span>Pay: <b style="color:${payClr}">${payLbl}</b></span>
+        <span>${tr('wf_paymentShort')}: <b style="color:${payClr}">${payLbl}</b></span>
       </div>`;
     }
     html += `<div class="wf-item${isFlagged?' flagged':''}">
@@ -1231,6 +1391,7 @@ async function loadCustomCats(){
       const cat = {
         id: cc.id,
         name: cc.name,
+        nameSi: cc.nameSi || '',
         s2: cc.stage2Type,
         isCustom: true,
         subs: cc.subType==='none' ? null
@@ -1267,10 +1428,12 @@ function onNewCatSubTypeChange(){
 }
 function addNewCatSub(){
   const inp = document.getElementById('newCatSubInput');
+  const inpSi = document.getElementById('newCatSubInputSi');
   const name = inp.value.trim(); if(!name) return;
+  const nameSi = inpSi ? inpSi.value.trim() : '';
   const id = 'sub_' + Date.now();
-  newCatSubs.push({id, name});
-  inp.value='';
+  newCatSubs.push({id, name, nameSi});
+  inp.value=''; if(inpSi) inpSi.value='';
   renderNewCatSubsList();
 }
 function removeNewCatSub(id){
@@ -1279,15 +1442,17 @@ function removeNewCatSub(id){
 }
 function renderNewCatSubsList(){
   document.getElementById('newCatSubsList').innerHTML =
-    newCatSubs.map(s=>`<div class="sc-item"><span>${s.name}</span><button class="btn-del" onclick="removeNewCatSub('${s.id}')">×</button></div>`).join('') ||
+    newCatSubs.map(s=>`<div class="sc-item"><span>${s.name}${s.nameSi?' / '+s.nameSi:''}</span><button class="btn-del" onclick="removeNewCatSub('${s.id}')">×</button></div>`).join('') ||
     '<div style="font-size:11px;color:#bbb;padding:4px 0">No sub-categories yet</div>';
 }
 function addNewCatGroup(){
   const inp = document.getElementById('newCatGroupInput');
+  const inpSi = document.getElementById('newCatGroupInputSi');
   const name = inp.value.trim(); if(!name) return;
+  const nameSi = inpSi ? inpSi.value.trim() : '';
   const id = 'grp_' + Date.now();
-  newCatGroups.push({id, name});
-  inp.value='';
+  newCatGroups.push({id, name, nameSi});
+  inp.value=''; if(inpSi) inpSi.value='';
   renderNewCatGroupsList();
 }
 function removeNewCatGroup(id){
@@ -1296,12 +1461,13 @@ function removeNewCatGroup(id){
 }
 function renderNewCatGroupsList(){
   document.getElementById('newCatGroupsList').innerHTML =
-    newCatGroups.map(g=>`<div class="sc-item"><span>${g.name}</span><button class="btn-del" onclick="removeNewCatGroup('${g.id}')">×</button></div>`).join('') ||
+    newCatGroups.map(g=>`<div class="sc-item"><span>${g.name}${g.nameSi?' / '+g.nameSi:''}</span><button class="btn-del" onclick="removeNewCatGroup('${g.id}')">×</button></div>`).join('') ||
     '<div style="font-size:11px;color:#bbb;padding:4px 0">No groups yet</div>';
 }
 
 async function saveNewCategory(){
   const name     = document.getElementById('newCatName').value.trim();
+  const nameSi   = document.getElementById('newCatNameSi').value.trim();
   const stage2   = document.getElementById('newCatStage2').value;
   const subType  = document.getElementById('newCatSubType').value;
   if(!name){ toast('Please enter a category name.',true); return; }
@@ -1312,6 +1478,7 @@ async function saveNewCategory(){
     const order = 1000 + customCats.length;
     const data = { name, stage2Type:stage2, subType, order,
       createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+    if(nameSi) data.nameSi = nameSi;
     if(subType==='subs')    data.subs   = newCatSubs;
     if(subType==='subsubs') data.groups = newCatGroups;
 
@@ -1320,6 +1487,7 @@ async function saveNewCategory(){
 
     // Reset form
     document.getElementById('newCatName').value='';
+    document.getElementById('newCatNameSi').value='';
     document.getElementById('newCatSubType').value='none';
     onNewCatSubTypeChange();
     newCatSubs=[]; newCatGroups=[];
@@ -1362,7 +1530,7 @@ function renderCustomCatList(){
   el.innerHTML = customCats.map(cc=>`
     <div class="sc-item" style="padding:10px 12px;align-items:flex-start;flex-direction:column;gap:4px">
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-        <span style="font-weight:700;font-size:13px;color:var(--maroon)">${cc.name}</span>
+        <span style="font-weight:700;font-size:13px;color:var(--maroon)">${cc.name}${cc.nameSi?' <span style="color:var(--muted);font-weight:500">/ '+cc.nameSi+'</span>':''}</span>
         <button class="btn-del" style="font-size:18px" onclick="deleteCustomCat('${cc.id}','${cc.name.replace(/'/g,"\\'")}')">×</button>
       </div>
       <div style="font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap">
@@ -1375,20 +1543,19 @@ function renderCustomCatList(){
     </div>`).join('');
 }
 
-// Update sscCatSel to include custom subsubs categories
+// Populate sscCatSel with custom subsubs categories (no built-ins remain)
 function updateSscCatOptions(){
   const sel = document.getElementById('sscCatSel');
   if(!sel) return;
-  // Remove old custom options
-  Array.from(sel.options).filter(o=>o.dataset.custom).forEach(o=>o.remove());
-  // Add custom subsubs cats
-  customCats.filter(cc=>cc.subType==='subsubs').forEach(cc=>{
-    const opt = document.createElement('option');
-    opt.value = cc.id;
-    opt.textContent = cc.name;
-    opt.dataset.custom = '1';
-    sel.appendChild(opt);
-  });
+  const subsubCats = customCats.filter(cc=>cc.subType==='subsubs');
+  if(!subsubCats.length){
+    sel.innerHTML = `<option value="">${tr('no_subsub_cats')}</option>`;
+    document.getElementById('sscParentSel').innerHTML='';
+    document.getElementById('sscList').innerHTML='<div style="color:#bbb;font-size:11px;padding:6px 0">Create a category with "Sub-sub-category structure" above first.</div>';
+    return;
+  }
+  sel.innerHTML = subsubCats.map(cc=>`<option value="${cc.id}">${cc.name}</option>`).join('');
+  updateSscParents();
 }
 
 // Update delete category dropdown to include custom cats
