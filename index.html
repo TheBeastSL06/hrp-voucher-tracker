@@ -84,6 +84,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .cp{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid;}
 .cp.paid{background:var(--paid-bg);color:var(--paid-txt);border-color:var(--paid-bdr);}
 .cp.alloc{background:var(--ai-bg);color:var(--ai-txt);border-color:var(--ai-bdr);}
+.cp.imprest{background:var(--an-bg);color:var(--an-txt);border-color:var(--an-bdr);}
 .cp.prog{background:var(--recv-bg);color:var(--recv-txt);border-color:var(--recv-bdr);}
 .cp.pend{background:var(--pend-bg);color:var(--pend-txt);border-color:var(--pend-bdr);}
 
@@ -725,7 +726,9 @@ const I18N = {
     stage_fa:'FA Check', stage_vl:'Vote Ledger', stage_deposit:'Deposit Ledger', stage_payment:'Payment (CIGAS)',
     badge_pending:'Pending', badge_received:'✓ Received', badge_paid:'✓ Paid',
     badge_allocNotEnough:'⚠ Alloc. Not Enough', badge_allocNotReceived:'⚠ Alloc. Not Received',
+    badge_inProcess:'In Process', badge_imprestNotReceived:'⚠ Imprest Not Received',
     pill_paid:'Paid', pill_inProgress:'In Progress', pill_pending:'Pending', pill_allocIssue:'Alloc. Issue',
+    pill_imprestIssue:'Imprest Issue',
     wf_superadmin:'Super Admin — All Stages', wf_pendingSuffix:'Pending',
     wf_allDone:'All done for', wf_noPending:'No pending items for your role this month.',
     no_subsub_cats:'— No sub-sub-category structures yet —',
@@ -734,6 +737,7 @@ const I18N = {
     wf_flagged:'Flagged', wf_faShort:'FA', wf_paymentShort:'Pay',
     wf_markOk:'✓ Mark OK', wf_reset:'↩ Reset', wf_notEnough:'⚠ Not Enough', wf_notReceived:'⚠ Not Received',
     wf_markPaid:'💰 Mark Paid',
+    wf_inProcess:'📥 In Process', wf_imprestFlag:'⚠ Imprest N/A', wf_imprestResolved:'✓ Imprest Received',
     unit_entry:'entry', unit_entries:'entries',
   },
   si: {
@@ -745,7 +749,9 @@ const I18N = {
     stage_fa:'මුදල් සහකාර පරීක්ෂාව', stage_vl:'වැය ලේජරය', stage_deposit:'තැන්පතු ලේජරය', stage_payment:'ගෙවීම් (CIGAS)',
     badge_pending:'ඉදිරිපත් වී නැත', badge_received:'✓ ලැබී ඇත', badge_paid:'✓ ගෙවා ඇත',
     badge_allocNotEnough:'⚠ ප්‍රතිපාදන ප්‍රමාණවත් නොවේ', badge_allocNotReceived:'⚠ ප්‍රතිපාදන ලැබී නොමැත',
+    badge_inProcess:'ඉදිරිපත් වී ඇත', badge_imprestNotReceived:'⚠ අක්මුදල් ලබාදී නැත',
     pill_paid:'ගෙවා ඇත', pill_inProgress:'ක්‍රියාත්මක වෙමින්', pill_pending:'ඉදිරිපත් වී නැති', pill_allocIssue:'ප්‍රතිපාදන ගැටළුව',
+    pill_imprestIssue:'අක්මුදල් ගැටළුව',
     wf_superadmin:'අධිපති පරිපාලක — සියලු අදියර්', wf_pendingSuffix:'ඉදිරිපත් වී නැති',
     wf_allDone:'සියල්ල අවසන් කර ඇත —', wf_noPending:'මෙම මාසය සඳහා ඔබේ භූමිකාවට ඉදිරිපත් වී නැති කාර්යයන් නොමැත.',
     no_subsub_cats:'— තවම උප-උප-වර්ග ව්‍යුහයන් නොමැත —',
@@ -754,6 +760,7 @@ const I18N = {
     wf_flagged:'සංඥා කළ', wf_faShort:'FA', wf_paymentShort:'ගෙවීම',
     wf_markOk:'✓ නිවැරදියි', wf_reset:'↩ යථා තත්ත්වයට', wf_notEnough:'⚠ ප්‍රමාණවත් නොවේ', wf_notReceived:'⚠ ලැබී නොමැත',
     wf_markPaid:'💰 ගෙවා ඇත',
+    wf_inProcess:'📥 ඉදිරිපත් වී ඇත', wf_imprestFlag:'⚠ අක්මුදල් නැත', wf_imprestResolved:'✓ අක්මුදල් ලැබුණි',
     unit_entry:'වවුචරය', unit_entries:'වවුචර්',
   }
 };
@@ -1114,7 +1121,7 @@ function renderDash(){
   document.getElementById('stTotal').textContent=vouchers.length;
   document.getElementById('stFA').textContent   =vouchers.filter(v=>v.faStatus==='pending').length;
   document.getElementById('stVL').textContent   =vouchers.filter(v=>v.stage2Status==='pending'||v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
-  document.getElementById('stPay').textContent  =vouchers.filter(v=>v.cigasStatus==='pending').length;
+  document.getElementById('stPay').textContent  =vouchers.filter(v=>v.cigasStatus!=='paid').length;
   document.getElementById('stPaid').textContent =vouchers.filter(v=>v.cigasStatus==='paid').length;
 
   if(!vouchers.length){
@@ -1131,12 +1138,14 @@ function renderDash(){
     if(!cv.length)return;
     const paid=cv.filter(v=>v.cigasStatus==='paid').length;
     const allocIssue=cv.filter(v=>v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
-    const inProg=cv.filter(v=>v.cigasStatus!=='paid'&&(v.faStatus==='received'||v.stage2Status==='received')&&v.stage2Status!=='alloc_insufficient'&&v.stage2Status!=='alloc_not_received').length;
-    const pend=cv.length-paid-allocIssue-inProg;
+    const imprestIssue=cv.filter(v=>v.cigasStatus==='imprest_not_received').length;
+    const inProg=cv.filter(v=>v.cigasStatus!=='paid'&&v.cigasStatus!=='imprest_not_received'&&(v.faStatus==='received'||v.stage2Status==='received')&&v.stage2Status!=='alloc_insufficient'&&v.stage2Status!=='alloc_not_received').length;
+    const pend=cv.length-paid-allocIssue-imprestIssue-inProg;
     const pct=Math.round((paid/cv.length)*100);
     let pills='';
     if(paid)       pills+=`<span class="cp paid">✓ ${paid} ${tr('pill_paid')}</span>`;
     if(allocIssue) pills+=`<span class="cp alloc">⚠ ${allocIssue} ${tr('pill_allocIssue')}</span>`;
+    if(imprestIssue) pills+=`<span class="cp imprest">⚠ ${imprestIssue} ${tr('pill_imprestIssue')}</span>`;
     if(inProg)     pills+=`<span class="cp prog">${inProg} ${tr('pill_inProgress')}</span>`;
     if(pend)       pills+=`<span class="cp pend">${pend} ${tr('pill_pending')}</span>`;
     html+=`<div class="cat-card" onclick="openCatModal('${cat.id}')">
@@ -1257,12 +1266,15 @@ function badge(v,stage){
     // Alloc flags: clickable to reset to pending only
   } else {
     status=v.cigasStatus||'pending';at=v.cigasAt;by=v.cigasBy;
-    next=status==='pending'?'paid':'pending';
+    if(status==='pending') next='in_process';
+    else if(status==='in_process') next='paid';
+    else if(status==='imprest_not_received') next='in_process';
+    else next='pending';
     canClick=meData&&meData.role==='superadmin';
   }
 
-  const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an'};
-  const lblMap={pending:tr('badge_pending'),received:tr('badge_received'),paid:tr('badge_paid'),alloc_insufficient:tr('badge_allocNotEnough'),alloc_not_received:tr('badge_allocNotReceived')};
+  const clsMap={pending:'s-pend',received:'s-recv',paid:'s-paid',alloc_insufficient:'s-ai',alloc_not_received:'s-an',in_process:'s-recv',imprest_not_received:'s-an'};
+  const lblMap={pending:tr('badge_pending'),received:tr('badge_received'),paid:tr('badge_paid'),alloc_insufficient:tr('badge_allocNotEnough'),alloc_not_received:tr('badge_allocNotReceived'),in_process:tr('badge_inProcess'),imprest_not_received:tr('badge_imprestNotReceived')};
   const cls=clsMap[status]||'s-pend';
   const lbl=lblMap[status]||tr('badge_pending');
 
@@ -1330,6 +1342,7 @@ function renderWorkflow(){
     const cv = bycat[cat.id];
     if(!cv || !cv.length) return;
     const flagCount = cv.filter(v => v.stage2Status==='alloc_insufficient'||v.stage2Status==='alloc_not_received').length;
+    const imprestCount = cv.filter(v => v.cigasStatus==='imprest_not_received').length;
     const pendCount = cv.length - flagCount;
     const isOpen = wfOpenCat === cat.id;
     let pills = '';
@@ -1339,6 +1352,7 @@ function renderWorkflow(){
       const pendPay = cv.filter(v=>v.cigasStatus!=='paid').length;
       if(pendFA)  pills += `<span class="wf-pend-pill">${tr('wf_faShort')}: ${pendFA}</span>`;
       if(flags)   pills += `<span class="wf-flag-pill">⚠ ${flags}</span>`;
+      if(imprestCount) pills += `<span class="wf-flag-pill">${tr('wf_paymentShort')} ⚠ ${imprestCount}</span>`;
       if(pendPay) pills += `<span class="wf-pend-pill">${tr('wf_paymentShort')}: ${pendPay}</span>`;
     } else {
       if(pendCount) pills += `<span class="wf-pend-pill">${pendCount} ${tr('pill_pending')}</span>`;
@@ -1378,6 +1392,7 @@ function buildWfItems(cv, role, cat){
   let html = '';
   cv.forEach(v => {
     const isFlagged = v.stage2Status==='alloc_insufficient' || v.stage2Status==='alloc_not_received';
+    const isImprestFlagged = v.cigasStatus==='imprest_not_received';
 
     // Live (translatable) name lookup, falling back to the stored snapshot name
     let name, sub='';
@@ -1398,7 +1413,10 @@ function buildWfItems(cv, role, cat){
     if(isFlagged){
       const cls = v.stage2Status==='alloc_insufficient'?'ai':'an';
       const lbl = v.stage2Status==='alloc_insufficient'?tr('badge_allocNotEnough'):tr('badge_allocNotReceived');
-      flagHtml = `<span class="wf-item-flag ${cls}">${lbl}</span>`;
+      flagHtml += `<span class="wf-item-flag ${cls}">${lbl}</span>`;
+    }
+    if(isImprestFlagged){
+      flagHtml += `<span class="wf-item-flag an">${tr('badge_imprestNotReceived')}</span>`;
     }
     let actions = '';
     if(role==='fa'){
@@ -1436,8 +1454,19 @@ function buildWfItems(cv, role, cat){
                   <button class="bwf an"   onclick="doUpdate('${v.id}','stage2','alloc_not_received')">${s2Label}: ${tr('wf_notReceived')}</button>`;
       }
 
-      // CIGAS payment button
-      const payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">${tr('wf_markPaid')}</button>`;
+      // CIGAS payment buttons (4-state workflow)
+      const cigasStat = v.cigasStatus || 'pending';
+      let payBtn = '';
+      if(cigasStat==='pending'){
+        payBtn = `<button class="bwf recv" onclick="doUpdate('${v.id}','cigas','in_process')">${tr('wf_paymentShort')}: ${tr('wf_inProcess')}</button>
+                  <button class="bwf an"   onclick="doUpdate('${v.id}','cigas','imprest_not_received')">${tr('wf_paymentShort')}: ${tr('wf_imprestFlag')}</button>`;
+      } else if(cigasStat==='in_process'){
+        payBtn = `<button class="bwf paid" onclick="doUpdate('${v.id}','cigas','paid')">${tr('wf_markPaid')}</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','cigas','pending')">${tr('wf_paymentShort')}: ${tr('wf_reset')}</button>`;
+      } else if(cigasStat==='imprest_not_received'){
+        payBtn = `<button class="bwf recv" onclick="doUpdate('${v.id}','cigas','in_process')">${tr('wf_imprestResolved')}</button>
+                  <button class="bwf rst"  onclick="doUpdate('${v.id}','cigas','pending')">${tr('wf_paymentShort')}: ${tr('wf_reset')}</button>`;
+      } // 'paid' → no buttons here (paid vouchers are filtered out of this list; reset via Dashboard category badge)
 
       actions = faBtn + s2Btns + payBtn;
     }
@@ -1447,8 +1476,9 @@ function buildWfItems(cv, role, cat){
       const s2Stat = v.stage2Status||'pending';
       const s2Lbl  = s2Stat==='received'?'✓':s2Stat==='alloc_insufficient'?tr('wf_notEnough'):s2Stat==='alloc_not_received'?tr('wf_notReceived'):tr('badge_pending');
       const s2Clr  = s2Stat==='received'?'#065F46':s2Stat.startsWith('alloc')?'#92400E':'#6B5E52';
-      const payLbl = v.cigasStatus==='paid'?tr('badge_paid'):tr('badge_pending');
-      const payClr = v.cigasStatus==='paid'?'#065F46':'#6B5E52';
+      const cigasStat2 = v.cigasStatus||'pending';
+      const payLbl = cigasStat2==='paid'?tr('badge_paid'):cigasStat2==='in_process'?tr('badge_inProcess'):cigasStat2==='imprest_not_received'?tr('badge_imprestNotReceived'):tr('badge_pending');
+      const payClr = cigasStat2==='paid'?'#065F46':cigasStat2==='in_process'?'#1E40AF':cigasStat2==='imprest_not_received'?'#9A3412':'#6B5E52';
       const s2Name = v.stage2Type==='deposit'?tr('tbl_deposit'):tr('tbl_vl');
       stageInfo = `<div style="font-size:10px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap">
         <span>${tr('wf_faShort')}: <b style="color:${faOk?'#065F46':'#6B5E52'}">${faOk?tr('badge_received'):tr('badge_pending')}</b></span>
@@ -1456,7 +1486,7 @@ function buildWfItems(cv, role, cat){
         <span>${tr('wf_paymentShort')}: <b style="color:${payClr}">${payLbl}</b></span>
       </div>`;
     }
-    html += `<div class="wf-item${isFlagged?' flagged':''}">
+    html += `<div class="wf-item${(isFlagged||isImprestFlagged)?' flagged':''}">
       <div class="wf-item-info">
         <div class="wf-item-name">${name}</div>
         ${sub?`<div class="wf-item-sub">${sub}</div>`:''}
@@ -1832,7 +1862,8 @@ async function generatePDF(){
 
   // ── SUMMARY TABLE ──
   const paid   =vouchers.filter(v=>v.cigasStatus==='paid').length;
-  const pendPay=vouchers.filter(v=>v.cigasStatus==='pending').length;
+  const pendPay=vouchers.filter(v=>v.cigasStatus!=='paid').length;
+  const imprestNR=vouchers.filter(v=>v.cigasStatus==='imprest_not_received').length;
   const pendFA =vouchers.filter(v=>v.faStatus==='pending').length;
   const pendVL =vouchers.filter(v=>['pending','alloc_insufficient','alloc_not_received'].includes(v.stage2Status)).length;
   const allocI =vouchers.filter(v=>v.stage2Status==='alloc_insufficient').length;
@@ -1845,6 +1876,7 @@ async function generatePDF(){
       ['Total Vouchers',        vouchers.length],
       ['✓ Paid',                paid],
       ['Pending Payment (CIGAS)',pendPay],
+      ['⚠ Imprest Not Received',imprestNR],
       ['Pending FA',            pendFA],
       ['Pending VL / Deposit',  pendVL],
       ['⚠ Allocation Not Enough',  allocI],
@@ -1872,13 +1904,14 @@ async function generatePDF(){
 
   const fmtFA  =s=>s==='received'?'✓ Received':'Pending';
   const fmtS2  =v=>{const s=v.stage2Status||'pending';if(s==='received')return'✓ Received';if(s==='alloc_insufficient')return'⚠ Not Enough';if(s==='alloc_not_received')return'⚠ Not Received';return'Pending';};
-  const fmtPay =s=>s==='paid'?'✓ Paid':'Pending';
+  const fmtPay =s=>{if(s==='paid')return'✓ Paid';if(s==='in_process')return'In Process';if(s==='imprest_not_received')return'⚠ Imprest N/R';return'Pending';};
   const fmtTs  =ts=>{if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});};
 
   function cellColor(data){
     if(data.section!=='body')return;
     const txt=data.cell.text[0];
     if(txt==='✓ Received'||txt==='✓ Paid'){data.cell.styles.textColor=[6,95,70];data.cell.styles.fontStyle='bold';}
+    else if(txt==='In Process'){data.cell.styles.textColor=[30,64,175];data.cell.styles.fontStyle='bold';}
     else if(txt==='Pending'){data.cell.styles.textColor=[107,94,82];}
     else if(txt.startsWith('⚠')){data.cell.styles.textColor=[154,52,18];data.cell.styles.fontStyle='bold';}
   }
